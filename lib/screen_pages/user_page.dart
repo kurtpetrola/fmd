@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/pages/selection_page.dart';
-import '../dialog/alert_dialog.dart';
-import '../server/sqlite.dart';
+import 'package:findmydorm/dialog/alert_dialog.dart';
+import 'package:findmydorm/server/sqlite.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});

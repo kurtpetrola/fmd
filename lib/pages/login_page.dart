@@ -1,7 +1,7 @@
 import 'package:findmydorm/components/bottom_navbar.dart';
-import '../models/users.dart';
+import 'package:findmydorm/models/users.dart';
 import 'package:flutter/material.dart';
-import '../server/sqlite.dart';
+import 'package:findmydorm/server/sqlite.dart';
 import 'registration_page.dart';
 
 class LoginPage extends StatefulWidget {

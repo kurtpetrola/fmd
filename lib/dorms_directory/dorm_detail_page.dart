@@ -1,6 +1,6 @@
 // import 'package:findmydorm_mobile/pages/favorite_screen.dart';
 import 'package:flutter/material.dart';
-import '../maps_directory/maps_detail_page.dart';
+import 'package:findmydorm/maps_directory/maps_detail_page.dart';
 
 class DormDetailPage extends StatelessWidget {
   final String dormName;

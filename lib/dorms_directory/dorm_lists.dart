@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import '../maps_directory/maps_detail_page.dart';
-import '../maps_directory/maps_detail_page1.dart';
-import '../maps_directory/maps_detail_page2.dart';
-import '../maps_directory/maps_detail_page3.dart';
-import '../maps_directory/maps_detail_page4.dart';
-import '../maps_directory/maps_detail_page5.dart';
-import '../maps_directory/maps_detail_page6.dart';
-import '../maps_directory/maps_detail_page7.dart';
-import '../maps_directory/maps_detail_page8.dart';
-import '../maps_directory/maps_detail_page9.dart';
+import 'package:findmydorm/maps_directory/maps_detail_page.dart';
+import 'package:findmydorm/maps_directory/maps_detail_page1.dart';
+import 'package:findmydorm/maps_directory/maps_detail_page2.dart';
+import 'package:findmydorm/maps_directory/maps_detail_page3.dart';
+import 'package:findmydorm/maps_directory/maps_detail_page4.dart';
+import 'package:findmydorm/maps_directory/maps_detail_page5.dart';
+import 'package:findmydorm/maps_directory/maps_detail_page6.dart';
+import 'package:findmydorm/maps_directory/maps_detail_page7.dart';
+import 'package:findmydorm/maps_directory/maps_detail_page8.dart';
+import 'package:findmydorm/maps_directory/maps_detail_page9.dart';
 
 class DormList extends StatefulWidget {
   const DormList({Key? key}) : super(key: key);

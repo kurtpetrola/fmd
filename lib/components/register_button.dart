@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../pages/registration_page.dart';
+import 'package:findmydorm/pages/registration_page.dart';
 
 class RegisterButton extends StatelessWidget {
   final Function()? onTap;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
-import '../models/users.dart';
-import '../server/sqlite.dart';
+import 'package:findmydorm/models/users.dart';
+import 'package:findmydorm/server/sqlite.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);

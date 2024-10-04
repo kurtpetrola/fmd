@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../pages/login_page.dart';
+import 'package:findmydorm/pages/login_page.dart';
 
 class LoginButton extends StatelessWidget {
   final Function()? onTap;

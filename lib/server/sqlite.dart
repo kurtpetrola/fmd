@@ -1,6 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import '../models/users.dart';
+import 'package:findmydorm/models/users.dart';
 
 class DatabaseHelper {
   final databaseName = "fmd.db";
@@ -15,7 +15,7 @@ class DatabaseHelper {
   String dorms =
       "CREATE TABLE dorms (dormId INTEGER PRIMARY KEY AUTOINCREMENT,dormNumberINTEGER, dormName TEXT UNIQUE, dormLocation TEXT)";
 
-  //We are done in this section
+  // We are done in this section
 
   Future<Database> initDB() async {
     final databasePath = await getDatabasesPath();

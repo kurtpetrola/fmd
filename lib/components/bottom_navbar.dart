@@ -3,7 +3,7 @@ import 'package:findmydorm/screen_pages/home_page.dart';
 import 'package:findmydorm/screen_pages/user_page.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import '../dorms_directory/dorm_lists.dart';
+import 'package:findmydorm/dorms_directory/dorm_lists.dart';
 
 class HomeHolder extends StatefulWidget {
   const HomeHolder({super.key});
