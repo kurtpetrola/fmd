@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../pages/registration_page.dart';
+//import '../pages/registration_page.dart';
 
 class RegisterButton extends StatelessWidget {
   final Function()? onTap;
@@ -12,10 +12,10 @@ class RegisterButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (BuildContext context) => SignUpScreen()));
-      },
+      //onTap: () {
+      //Navigator.of(context).push(MaterialPageRoute(
+      //builder: (BuildContext context) => SignUpScreen()));
+      //},
       child: Container(
         padding: const EdgeInsets.all(15),
         margin: const EdgeInsets.symmetric(horizontal: 55),
