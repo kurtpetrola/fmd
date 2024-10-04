@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-//import '../pages/login_page.dart';
+import '../pages/login_page.dart';
 
 class LoginButton extends StatelessWidget {
   final Function()? onTap;
@@ -12,10 +12,10 @@ class LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      //onTap: () {
-      //Navigator.of(context).push(
-      //MaterialPageRoute(builder: (BuildContext context) => LoginPage()));
-      //},
+      onTap: () {
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (BuildContext context) => LoginPage()));
+      },
       child: Container(
         padding: const EdgeInsets.all(15),
         margin: const EdgeInsets.symmetric(horizontal: 55),
