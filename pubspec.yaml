@@ -10,21 +10,27 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # UI Widgets
   cupertino_icons: ^1.0.8
+  curved_navigation_bar: ^1.0.6
+  another_flutter_splash_screen: ^1.2.1
+
+  # UI Rendering & Mapping
+  flutter_map: ^6.2.1
+  open_street_map_search_and_pick: ^0.1.1
+  latlong2: ^0.9.1
+
+  # Core Functionality & Utilities
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   sqflite: ^2.3.3+1
   path: ^1.9.0
-  http: ^1.2.2
   path_provider: ^2.1.4
+  http: ^1.2.2
   intl: ^0.19.0
   snippet_coder_utils: ^1.0.15
-  curved_navigation_bar: ^1.0.6
+
   flutter_launcher_icons: ^0.13.1
-  another_flutter_splash_screen: ^1.2.1
-  open_street_map_search_and_pick: ^0.1.1
-  flutter_map: ^6.2.1
-  latlong2: ^0.9.1
 
 dev_dependencies:
   flutter_test:
