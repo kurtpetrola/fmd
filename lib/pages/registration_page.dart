@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart';
+import 'package:findmydorm/pages/login_page.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/server/sqlite.dart';
 
