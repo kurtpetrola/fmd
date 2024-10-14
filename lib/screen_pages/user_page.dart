@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/pages/selection_page.dart';
 import 'package:findmydorm/dialog/alert_dialog.dart';
@@ -32,7 +33,8 @@ class _UserState extends State<UserPage> {
             const SizedBox(height: 15),
             _buildUserInfo(),
             const SizedBox(height: 40),
-            _buildProfileOption('Account Settings', Icons.account_circle),
+            _buildProfileOption(
+                'Account Settings', Ionicons.person_circle_outline),
             // Uncomment this line to add the Notifications option
             // _buildProfileOption('Notifications', Icons.notifications),
             const SizedBox(height: 10),
@@ -47,8 +49,8 @@ class _UserState extends State<UserPage> {
 
   Widget _buildUserIcon() {
     return const Icon(
-      Icons.person,
-      size: 100,
+      Ionicons.person,
+      size: 80,
       color: Colors.amber,
     );
   }
@@ -57,7 +59,7 @@ class _UserState extends State<UserPage> {
     return Column(
       children: const [
         Text(
-          'FindMyDorm',
+          'Guest',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -65,7 +67,7 @@ class _UserState extends State<UserPage> {
           ),
         ),
         Text(
-          'findmydorm@gmail.com',
+          'Welcome to Find My Dorm',
           style: TextStyle(
             fontSize: 16,
             fontFamily: 'Lato',
@@ -113,7 +115,7 @@ class _UserState extends State<UserPage> {
           setState(() => tappedYes = false);
         }
       },
-      child: _buildProfileOption('Sign Out', Icons.exit_to_app_rounded),
+      child: _buildProfileOption('Sign Out', Ionicons.log_out_outline),
     );
   }
 }

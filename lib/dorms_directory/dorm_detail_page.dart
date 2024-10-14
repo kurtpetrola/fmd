@@ -1,6 +1,7 @@
 // import 'package:findmydorm_mobile/pages/favorite_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:findmydorm/maps_directory/maps_detail_page.dart';
+import 'package:ionicons/ionicons.dart';
 
 class DormDetailPage extends StatelessWidget {
   final String dormName;
@@ -61,8 +62,8 @@ class DormDetailPage extends StatelessWidget {
                 );
               },
               child: Icon(
-                Icons.map_rounded,
-                size: 60,
+                Ionicons.map,
+                size: 40,
                 color: Colors.amber,
               ),
               style: ButtonStyle(

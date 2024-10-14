@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/maps_directory/maps_detail_page.dart';
 import 'package:findmydorm/maps_directory/maps_detail_page1.dart';
 import 'package:findmydorm/maps_directory/maps_detail_page2.dart';
@@ -98,7 +99,7 @@ class _DormListState extends State<DormList> {
               onChanged: _runFilter,
               decoration: const InputDecoration(
                 labelText: 'Search',
-                suffixIcon: Icon(Icons.search),
+                suffixIcon: Icon(Ionicons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10.0)),
                 ),

@@ -4,6 +4,7 @@ import 'package:findmydorm/screen_pages/user_page.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:findmydorm/dorms_directory/dorm_lists.dart';
+import 'package:ionicons/ionicons.dart';
 
 class HomeHolder extends StatefulWidget {
   const HomeHolder({super.key});
@@ -26,15 +27,15 @@ class _HomeHolderState extends State<HomeHolder> {
         key: _navKey,
         items: [
           Icon(
-            (myIndex == 0) ? Icons.home : Icons.home_outlined,
+            (myIndex == 0) ? Ionicons.home : Ionicons.home_outline,
             color: Colors.white,
           ),
           Icon(
-            (myIndex == 1) ? Icons.favorite : Icons.favorite_border_outlined,
+            (myIndex == 1) ? Ionicons.heart : Ionicons.heart_outline,
             color: Colors.white,
           ),
           Icon(
-            (myIndex == 2) ? Icons.person : Icons.person_outline_sharp,
+            (myIndex == 2) ? Ionicons.person : Ionicons.person_outline,
             color: Colors.white,
           ),
         ],
