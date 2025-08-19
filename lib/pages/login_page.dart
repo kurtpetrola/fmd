@@ -94,7 +94,8 @@ class _LoginScreenState extends State<LoginPage> {
                       decoration: const InputDecoration(
                         icon: Icon(Icons.person),
                         border: InputBorder.none,
-                        hintText: "Username",
+                        //hintText: "Enter your username",
+                        labelText: 'Username',
                       ),
                     ),
                   ),
@@ -119,7 +120,8 @@ class _LoginScreenState extends State<LoginPage> {
                       decoration: InputDecoration(
                           icon: const Icon(Icons.lock),
                           border: InputBorder.none,
-                          hintText: "Password",
+                          labelText: 'Password',
+                          //hintText: "Enter your password",
                           suffixIcon: IconButton(
                               onPressed: () {
                                 //In here we will create a click to show and hide the password a toggle button
