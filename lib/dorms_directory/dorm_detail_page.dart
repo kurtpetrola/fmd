@@ -20,12 +20,10 @@ class DormDetailPage extends StatelessWidget {
         children: <Widget>[
           Container(
             height: MediaQuery.of(context).size.height * 0.5,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              image: DecorationImage(
-                image: AssetImage('assets/images/dorm.jpeg'),
-                fit: BoxFit.cover,
-              ),
+            width: double.infinity, // makes it stretch full width
+            child: Image.asset(
+              'assets/images/dorm.jpeg',
+              fit: BoxFit.cover, // makes it cover the whole space
             ),
           ),
           Expanded(
