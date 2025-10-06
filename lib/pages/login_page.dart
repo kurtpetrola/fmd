@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:findmydorm/server/sqlite.dart';
 import 'registration_page.dart';
 
+// Assuming HomeHolder and bottom_navbar.dart exist and are correct
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -12,42 +14,72 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginPage> {
-  //We need two text editing controller
-
-  //TextEditing controller to control the text when we enter into it
+  // We need two text editing controller
   final username = TextEditingController();
-  final email = TextEditingController();
+  final email =
+      TextEditingController(); // This controller is declared but NOT used in the UI below.
   final password = TextEditingController();
 
-  //A bool variable for show and hide password
+  // A bool variable for show and hide password
   bool isVisible = false;
 
-  //Here is our bool variable
+  // Here is our bool variable for error message
   bool isLoginTrue = false;
 
   final db = DatabaseHelper();
 
-  //Now we should call this function in login button
+  // Now we should call this function in login button
   login() async {
-    var response = await db.login(Users(
-        usrName: username.text,
-        usrEmail: email.text,
-        usrPassword: password.text));
-    if (response == true) {
-      //If login is correct, then goto notes
+    final enteredUsername = username.text;
+    final enteredPassword = password.text;
+
+    // 1. Check if the login is valid (using your existing boolean check logic)
+    // NOTE: Your current db.login expects a full Users object.
+    var isAuthenticated = await db.login(Users(
+      usrName: enteredUsername,
+      // Since email isn't collected on the UI, it's sent as an empty string.
+      usrEmail: email.text.trim(),
+      usrPassword: enteredPassword,
+    ));
+
+    if (isAuthenticated == true) {
+      // 2. If login is successful, retrieve the full Users object
+      Users? loggedInUser = await db.getUserByUsername(enteredUsername);
+
       if (!mounted) return;
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const HomeHolder()));
+
+      if (loggedInUser != null) {
+        // 3. Navigate and PASS THE REQUIRED 'currentUser'
+        // The HomeHolder now receives the user data, resolving the error.
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomeHolder(currentUser: loggedInUser)));
+      } else {
+        // Fallback error if authentication passed but user data couldn't be retrieved
+        setState(() {
+          isLoginTrue = true;
+        });
+      }
     } else {
-      //If not, true the bool value to show error message
+      // If not, true the bool value to show error message
       setState(() {
         isLoginTrue = true;
       });
     }
   }
 
-  //We have to create global key for our form
+  // We have to create global key for our form
   final formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    username.dispose();
+    email.dispose();
+    password.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +87,7 @@ class _LoginScreenState extends State<LoginPage> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(10.0),
-            //We put all our textfield to a form to be controlled and not allow as empty
+            // We put all our textfield to a form to be controlled and not allow as empty
             child: Form(
               key: formKey,
               child: Column(
@@ -67,7 +99,7 @@ class _LoginScreenState extends State<LoginPage> {
                     "assets/images/logo1.png",
                     height: 200,
                   ),
-                  Text(
+                  const Text(
                     'Find My Dorm',
                     style: TextStyle(
                         color: Colors.black,

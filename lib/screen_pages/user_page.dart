@@ -6,19 +6,31 @@ import 'package:findmydorm/dialog/alert_dialog.dart';
 import 'package:findmydorm/server/sqlite.dart';
 
 class UserPage extends StatefulWidget {
-  const UserPage({super.key});
+  // 1. Define a final variable to hold the Users object
+  final Users currentUser;
+
+  // 2. Require the Users object in the constructor
+  const UserPage({super.key, required this.currentUser});
 
   @override
   State<UserPage> createState() => _UserState();
 }
 
 class _UserState extends State<UserPage> {
+  // We no longer need Future<List<Users>> notes here unless you intend to
+  // display notes on this page, but we'll keep the handler for potential future use.
   late DatabaseHelper handler;
-  late Future<List<Users>> notes;
 
   DateTime backPressedTime = DateTime.now();
   String title = 'AlertDialog';
   bool tappedYes = false;
+
+  @override
+  void initState() {
+    super.initState();
+    handler = DatabaseHelper();
+    // The user data is now available via widget.currentUser
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +43,11 @@ class _UserState extends State<UserPage> {
             const SizedBox(height: 40),
             _buildUserIcon(),
             const SizedBox(height: 15),
-            _buildUserInfo(),
+            // 4. Pass the currentUser object to the info widget
+            _buildUserInfo(widget.currentUser),
             const SizedBox(height: 40),
             _buildProfileOption(
                 'Account Settings', Ionicons.person_circle_outline),
-            // Uncomment this line to add the Notifications option
-            // _buildProfileOption('Notifications', Icons.notifications),
             const SizedBox(height: 10),
             _buildSignOutOption(context),
             const SizedBox(height: 20),
@@ -55,20 +66,23 @@ class _UserState extends State<UserPage> {
     );
   }
 
-  Widget _buildUserInfo() {
+  // 3. Update the method signature to accept the Users object
+  Widget _buildUserInfo(Users user) {
     return Column(
-      children: const [
+      children: [
         Text(
-          'Guest',
-          style: TextStyle(
+          // Use the username from the passed Users object
+          user.usrName,
+          style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             fontFamily: 'Lato',
           ),
         ),
         Text(
-          'Welcome to Find My Dorm',
-          style: TextStyle(
+          // Optionally, display the email here
+          'Welcome to Find My Dorm, ${user.usrEmail}',
+          style: const TextStyle(
             fontSize: 16,
             fontFamily: 'Lato',
           ),
