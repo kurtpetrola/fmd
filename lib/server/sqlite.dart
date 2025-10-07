@@ -177,4 +177,22 @@ class DatabaseHelper {
       whereArgs: [user.usrId], // Ensure the correct user is updated
     );
   }
+
+  // Updates the user's password field in the database with a new hash.
+  Future<int> updatePassword(int userId, String newHashedPassword) async {
+    final Database db = await database;
+
+    // Create a map containing only the password field to update
+    final Map<String, dynamic> updateMap = {
+      'usrPassword': newHashedPassword,
+    };
+
+    // Update the row based on the user ID
+    return db.update(
+      'users',
+      updateMap,
+      where: 'usrId = ?',
+      whereArgs: [userId],
+    );
+  }
 }

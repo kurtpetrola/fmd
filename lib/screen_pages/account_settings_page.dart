@@ -1,9 +1,10 @@
 // account_settings_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart'; // Assuming you use ionicons
+import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/server/sqlite.dart';
+import 'package:findmydorm/screen_pages/change_password_page.dart';
 
 class AccountSettingsPage extends StatefulWidget {
   final Users user;
@@ -262,6 +263,25 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             widget.user.usrEmail,
             style: const TextStyle(fontSize: 16),
           ),
+        ),
+
+        const Divider(height: 30), // Separator
+
+        // NEW: Change Password Option
+        ListTile(
+          leading: const Icon(Ionicons.key_outline, color: Colors.deepPurple),
+          title: const Text(
+            'Change Password',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          trailing: const Icon(Ionicons.chevron_forward),
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ChangePasswordPage(user: widget.user),
+              ),
+            );
+          },
         ),
       ],
     );
