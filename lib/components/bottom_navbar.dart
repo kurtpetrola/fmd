@@ -1,17 +1,17 @@
-// import 'package:findmydorm_mobile/pages/favorite_screen.dart';
+// bottom_navbar.dart
+
 import 'package:findmydorm/screen_pages/home_page.dart';
 import 'package:findmydorm/screen_pages/user_page.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:findmydorm/dorms_directory/dorm_lists.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:findmydorm/models/users.dart'; // <--- Import your Users model
+import 'package:findmydorm/models/users.dart';
 
 class HomeHolder extends StatefulWidget {
-  // 1. Define the required currentUser field
+  // 1. The initial user object received from the LoginPage
   final Users currentUser;
 
-  // 2. Update the constructor to require currentUser
   const HomeHolder({super.key, required this.currentUser});
 
   @override
@@ -21,21 +21,45 @@ class HomeHolder extends StatefulWidget {
 class _HomeHolderState extends State<HomeHolder> {
   GlobalKey _navKey = GlobalKey();
 
-  // Create a list of widget pages outside of build()
-  late final List<Widget> pagesAll;
+  // 2. Mutable state variable to hold the current user data.
+  // We use 'late' because it will be initialized in initState.
+  late Users _currentUser;
+
+  // 3. Mutable list of pages, which will be built with the current user state.
+  late List<Widget> _pagesAll;
 
   var myIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    // 3. Initialize the list of pages in initState, passing the user data
-    pagesAll = [
+    // 4. Initialize the late fields in the correct lifecycle stage (initState)
+    // using the data passed to the widget.
+    _currentUser = widget.currentUser;
+    // Build the initial list of pages
+    _pagesAll = _buildPages();
+  }
+
+  // 5. Function to rebuild the pages with the updated user data
+  List<Widget> _buildPages() {
+    return [
       const HomePage(),
       const DormList(),
-      // PASS THE REQUIRED 'currentUser' HERE!
-      UserPage(currentUser: widget.currentUser),
+      // The UserPage is passed the current user state AND the update function.
+      UserPage(
+        currentUser: _currentUser,
+        onUserUpdated: _updateUser,
+      ),
     ];
+  }
+
+  // 6. Callback function to update the user data and trigger a rebuild
+  void _updateUser(Users updatedUser) {
+    setState(() {
+      _currentUser = updatedUser; // Update the state with the new user data
+      // Rebuild the pages list to ensure the UserPage has the new data
+      _pagesAll = _buildPages();
+    });
   }
 
   @override
@@ -68,7 +92,8 @@ class _HomeHolderState extends State<HomeHolder> {
         animationCurve: Curves.fastLinearToSlowEaseIn,
         color: Colors.amber,
       ),
-      body: pagesAll[myIndex],
+      // Use the pages list initialized in initState
+      body: _pagesAll[myIndex],
     );
   }
 }
