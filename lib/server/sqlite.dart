@@ -130,4 +130,51 @@ class DatabaseHelper {
       return null; // User not found
     }
   }
+
+// Checks if the new username or email is already in use by ANOTHER user.
+  Future<bool> isUsernameOrEmailTaken(
+      int currentUserId, String username, String email) async {
+    final Database db = await database;
+
+    // The query checks for any user (WHERE) whose usrName matches the new one OR
+    // whose usrEmail matches the new one, AND whose usrId is NOT the current user's ID.
+    var result = await db.rawQuery(
+      '''
+    SELECT COUNT(*) 
+    FROM users 
+    WHERE (usrName = ? OR usrEmail = ?) AND usrId != ?
+    ''',
+      [username, email, currentUserId],
+    );
+
+    // The count is in the first row and first column of the result list.
+    int count = Sqflite.firstIntValue(result) ?? 0;
+
+    // If count > 0, the username or email is already taken by someone else.
+    return count > 0;
+  }
+
+  // Updates a user's record in the database.
+  Future<int> updateUser(Users user) async {
+    final Database db = await database;
+
+    // Create a map containing the fields to update (excluding usrId and usrPassword)
+    // We exclude usrPassword because we aren't changing it in this flow.
+    final Map<String, dynamic> updateMap = {
+      'usrName': user.usrName,
+      'usrEmail': user.usrEmail,
+      // Note: The password field should remain the old hash,
+      // but since the original Users object (with the hash) is passed,
+      // we can just convert it all to JSON and let it update the row.
+      // However, it's safer to only update the fields that change:
+    };
+
+    // We only update the name and email here.
+    return db.update(
+      'users',
+      updateMap,
+      where: 'usrId = ?',
+      whereArgs: [user.usrId], // Ensure the correct user is updated
+    );
+  }
 }

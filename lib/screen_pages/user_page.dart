@@ -1,3 +1,4 @@
+import 'package:findmydorm/screen_pages/account_settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/models/users.dart';
@@ -9,8 +10,14 @@ class UserPage extends StatefulWidget {
   // 1. Define a final variable to hold the Users object
   final Users currentUser;
 
-  // 2. Require the Users object in the constructor
-  const UserPage({super.key, required this.currentUser});
+  // Accept the update callback function
+  final ValueChanged<Users> onUserUpdated;
+
+  const UserPage({
+    super.key,
+    required this.currentUser,
+    required this.onUserUpdated, // ADD THIS
+  });
 
   @override
   State<UserPage> createState() => _UserState();
@@ -46,8 +53,22 @@ class _UserState extends State<UserPage> {
             // 4. Pass the currentUser object to the info widget
             _buildUserInfo(widget.currentUser),
             const SizedBox(height: 40),
-            _buildProfileOption(
-                'Account Settings', Ionicons.person_circle_outline),
+            GestureDetector(
+              onTap: () {
+                // Navigate to the AccountSettingsPage
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => AccountSettingsPage(
+                      user: widget.currentUser,
+                      // PASS THE CALLBACK FUNCTION DOWN!
+                      onUserUpdated: widget.onUserUpdated,
+                    ),
+                  ),
+                );
+              },
+              child: _buildProfileOption(
+                  'Account Settings', Ionicons.person_circle_outline),
+            ),
             const SizedBox(height: 10),
             _buildSignOutOption(context),
             const SizedBox(height: 20),
@@ -81,7 +102,7 @@ class _UserState extends State<UserPage> {
         ),
         Text(
           // Optionally, display the email here
-          'Welcome to Find My Dorm, ${user.usrEmail}',
+          'Welcome to Find My Dorm',
           style: const TextStyle(
             fontSize: 16,
             fontFamily: 'Lato',
