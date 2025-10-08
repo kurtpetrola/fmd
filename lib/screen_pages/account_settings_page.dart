@@ -29,9 +29,16 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
   late final TextEditingController _usernameController;
   late final TextEditingController _emailController;
+  late final TextEditingController _addressController;
+
+  // 1. ADD STATE FOR GENDER SELECTION
+  late String _selectedGender;
 
   bool _isLoading = false;
   String? _errorMessage;
+
+  // Define the list of options for the Gender dropdown
+  final List<String> _genderOptions = ['Male', 'Female', 'Other'];
 
   @override
   void initState() {
@@ -39,12 +46,17 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     // Initialize controllers with the current user data
     _usernameController = TextEditingController(text: widget.user.usrName);
     _emailController = TextEditingController(text: widget.user.usrEmail);
+    _addressController = TextEditingController(text: widget.user.usrAddress);
+
+    // 2. INITIALIZE GENDER STATE
+    _selectedGender = widget.user.usrGender;
   }
 
   @override
   void dispose() {
     _usernameController.dispose();
     _emailController.dispose();
+    _addressController.dispose();
     super.dispose();
   }
 
@@ -55,20 +67,20 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       _errorMessage = null; // Clear error message when toggling mode
     });
 
-    // CRITICAL FIX: Update controllers when entering edit mode,
-    // ensuring they reflect the latest data from the parent widget (widget.user).
     if (_isEditing) {
+      // Restore controllers and state to current widget data when entering edit mode
       _usernameController.text = widget.user.usrName;
       _emailController.text = widget.user.usrEmail;
+      _addressController.text = widget.user.usrAddress;
+      _selectedGender = widget.user.usrGender; // Restore Gender
     }
 
-    // OPTIONAL: If switching back to view mode, reset controllers to current saved values
-    // (This handles the case where the user started editing but hit the "Cancel/Close" icon)
     if (!_isEditing) {
-      // Since saving also calls _toggleEditMode(), this ensures the saved data is displayed
-      // when returning to the view.
+      // Restore controllers and state to current widget data after save/cancel
       _usernameController.text = widget.user.usrName;
       _emailController.text = widget.user.usrEmail;
+      _addressController.text = widget.user.usrAddress;
+      _selectedGender = widget.user.usrGender; // Restore Gender
     }
   }
 
@@ -77,10 +89,15 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
     final newUsername = _usernameController.text.trim();
     final newEmail = _emailController.text.trim();
+    final newAddress = _addressController.text.trim();
+    // CAPTURE NEW GENDER VALUE
+    final newGender = _selectedGender;
 
-    // Check if anything has actually changed
+    // Check if anything has actually changed (NOW INCLUDING GENDER)
     if (newUsername == widget.user.usrName &&
-        newEmail == widget.user.usrEmail) {
+        newEmail == widget.user.usrEmail &&
+        newAddress == widget.user.usrAddress &&
+        newGender == widget.user.usrGender) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No changes detected.')),
@@ -116,6 +133,8 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         usrName: newUsername,
         usrEmail: newEmail,
         usrPassword: widget.user.usrPassword,
+        usrAddress: newAddress,
+        usrGender: newGender, // <<< SAVE NEW GENDER
       );
 
       // 3. Persist the changes to the database
@@ -265,9 +284,39 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
           ),
         ),
 
+        const Divider(height: 20),
+
+        // View Address
+        ListTile(
+          leading:
+              const Icon(Ionicons.location_outline, color: Colors.deepPurple),
+          title: const Text(
+            'Address',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          subtitle: Text(
+            widget.user.usrAddress,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ),
+
+        // View Gender
+        ListTile(
+          leading:
+              const Icon(Ionicons.people_outline, color: Colors.deepPurple),
+          title: const Text(
+            'Gender',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          subtitle: Text(
+            widget.user.usrGender,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ),
+
         const Divider(height: 30), // Separator
 
-        // NEW: Change Password Option
+        // Change Password Option
         ListTile(
           leading: const Icon(Ionicons.key_outline, color: Colors.deepPurple),
           title: const Text(
@@ -324,6 +373,56 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             }
             if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
               return 'Please enter a valid email address.';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 20),
+
+        // Editable Address Field
+        TextFormField(
+          controller: _addressController,
+          maxLines: 2, // Allow address to take more space
+          decoration: const InputDecoration(
+            labelText: 'Address',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Ionicons.location),
+          ),
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Address cannot be empty.';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 20),
+
+        // 3. NEW: Editable Gender Dropdown
+        DropdownButtonFormField<String>(
+          // Set value to null if empty string to display the hint/label text properly
+          value: _selectedGender.isNotEmpty &&
+                  _genderOptions.contains(_selectedGender)
+              ? _selectedGender
+              : null,
+          decoration: const InputDecoration(
+            labelText: 'Gender',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Ionicons.people),
+          ),
+          items: _genderOptions.map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedGender = newValue ?? '';
+            });
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Gender cannot be empty.';
             }
             return null;
           },
