@@ -15,7 +15,7 @@ class DatabaseHelper {
       "CREATE TABLE notes (noteId INTEGER PRIMARY KEY AUTOINCREMENT, noteTitle TEXT NOT NULL, noteContent TEXT NOT NULL, createdAt TEXT DEFAULT CURRENT_TIMESTAMP)";
 
   String users =
-      "CREATE TABLE users (usrId INTEGER PRIMARY KEY AUTOINCREMENT, usrName TEXT UNIQUE, usrEmail TEXT UNIQUE, usrPassword TEXT)";
+      "CREATE TABLE users (usrId INTEGER PRIMARY KEY AUTOINCREMENT, usrName TEXT UNIQUE, usrEmail TEXT UNIQUE, usrPassword TEXT, usrAddress TEXT, usrGender TEXT)";
 
   String dorms =
       "CREATE TABLE dorms (dormId INTEGER PRIMARY KEY AUTOINCREMENT,dormNumber INTEGER, dormName TEXT UNIQUE, dormLocation TEXT)";
@@ -34,6 +34,9 @@ class DatabaseHelper {
     final path = join(databasePath, databaseName);
 
     // openDatabase will call onCreate only if the database did not exist.
+    // NOTE: If you are changing the table structure, you must increase 'version'
+    // and implement an 'onUpgrade' method, OR completely uninstall the app
+    // to force 'onCreate' to run again.
     return openDatabase(path, version: 1, onCreate: (db, version) async {
       await db.execute(users);
       await db.execute(noteTable);
@@ -43,15 +46,20 @@ class DatabaseHelper {
 
   // Login Method (Securely checks password against the stored hash)
   Future<bool> login(Users user) async {
-    // Access the initialized database instance
     final Database db = await database;
 
-    // 1. Fetch the user's record (specifically the hashed password) based on username.
+    // The 'user.usrName' field is assumed to be the user's input (either a username OR an email)
+    final String identifier = user.usrName;
+
+    // 1. Fetch the user's record (specifically the hashed password)
+    // using an OR condition to allow login by Username OR Email.
     var result = await db.query(
       'users',
+      // Get the password hash, and the username/email (for context/debugging)
       columns: ['usrPassword'],
-      where: 'usrName = ?',
-      whereArgs: [user.usrName],
+      // NEW WHERE CLAUSE: Check the identifier against EITHER usrName OR usrEmail
+      where: 'usrName = ? OR usrEmail = ?',
+      whereArgs: [identifier, identifier], // Pass the identifier twice
       limit: 1,
     );
 
@@ -59,14 +67,13 @@ class DatabaseHelper {
       final storedHash = result.first['usrPassword'] as String;
       final plainTextPassword = user.usrPassword;
 
-      // 2. Use BCrypt.checkpw to safely verify the plaintext password against the hash.
-      // This is the correct, secure way to check the password.
+      // 2. Safely verify the plaintext password against the hash.
       final bool isPasswordValid =
           BCrypt.checkpw(plainTextPassword, storedHash);
 
       return isPasswordValid;
     } else {
-      // User not found
+      // User not found (either by username or email)
       return false;
     }
   }
@@ -75,24 +82,22 @@ class DatabaseHelper {
   Future<int> signup(Users user) async {
     final Database db = await database;
 
-    // 1. Generate a salt using BCrypt.gensalt()
-    // FIX: Calling without arguments uses the package default cost, avoiding the error.
     final String salt = BCrypt.gensalt();
-
-    // 2. Hash the password using BCrypt.hashpw(password, salt)
-    // FIX: 'hashpw' is the correct method name (replaces 'hashSync').
     final String hashedPassword = BCrypt.hashpw(user.usrPassword, salt);
 
-    // 3. Create a map with the hashed password for insertion
+    // UPDATED: Include new fields (usrAddress, usrGender) in the map
     final Map<String, dynamic> userMap = {
       'usrName': user.usrName,
       'usrEmail': user.usrEmail,
-      // Store the HASHED password
       'usrPassword': hashedPassword,
+      'usrAddress': user.usrAddress, // <<< New Field
+      'usrGender': user.usrGender, // <<< New Field
     };
 
-    // 4. Insert the user data
-    return db.insert('users', userMap);
+    return db.insert(
+      'users',
+      userMap,
+    );
   }
 
   // Method to retrieve all users
@@ -111,20 +116,20 @@ class DatabaseHelper {
     });
   }
 
-  // Method to fetch a single user by username
-  Future<Users?> getUserByUsername(String username) async {
+  // Retrieves the full user record using either the username or the email.
+  Future<Users?> getUserByUsernameOrEmail(String identifier) async {
     final Database db = await database;
 
-    // Query the 'users' table using the username
+    // Query the 'users' table using an OR condition
     var result = await db.query(
       'users',
-      where: 'usrName = ?',
-      whereArgs: [username],
-      limit: 1, // We only expect one user with a unique username
+      where: 'usrName = ? OR usrEmail = ?', // Checks both columns
+      whereArgs: [identifier, identifier],
+      limit: 1, // Expect only one match
     );
 
     if (result.isNotEmpty) {
-      // Convert the first (and only) result map into a Users object
+      // Convert the result map into a Users object
       return Users.fromJson(result.first);
     } else {
       return null; // User not found
@@ -163,13 +168,15 @@ class DatabaseHelper {
     final Map<String, dynamic> updateMap = {
       'usrName': user.usrName,
       'usrEmail': user.usrEmail,
+      'usrAddress': user.usrAddress,
+      'usrGender': user.usrGender,
       // Note: The password field should remain the old hash,
       // but since the original Users object (with the hash) is passed,
       // we can just convert it all to JSON and let it update the row.
       // However, it's safer to only update the fields that change:
     };
 
-    // We only update the name and email here.
+    // We only update the name, email address and gender here.
     return db.update(
       'users',
       updateMap,
@@ -194,5 +201,19 @@ class DatabaseHelper {
       where: 'usrId = ?',
       whereArgs: [userId],
     );
+  }
+
+  Future _onCreate(Database db, int version) async {
+    await db.execute('''
+    CREATE TABLE users(
+      usrId INTEGER PRIMARY KEY, 
+      usrName TEXT NOT NULL, 
+      usrEmail TEXT NOT NULL, 
+      usrPassword TEXT NOT NULL,
+      -- ADD NEW COLUMNS HERE
+      usrAddress TEXT NOT NULL,
+      usrGender TEXT NOT NULL
+    )
+  ''');
   }
 }

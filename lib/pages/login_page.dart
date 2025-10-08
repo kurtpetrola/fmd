@@ -1,10 +1,10 @@
+// login_page.dart
+
 import 'package:findmydorm/components/bottom_navbar.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:flutter/material.dart';
 import 'package:findmydorm/server/sqlite.dart';
 import 'registration_page.dart';
-
-// Assuming HomeHolder and bottom_navbar.dart exist and are correct
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,69 +14,70 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginPage> {
-  // We need two text editing controller
-  final username = TextEditingController();
-  final email =
-      TextEditingController(); // This controller is declared but NOT used in the UI below.
-  final password = TextEditingController();
+  // Use a more generic name since it accepts Username OR Email
+  final identifierController = TextEditingController();
+  final passwordController = TextEditingController();
 
-  // A bool variable for show and hide password
   bool isVisible = false;
-
-  // Here is our bool variable for error message
   bool isLoginTrue = false;
-
   final db = DatabaseHelper();
+  final formKey = GlobalKey<FormState>();
 
-  // Now we should call this function in login button
+  // NOTE: You must also add the getUserByUsernameOrEmail function to your sqlite.dart
+  // (see section 3 below) to make this logic work.
   login() async {
-    final enteredUsername = username.text;
-    final enteredPassword = password.text;
+    final enteredIdentifier = identifierController.text.trim();
+    final enteredPassword = passwordController.text.trim();
 
-    // 1. Check if the login is valid (using your existing boolean check logic)
-    // NOTE: Your current db.login expects a full Users object.
+    // 1. Attempt login verification.
+    // The db.login will check the enteredIdentifier against usrName OR usrEmail.
     var isAuthenticated = await db.login(Users(
-      usrName: enteredUsername,
-      // Since email isn't collected on the UI, it's sent as an empty string.
-      usrEmail: email.text.trim(),
+      usrName:
+          enteredIdentifier, // Used as the identifier for the OR check in DB
+      usrEmail: '', // Placeholder
       usrPassword: enteredPassword,
+      usrAddress: '', // Placeholder
+      usrGender: '', // Placeholder
     ));
 
     if (isAuthenticated == true) {
-      // 2. If login is successful, retrieve the full Users object
-      Users? loggedInUser = await db.getUserByUsername(enteredUsername);
+      // 2. If login is successful, retrieve the full Users object using the same identifier
+      Users? loggedInUser =
+          await db.getUserByUsernameOrEmail(enteredIdentifier);
 
       if (!mounted) return;
 
       if (loggedInUser != null) {
-        // 3. Navigate and PASS THE REQUIRED 'currentUser'
-        // The HomeHolder now receives the user data, resolving the error.
+        // Successful Login
+        setState(() {
+          isLoginTrue = false; // Clear any previous error messages
+        });
+
+        // Navigate and pass the full, correct Users object
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
                 builder: (context) => HomeHolder(currentUser: loggedInUser)));
       } else {
-        // Fallback error if authentication passed but user data couldn't be retrieved
-        setState(() {
-          isLoginTrue = true;
-        });
+        // This case should ideally not happen if login() was true, but is a safety net
+        _showError();
       }
     } else {
-      // If not, true the bool value to show error message
-      setState(() {
-        isLoginTrue = true;
-      });
+      // Failed Login
+      _showError();
     }
   }
 
-  // We have to create global key for our form
-  final formKey = GlobalKey<FormState>();
+  void _showError() {
+    setState(() {
+      isLoginTrue = true; // Show the error message
+    });
+  }
 
   @override
   void dispose() {
-    username.dispose();
-    email.dispose();
-    password.dispose();
+    identifierController.dispose();
+    passwordController.dispose();
     super.dispose();
   }
 
@@ -87,14 +88,10 @@ class _LoginScreenState extends State<LoginPage> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(10.0),
-            // We put all our textfield to a form to be controlled and not allow as empty
             child: Form(
               key: formKey,
               child: Column(
                 children: [
-                  //Username field
-
-                  //Before we show the image, after we copied the image we need to define the location in pubspec.yaml
                   Image.asset(
                     "assets/images/logo1.png",
                     height: 200,
@@ -108,6 +105,8 @@ class _LoginScreenState extends State<LoginPage> {
                         fontSize: 20),
                   ),
                   const SizedBox(height: 15),
+
+                  // Username/Email field
                   Container(
                     margin: const EdgeInsets.all(8),
                     padding:
@@ -116,23 +115,24 @@ class _LoginScreenState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(8),
                         color: Colors.deepPurple.withOpacity(.2)),
                     child: TextFormField(
-                      controller: username,
+                      controller:
+                          identifierController, // Using the new controller name
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return "This field is required.";
+                          return "Username or Email is required.";
                         }
                         return null;
                       },
                       decoration: const InputDecoration(
                         icon: Icon(Icons.person),
                         border: InputBorder.none,
-                        //hintText: "Enter your username",
-                        labelText: 'Username',
+                        // FIX: Change label to reflect accepted inputs
+                        labelText: 'Username or Email Address',
                       ),
                     ),
                   ),
 
-                  //Password field
+                  // Password field (Controller name updated to passwordController)
                   Container(
                     margin: const EdgeInsets.all(8),
                     padding:
@@ -141,7 +141,8 @@ class _LoginScreenState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(8),
                         color: Colors.deepPurple.withOpacity(.2)),
                     child: TextFormField(
-                      controller: password,
+                      controller:
+                          passwordController, // Using the new controller name
                       validator: (value) {
                         if (value!.isEmpty) {
                           return "This field is required.";
@@ -153,12 +154,9 @@ class _LoginScreenState extends State<LoginPage> {
                           icon: const Icon(Icons.lock),
                           border: InputBorder.none,
                           labelText: 'Password',
-                          //hintText: "Enter your password",
                           suffixIcon: IconButton(
                               onPressed: () {
-                                //In here we will create a click to show and hide the password a toggle button
                                 setState(() {
-                                  //toggle button
                                   isVisible = !isVisible;
                                 });
                               },
@@ -169,7 +167,7 @@ class _LoginScreenState extends State<LoginPage> {
                   ),
 
                   const SizedBox(height: 10),
-                  //Login button
+                  // Login button
                   Container(
                     height: 55,
                     width: MediaQuery.of(context).size.width * .9,
@@ -179,11 +177,7 @@ class _LoginScreenState extends State<LoginPage> {
                     child: TextButton(
                         onPressed: () {
                           if (formKey.currentState!.validate()) {
-                            //Login method will be here
-                            login();
-
-                            //Now we have a response from our sqlite method
-                            //We are going to create a user
+                            login(); // Calls the updated login logic
                           }
                         },
                         child: const Text(
@@ -196,7 +190,7 @@ class _LoginScreenState extends State<LoginPage> {
                         )),
                   ),
 
-                  //Sign up button
+                  // Sign up button
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -214,7 +208,7 @@ class _LoginScreenState extends State<LoginPage> {
                     ],
                   ),
 
-                  // We will disable this message in default, when user and pass is incorrect we will trigger this message to user
+                  // Error message
                   isLoginTrue
                       ? const Text(
                           "Username or password is incorrect",

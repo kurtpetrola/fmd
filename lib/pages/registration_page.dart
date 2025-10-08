@@ -1,3 +1,5 @@
+// registration_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:findmydorm/pages/login_page.dart';
 import 'package:findmydorm/models/users.dart';
@@ -15,8 +17,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  // NEW: Controllers and State for Address and Gender
+  final _addressController = TextEditingController();
+  String? _selectedGender;
+  final List<String> _genders = ['Male', 'Female', 'Other'];
+
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _addressController.dispose(); // Dispose new controller
+    super.dispose();
+  }
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _isPasswordVisible = !_isPasswordVisible;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +67,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
                 const SizedBox(height: 15),
+
+                // 1. USERNAME
                 _buildTextField(
                   controller: _usernameController,
                   hintText: 'Username',
@@ -55,6 +81,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   },
                 ),
                 const SizedBox(height: 15),
+
+                // 2. GENDER
+                _buildGenderDropdown(),
+                const SizedBox(height: 15),
+
+                // 3. ADDRESS
+                _buildTextField(
+                  controller: _addressController,
+                  hintText: 'Address',
+                  icon: Icons.location_on,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "Please enter your address.";
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 15),
+
+                // 4. EMAIL ADDRESS
                 _buildTextField(
                   controller: _emailController,
                   hintText: 'Email Address',
@@ -63,10 +109,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     if (value!.isEmpty) {
                       return "Please provide a valid email address.";
                     }
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                      return 'Enter a valid email.';
+                    }
                     return null;
                   },
                 ),
                 const SizedBox(height: 15),
+
+                // 5. PASSWORD
                 _buildPasswordField(
                   controller: _passwordController,
                   hintText: 'Password',
@@ -76,10 +127,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     if (value!.isEmpty) {
                       return "Password is required";
                     }
+                    if (value.length < 6) {
+                      return "Password must be at least 6 characters";
+                    }
                     return null;
                   },
                 ),
                 const SizedBox(height: 15),
+
+                // 6. CONFIRM PASSWORD
                 _buildPasswordField(
                   controller: _confirmPasswordController,
                   hintText: 'Confirm Password',
@@ -87,13 +143,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   toggleVisibility: _togglePasswordVisibility,
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return "Password is required";
+                      return "Password confirmation is required";
                     } else if (_passwordController.text != value) {
                       return "Passwords don't match";
                     }
                     return null;
                   },
                 ),
+
                 const SizedBox(height: 20),
                 _buildRegisterButton(context),
                 const SizedBox(height: 10),
@@ -106,12 +163,98 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
+  // Helper for the new Gender Dropdown
+  Widget _buildGenderDropdown() {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.deepPurple.withOpacity(.2),
+      ),
+      child: DropdownButtonFormField<String>(
+        decoration: const InputDecoration(
+          icon: Icon(Icons.people),
+          border: InputBorder.none,
+          hintText: 'Select Gender',
+        ),
+        value: _selectedGender,
+        items: _genders.map((String gender) {
+          return DropdownMenuItem<String>(
+            value: gender,
+            child: Text(gender),
+          );
+        }).toList(),
+        onChanged: (newValue) {
+          setState(() {
+            _selectedGender = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please select your gender.';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  // Updated Register Button to pass all data
+  Widget _buildRegisterButton(BuildContext context) {
+    return Container(
+      height: 55,
+      width: MediaQuery.of(context).size.width * .9,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: Colors.amber,
+      ),
+      child: TextButton(
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            final db = DatabaseHelper();
+
+            // Pass ALL REQUIRED FIELDS to the Users model
+            db
+                .signup(
+              Users(
+                usrName: _usernameController.text.trim(),
+                usrEmail: _emailController.text.trim(),
+                usrPassword: _passwordController
+                    .text, // Password will be hashed in db.signup
+                usrAddress: _addressController.text.trim(), // NEW
+                usrGender: _selectedGender!, // NEW (Validated to be non-null)
+              ),
+            )
+                .whenComplete(() {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+              );
+            });
+          }
+        },
+        child: const Text(
+          "REGISTER",
+          style: TextStyle(
+            color: Colors.black, // Changed to black for amber button contrast
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- Existing Helper Methods (kept for context, no changes needed here) ---
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
     required IconData icon,
     required String? Function(String?) validator,
   }) {
+    // ... existing implementation ...
     return Container(
       margin: const EdgeInsets.all(8),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -138,6 +281,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     required VoidCallback toggleVisibility,
     required String? Function(String?) validator,
   }) {
+    // ... existing implementation ...
     return Container(
       margin: const EdgeInsets.all(8),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -164,48 +308,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Widget _buildRegisterButton(BuildContext context) {
-    return Container(
-      height: 55,
-      width: MediaQuery.of(context).size.width * .9,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: Colors.amber,
-      ),
-      child: TextButton(
-        onPressed: () {
-          if (_formKey.currentState!.validate()) {
-            final db = DatabaseHelper();
-            db
-                .signup(
-              Users(
-                usrName: _usernameController.text,
-                usrEmail: _emailController.text,
-                usrPassword: _passwordController.text,
-              ),
-            )
-                .whenComplete(() {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            });
-          }
-        },
-        child: const Text(
-          "REGISTER",
-          style: TextStyle(
-            color: Colors.white,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildLoginButton(BuildContext context) {
+    // ... existing implementation ...
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -221,11 +325,5 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ],
     );
-  }
-
-  void _togglePasswordVisibility() {
-    setState(() {
-      _isPasswordVisible = !_isPasswordVisible;
-    });
   }
 }
