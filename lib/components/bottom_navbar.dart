@@ -1,12 +1,13 @@
 // bottom_navbar.dart
 
-import 'package:findmydorm/screen_pages/home_page.dart';
-import 'package:findmydorm/screen_pages/user_page.dart';
 import 'package:flutter/material.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:findmydorm/dorms_directory/dorm_lists.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/models/users.dart';
+import 'package:findmydorm/screen_pages/home_page.dart';
+import 'package:findmydorm/screen_pages/user_page.dart';
+import 'package:findmydorm/screen_pages/admin_page.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:findmydorm/dorms_directory/dorm_lists.dart';
 
 class HomeHolder extends StatefulWidget {
   // 1. The initial user object received from the LoginPage
@@ -27,7 +28,6 @@ class _HomeHolderState extends State<HomeHolder> {
 
   // 3. Mutable list of pages, which will be built with the current user state.
   late List<Widget> _pagesAll;
-
   var myIndex = 0;
 
   @override
@@ -40,12 +40,18 @@ class _HomeHolderState extends State<HomeHolder> {
     _pagesAll = _buildPages();
   }
 
-  // 5. Function to rebuild the pages with the updated user data
+// 5. Function to rebuild the pages with the updated user data
   List<Widget> _buildPages() {
+    final bool isAdmin = _currentUser.usrRole == 'Admin';
+
     return [
       const HomePage(),
-      const DormList(),
-      // The UserPage is passed the current user state AND the update function.
+
+      // Conditional Page Load: Admin gets CRUD page, User gets view list.
+      isAdmin
+          ? const AdminPage() // ADMIN: Full CRUD control
+          : const DormList(), // USER: View-only dynamic list
+
       UserPage(
         currentUser: _currentUser,
         onUserUpdated: _updateUser,
@@ -53,17 +59,18 @@ class _HomeHolderState extends State<HomeHolder> {
     ];
   }
 
-  // 6. Callback function to update the user data and trigger a rebuild
+// 6. Callback function to update the user data and trigger a rebuild
   void _updateUser(Users updatedUser) {
     setState(() {
-      _currentUser = updatedUser; // Update the state with the new user data
-      // Rebuild the pages list to ensure the UserPage has the new data
+      _currentUser = updatedUser;
       _pagesAll = _buildPages();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isAdmin = _currentUser.usrRole == 'Admin';
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       bottomNavigationBar: CurvedNavigationBar(
@@ -74,8 +81,15 @@ class _HomeHolderState extends State<HomeHolder> {
             (myIndex == 0) ? Ionicons.home : Ionicons.home_outline,
             color: Colors.white,
           ),
+          // Icon based on role: Hammer for Admin, List for User
           Icon(
-            (myIndex == 1) ? Ionicons.heart : Ionicons.heart_outline,
+            isAdmin
+                ? (myIndex == 1)
+                    ? Ionicons.hammer
+                    : Ionicons.hammer_outline
+                : (myIndex == 1)
+                    ? Ionicons.list
+                    : Ionicons.list_outline,
             color: Colors.white,
           ),
           Icon(
@@ -92,7 +106,6 @@ class _HomeHolderState extends State<HomeHolder> {
         animationCurve: Curves.fastLinearToSlowEaseIn,
         color: Colors.amber,
       ),
-      // Use the pages list initialized in initState
       body: _pagesAll[myIndex],
     );
   }

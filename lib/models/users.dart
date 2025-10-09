@@ -7,15 +7,16 @@ class Users {
   final String usrPassword;
   final String usrAddress;
   final String usrGender;
+  final String usrRole;
 
-  Users({
-    this.usrId,
-    required this.usrName,
-    required this.usrEmail,
-    required this.usrPassword,
-    required this.usrAddress,
-    required this.usrGender,
-  });
+  Users(
+      {this.usrId,
+      required this.usrName,
+      required this.usrEmail,
+      required this.usrPassword,
+      required this.usrAddress,
+      required this.usrGender,
+      this.usrRole = 'User'});
 
   // Convert a User object into a Map (for database insertion)
   Map<String, dynamic> toJson() {
@@ -26,6 +27,7 @@ class Users {
       'usrPassword': usrPassword,
       'usrAddress': usrAddress,
       'usrGender': usrGender,
+      "usrRole": usrRole,
     };
   }
 
@@ -38,6 +40,7 @@ class Users {
       usrPassword: json['usrPassword'] as String,
       usrAddress: json['usrAddress'] as String,
       usrGender: json['usrGender'] as String,
+      usrRole: (json["usrRole"] ?? 'User') as String,
     );
   }
 }
