@@ -1,26 +1,24 @@
-// sqlite.dart
+// server/sqlite.dart
 
+import 'package:findmydorm/models/users.dart';
+import 'package:findmydorm/models/dorms.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:findmydorm/models/users.dart';
-import 'package:bcrypt/bcrypt.dart'; // <<< Required for secure password hashing
+import 'package:bcrypt/bcrypt.dart';
 
 class DatabaseHelper {
-  // Use a private field to hold the database instance
   static Database? _database;
   final databaseName = "fmd.db";
 
-  // Table creation strings
   String noteTable =
       "CREATE TABLE notes (noteId INTEGER PRIMARY KEY AUTOINCREMENT, noteTitle TEXT NOT NULL, noteContent TEXT NOT NULL, createdAt TEXT DEFAULT CURRENT_TIMESTAMP)";
 
   String users =
-      "CREATE TABLE users (usrId INTEGER PRIMARY KEY AUTOINCREMENT, usrName TEXT UNIQUE, usrEmail TEXT UNIQUE, usrPassword TEXT, usrAddress TEXT, usrGender TEXT)";
+      "CREATE TABLE users (usrId INTEGER PRIMARY KEY AUTOINCREMENT, usrName TEXT UNIQUE, usrEmail TEXT UNIQUE, usrPassword TEXT, usrAddress TEXT, usrGender TEXT, usrRole TEXT DEFAULT 'User')";
 
-  String dorms =
-      "CREATE TABLE dorms (dormId INTEGER PRIMARY KEY AUTOINCREMENT,dormNumber INTEGER, dormName TEXT UNIQUE, dormLocation TEXT)";
+  String dormsTable =
+      "CREATE TABLE dorms (dormId INTEGER PRIMARY KEY AUTOINCREMENT, dormNumber TEXT, dormName TEXT UNIQUE, dormLocation TEXT, createdAt TEXT)";
 
-  // Optimized Database Initialization
   Future<Database> get database async {
     if (_database != null) {
       return _database!;
@@ -33,65 +31,117 @@ class DatabaseHelper {
     final databasePath = await getDatabasesPath();
     final path = join(databasePath, databaseName);
 
-    // openDatabase will call onCreate only if the database did not exist.
-    // NOTE: If you are changing the table structure, you must increase 'version'
-    // and implement an 'onUpgrade' method, OR completely uninstall the app
-    // to force 'onCreate' to run again.
     return openDatabase(path, version: 1, onCreate: (db, version) async {
       await db.execute(users);
       await db.execute(noteTable);
-      await db.execute(dorms);
+      await db.execute(dormsTable);
+
+      // ==========================================================
+      // >>> ADMIN USER & DORM SEEDING (Inside onCreate) <<<
+      // ==========================================================
+
+      final String salt = BCrypt.gensalt();
+      final String adminPasswordHash =
+          BCrypt.hashpw('admin123', salt); // Admin password: admin123
+
+      // 1. SEED ADMIN USER
+      await db.insert('users', {
+        'usrName': 'AdminUser',
+        'usrEmail': 'admin@fmd.com',
+        'usrPassword': adminPasswordHash,
+        'usrAddress': 'Database HQ',
+        'usrGender': 'N/A',
+        'usrRole': 'Admin', // KEEP: Admin Role
+      });
+
+      // 2. SEED DORMITORY DATA (Reverted to old constructor)
+      print("DATABASE IS EMPTY. Inserting initial dorm data...");
+      final now = DateTime.now().toIso8601String();
+
+      // DORM 1
+      await db.insert(
+          'dorms',
+          Dorms(
+                  dormName: 'Anderson Hall',
+                  dormNumber: '101',
+                  dormLocation: 'Dagupan City',
+                  createdAt: now)
+              .toSqlite());
+
+      // DORM 2
+      await db.insert(
+          'dorms',
+          Dorms(
+                  dormName: 'Blakely House',
+                  dormNumber: '202',
+                  dormLocation: 'San Fabian',
+                  createdAt: now)
+              .toSqlite());
+
+      // DORM 3
+      await db.insert(
+          'dorms',
+          Dorms(
+                  dormName: 'Curtis Dormitory',
+                  dormNumber: '303',
+                  dormLocation: 'Mangaldan',
+                  createdAt: now)
+              .toSqlite());
+
+      // DORM 4
+      await db.insert(
+          'dorms',
+          Dorms(
+                  dormName: 'Davis Hall',
+                  dormNumber: '404',
+                  dormLocation: 'Urdaneta City',
+                  createdAt: now)
+              .toSqlite());
+
+      print("Initial Seeding Complete: Admin user and 4 dorms inserted.");
+      // ==========================================================
     });
   }
+
+  // --- All other CRUD methods remain the same ---
 
   // Login Method (Securely checks password against the stored hash)
   Future<bool> login(Users user) async {
     final Database db = await database;
-
-    // The 'user.usrName' field is assumed to be the user's input (either a username OR an email)
     final String identifier = user.usrName;
-
-    // 1. Fetch the user's record (specifically the hashed password)
-    // using an OR condition to allow login by Username OR Email.
+    // ... (logic remains the same) ...
     var result = await db.query(
       'users',
-      // Get the password hash, and the username/email (for context/debugging)
       columns: ['usrPassword'],
-      // NEW WHERE CLAUSE: Check the identifier against EITHER usrName OR usrEmail
       where: 'usrName = ? OR usrEmail = ?',
-      whereArgs: [identifier, identifier], // Pass the identifier twice
+      whereArgs: [identifier, identifier],
       limit: 1,
     );
 
     if (result.isNotEmpty) {
       final storedHash = result.first['usrPassword'] as String;
       final plainTextPassword = user.usrPassword;
-
-      // 2. Safely verify the plaintext password against the hash.
       final bool isPasswordValid =
           BCrypt.checkpw(plainTextPassword, storedHash);
-
       return isPasswordValid;
     } else {
-      // User not found (either by username or email)
-      return false;
+      return false; // User not found
     }
   }
 
   // SignUp Method (Hashes the password before insertion)
   Future<int> signup(Users user) async {
     final Database db = await database;
-
     final String salt = BCrypt.gensalt();
     final String hashedPassword = BCrypt.hashpw(user.usrPassword, salt);
 
-    // UPDATED: Include new fields (usrAddress, usrGender) in the map
     final Map<String, dynamic> userMap = {
       'usrName': user.usrName,
       'usrEmail': user.usrEmail,
       'usrPassword': hashedPassword,
-      'usrAddress': user.usrAddress, // <<< New Field
-      'usrGender': user.usrGender, // <<< New Field
+      'usrAddress': user.usrAddress,
+      'usrGender': user.usrGender,
+      'usrRole': user.usrRole,
     };
 
     return db.insert(
@@ -100,49 +150,35 @@ class DatabaseHelper {
     );
   }
 
-  // Method to retrieve all users
+  // Method to retrieve all users (remains the same)
   Future<List<Users>> getAllUsers() async {
     final Database db = await database;
-
-    // 1. Query the 'users' table for ALL rows.
-    // The result is a List<Map<String, dynamic>>, where each Map is a row.
     final List<Map<String, dynamic>> userMaps = await db.query('users');
-
-    // 2. Convert the List<Map<String, dynamic>> into a List<Users>.
     return List.generate(userMaps.length, (i) {
-      // We use your existing Users.fromJson (or Users.fromMap, if you created one)
-      // to transform the database row (Map) into a Users object.
       return Users.fromJson(userMaps[i]);
     });
   }
 
-  // Retrieves the full user record using either the username or the email.
+  // Retrieves the full user record (remains the same)
   Future<Users?> getUserByUsernameOrEmail(String identifier) async {
     final Database db = await database;
-
-    // Query the 'users' table using an OR condition
     var result = await db.query(
       'users',
-      where: 'usrName = ? OR usrEmail = ?', // Checks both columns
+      where: 'usrName = ? OR usrEmail = ?',
       whereArgs: [identifier, identifier],
-      limit: 1, // Expect only one match
+      limit: 1,
     );
-
     if (result.isNotEmpty) {
-      // Convert the result map into a Users object
       return Users.fromJson(result.first);
     } else {
-      return null; // User not found
+      return null;
     }
   }
 
-// Checks if the new username or email is already in use by ANOTHER user.
+  // Checks if the new username or email is already in use (remains the same)
   Future<bool> isUsernameOrEmailTaken(
       int currentUserId, String username, String email) async {
     final Database db = await database;
-
-    // The query checks for any user (WHERE) whose usrName matches the new one OR
-    // whose usrEmail matches the new one, AND whose usrId is NOT the current user's ID.
     var result = await db.rawQuery(
       '''
     SELECT COUNT(*) 
@@ -151,50 +187,33 @@ class DatabaseHelper {
     ''',
       [username, email, currentUserId],
     );
-
-    // The count is in the first row and first column of the result list.
     int count = Sqflite.firstIntValue(result) ?? 0;
-
-    // If count > 0, the username or email is already taken by someone else.
     return count > 0;
   }
 
-  // Updates a user's record in the database.
+  // Updates a user's record (remains the same)
   Future<int> updateUser(Users user) async {
     final Database db = await database;
-
-    // Create a map containing the fields to update (excluding usrId and usrPassword)
-    // We exclude usrPassword because we aren't changing it in this flow.
     final Map<String, dynamic> updateMap = {
       'usrName': user.usrName,
       'usrEmail': user.usrEmail,
       'usrAddress': user.usrAddress,
       'usrGender': user.usrGender,
-      // Note: The password field should remain the old hash,
-      // but since the original Users object (with the hash) is passed,
-      // we can just convert it all to JSON and let it update the row.
-      // However, it's safer to only update the fields that change:
     };
-
-    // We only update the name, email address and gender here.
     return db.update(
       'users',
       updateMap,
       where: 'usrId = ?',
-      whereArgs: [user.usrId], // Ensure the correct user is updated
+      whereArgs: [user.usrId],
     );
   }
 
-  // Updates the user's password field in the database with a new hash.
+  // Updates the user's password field (remains the same)
   Future<int> updatePassword(int userId, String newHashedPassword) async {
     final Database db = await database;
-
-    // Create a map containing only the password field to update
     final Map<String, dynamic> updateMap = {
       'usrPassword': newHashedPassword,
     };
-
-    // Update the row based on the user ID
     return db.update(
       'users',
       updateMap,
@@ -203,17 +222,71 @@ class DatabaseHelper {
     );
   }
 
-  Future _onCreate(Database db, int version) async {
-    await db.execute('''
-    CREATE TABLE users(
-      usrId INTEGER PRIMARY KEY, 
-      usrName TEXT NOT NULL, 
-      usrEmail TEXT NOT NULL, 
-      usrPassword TEXT NOT NULL,
-      -- ADD NEW COLUMNS HERE
-      usrAddress TEXT NOT NULL,
-      usrGender TEXT NOT NULL
-    )
-  ''');
+  // --- DORMITORY CRUD OPERATIONS ---
+
+  // 1. CREATE: Insert a new dorm (uses reverted toSqlite)
+  Future<int> insertDorm(Dorms dorm) async {
+    final db = await database;
+    return await db.insert(
+      'dorms',
+      dorm.toSqlite(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  // 2. READ: Fetch all dorms (uses reverted fromSqlite)
+  Future<List<Dorms>> getDorms() async {
+    final db = await database;
+    print("Attempting to query 'dorms' table...");
+    final List<Map<String, dynamic>> maps =
+        await db.query('dorms', orderBy: 'dormName ASC');
+    print("Query successful. Found ${maps.length} dorms.");
+
+    return List.generate(maps.length, (i) {
+      try {
+        return Dorms.fromSqlite(maps[i]);
+      } catch (e) {
+        print("Error converting map to Dorms object: $e");
+        print("Problematic Map: ${maps[i]}");
+        rethrow;
+      }
+    });
+  }
+
+  // 3. READ: Fetch a single dorm by its ID (remains the same)
+  Future<Dorms?> getDormById(int id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'dorms',
+      where: 'dormId = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+
+    if (maps.isNotEmpty) {
+      return Dorms.fromSqlite(maps.first);
+    }
+    return null;
+  }
+
+  // 4. UPDATE: Update an existing dorm (uses reverted toSqlite)
+  Future<int> updateDorm(Dorms dorm) async {
+    final db = await database;
+    return await db.update(
+      'dorms',
+      dorm.toSqlite(),
+      where: 'dormId = ?',
+      whereArgs: [dorm.dormId],
+    );
+  }
+
+  // 5. DELETE: Delete a dorm by ID (remains the same)
+  Future<int> deleteDorm(int id) async {
+    final db = await database;
+    return await db.delete(
+      'dorms',
+      where: 'dormId = ?',
+      whereArgs: [id],
+    );
   }
 }
