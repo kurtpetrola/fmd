@@ -131,7 +131,14 @@ class DormDetailPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const MapsDetailPage(),
+                    builder: (context) => MapsDetailPage(
+                      // ⚠️ Assumes dorm.latitude and dorm.longitude are implemented in the model
+                      latitude: dorm.latitude ??
+                          51.5, // Use actual data or safe default
+                      longitude: dorm.longitude ??
+                          -0.09, // Use actual data or safe default
+                      dormName: dorm.dormName,
+                    ),
                   ),
                 );
               },
