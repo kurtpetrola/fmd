@@ -13,6 +13,8 @@ class Dorms {
   final String dormLocation;
   //final String dormImageUrl;
   //final String dormDescription;
+  final double? latitude; // New Field
+  final double? longitude; // New Field
   final String createdAt;
 
   Dorms({
@@ -20,8 +22,13 @@ class Dorms {
     required this.dormName,
     required this.dormNumber,
     required this.dormLocation,
+
     //required this.dormImageUrl, // REQUIRED
     //required this.dormDescription, // REQUIRED
+
+    // Default to null if not provided
+    this.latitude,
+    this.longitude,
     required this.createdAt,
   });
 
@@ -60,6 +67,9 @@ class Dorms {
         dormLocation: map["dormLocation"] as String,
         //dormImageUrl: map["dormImageUrl"] as String,
         //dormDescription: map["dormDescription"] as String,
+        // NEW: Safely read coordinates (SQLite stores REAL which Dart reads as double)
+        latitude: map['latitude'] as double?,
+        longitude: map['longitude'] as double?,
         createdAt: map["createdAt"] as String,
       );
 
@@ -70,6 +80,9 @@ class Dorms {
         "dormLocation": dormLocation,
         //"dormImageUrl": dormImageUrl,
         //"dormDescription": dormDescription,
+        // NEW: Include coordinates
+        'latitude': latitude,
+        'longitude': longitude,
         "createdAt": createdAt,
       };
 }

@@ -3,26 +3,39 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapsDetailPage extends StatefulWidget {
-  const MapsDetailPage({super.key});
+  final double latitude; // Accept the required latitude
+  final double longitude; // Accept the required longitude
+  final String dormName; // Optional: for the AppBar title
+
+  const MapsDetailPage({
+    super.key,
+    required this.latitude,
+    required this.longitude,
+    required this.dormName,
+  });
 
   @override
   State<MapsDetailPage> createState() => _MapsDetailState();
 }
 
 class _MapsDetailState extends State<MapsDetailPage> {
-  final LatLng _center = LatLng(51, -0.09); // Define the center position
+  // We'll calculate the center in build or initState now
+  // final LatLng _center = LatLng(51, -0.09); <--- REMOVE THIS HARDCODED VALUE
 
   @override
   Widget build(BuildContext context) {
+    // Dynamically create the LatLng object from the widget's properties
+    final LatLng location = LatLng(widget.latitude, widget.longitude);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Map View'),
+        title: Text('${widget.dormName} Location'), // Use the dynamic name
         backgroundColor: Colors.amber,
         centerTitle: true,
       ),
       body: FlutterMap(
         options: MapOptions(
-          initialCenter: _center, // Set the map's initial center
+          initialCenter: location, // Set the map's initial center
           initialZoom: 15.0,
         ),
         children: <Widget>[
@@ -33,8 +46,8 @@ class _MapsDetailState extends State<MapsDetailPage> {
           MarkerLayer(
             markers: [
               Marker(
-                point: _center, // Place the marker at the center
-                child: Icon(
+                point: location, // Place the marker at the dynamic location
+                child: const Icon(
                   Icons.place,
                   size: 48.0,
                   color: Colors.redAccent,

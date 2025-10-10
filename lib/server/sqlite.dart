@@ -17,7 +17,7 @@ class DatabaseHelper {
       "CREATE TABLE users (usrId INTEGER PRIMARY KEY AUTOINCREMENT, usrName TEXT UNIQUE, usrEmail TEXT UNIQUE, usrPassword TEXT, usrAddress TEXT, usrGender TEXT, usrRole TEXT DEFAULT 'User')";
 
   String dormsTable =
-      "CREATE TABLE dorms (dormId INTEGER PRIMARY KEY AUTOINCREMENT, dormNumber TEXT, dormName TEXT UNIQUE, dormLocation TEXT, createdAt TEXT)";
+      "CREATE TABLE dorms (dormId INTEGER PRIMARY KEY AUTOINCREMENT, dormNumber TEXT, dormName TEXT UNIQUE, dormLocation TEXT,latitude REAL, longitude REAL, createdAt TEXT)";
 
   Future<Database> get database async {
     if (_database != null) {
@@ -58,43 +58,59 @@ class DatabaseHelper {
       print("DATABASE IS EMPTY. Inserting initial dorm data...");
       final now = DateTime.now().toIso8601String();
 
-      // DORM 1
+      // DORM 1 (Dagupan City - Example)
       await db.insert(
           'dorms',
           Dorms(
                   dormName: 'Anderson Hall',
                   dormNumber: '101',
                   dormLocation: 'Dagupan City',
+                  latitude: 16.0354, // NEW
+                  longitude: 120.3346, // NEW
+                  // dormImageUrl: '',
+                  // dormDescription: '',
                   createdAt: now)
               .toSqlite());
 
-      // DORM 2
+      // DORM 2 (San Fabian - Example)
       await db.insert(
           'dorms',
           Dorms(
                   dormName: 'Blakely House',
                   dormNumber: '202',
                   dormLocation: 'San Fabian',
+                  latitude: 16.1260, // NEW
+                  longitude: 120.4490, // NEW
+                  // dormImageUrl: '',
+                  // dormDescription: '',
                   createdAt: now)
               .toSqlite());
 
-      // DORM 3
+      // DORM 3 (Mangaldan - Example)
       await db.insert(
           'dorms',
           Dorms(
                   dormName: 'Curtis Dormitory',
                   dormNumber: '303',
                   dormLocation: 'Mangaldan',
+                  latitude: 16.0594, // NEW
+                  longitude: 120.4144, // NEW
+                  // dormImageUrl: '',
+                  // dormDescription: '',
                   createdAt: now)
               .toSqlite());
 
-      // DORM 4
+      // DORM 4 (Urdaneta City - Example)
       await db.insert(
           'dorms',
           Dorms(
                   dormName: 'Davis Hall',
                   dormNumber: '404',
                   dormLocation: 'Urdaneta City',
+                  latitude: 15.9734, // NEW
+                  longitude: 120.5739, // NEW
+                  // dormImageUrl: '',
+                  // dormDescription: '',
                   createdAt: now)
               .toSqlite());
 
