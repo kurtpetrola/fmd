@@ -15,7 +15,7 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
-  final DatabaseHelper _dbHelper = DatabaseHelper();
+  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
   late Future<List<Dorms>> _dormsFuture;
 
   @override

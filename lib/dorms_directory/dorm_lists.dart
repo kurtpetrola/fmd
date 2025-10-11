@@ -14,7 +14,7 @@ class DormList extends StatefulWidget {
 }
 
 class _DormListState extends State<DormList> {
-  final DatabaseHelper _dbHelper = DatabaseHelper();
+  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
   List<Dorms> _allDorms = [];
   List<Dorms> _foundDorms = [];

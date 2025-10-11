@@ -12,7 +12,7 @@ class HomePage extends StatefulWidget {
 
 class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   late TabController _tabController;
-  final DatabaseHelper _dbHelper = DatabaseHelper();
+  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
   // 1. Storage for fetched dorm data
   List<Dorms> _allDorms = [];

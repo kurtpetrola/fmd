@@ -212,7 +212,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       child: TextButton(
         onPressed: () {
           if (_formKey.currentState!.validate()) {
-            final db = DatabaseHelper();
+            final db = DatabaseHelper.instance;
 
             // Pass ALL REQUIRED FIELDS to the Users model
             db
