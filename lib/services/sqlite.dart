@@ -2,7 +2,7 @@
 
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/models/dorms.dart';
-import 'package:findmydorm/server/auth_manager.dart';
+import 'package:findmydorm/services/auth_manager.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:bcrypt/bcrypt.dart';

@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/models/dorms.dart';
-import 'package:findmydorm/server/sqlite.dart';
-import 'package:findmydorm/dorms_directory/dorm_detail_page.dart';
+import 'package:findmydorm/services/sqlite.dart';
+import 'package:findmydorm/features/dorms/pages/dorm_detail_page.dart';
 
 class DormList extends StatefulWidget {
   const DormList({Key? key}) : super(key: key);

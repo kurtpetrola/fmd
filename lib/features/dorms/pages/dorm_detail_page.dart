@@ -1,11 +1,11 @@
-// dorms_detail_page.dart for favorite feature linking
+// dorms_detail_page.dart
 
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:findmydorm/server/sqlite.dart';
-import 'package:findmydorm/server/auth_manager.dart';
+import 'package:findmydorm/services/sqlite.dart';
+import 'package:findmydorm/services/auth_manager.dart';
 import 'package:findmydorm/models/dorms.dart';
-import 'package:findmydorm/maps_directory/maps_detail_page.dart';
+import 'package:findmydorm/features/maps/pages/maps_detail_page.dart';
 
 // 1. Convert to a StatefulWidget to manage the favorite state
 class DormDetailPage extends StatefulWidget {

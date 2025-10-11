@@ -1,13 +1,13 @@
-// user_page.dart - MODIFIED
+// user_page.dart
 
-import 'package:findmydorm/screen_pages/account_settings_page.dart';
+import 'package:findmydorm/features/user_profile/pages/account_settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/pages/selection_page.dart';
-import 'package:findmydorm/dialog/alert_dialog.dart';
-import 'package:findmydorm/server/sqlite.dart';
-import 'package:findmydorm/pages/favorite_dorms_page.dart';
+import 'package:findmydorm/core/utils/alert_dialog.dart';
+import 'package:findmydorm/services/sqlite.dart';
+import 'package:findmydorm/features/user_profile/pages/favorite_dorms_page.dart';
 
 class UserPage extends StatefulWidget {
   final Users currentUser;

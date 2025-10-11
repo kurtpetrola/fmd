@@ -1,11 +1,11 @@
-// admin_page.dart (UPDATED)
+// admin_page.dart
 
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart'; // REQUIRED for LatLng
 import 'package:findmydorm/models/dorms.dart';
-import 'package:findmydorm/server/sqlite.dart';
+import 'package:findmydorm/services/sqlite.dart';
 // IMPORTANT: Adjust this import path if you put the picker file elsewhere!
-import 'package:findmydorm/maps_directory/admin_location_picker.dart';
+import 'package:findmydorm/features/maps/tools/admin_location_picker.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});

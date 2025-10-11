@@ -3,11 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/models/users.dart';
-import 'package:findmydorm/screen_pages/home_page.dart';
-import 'package:findmydorm/screen_pages/user_page.dart';
-import 'package:findmydorm/screen_pages/admin_page.dart';
+import 'package:findmydorm/pages/home_page.dart';
+import 'package:findmydorm/features/user_profile/pages/user_page.dart';
+import 'package:findmydorm/features/dorms/admin/admin_page.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:findmydorm/dorms_directory/dorm_lists.dart';
+import 'package:findmydorm/features/dorms/pages/dorm_lists.dart';
 
 class HomeHolder extends StatefulWidget {
   // 1. The initial user object received from the LoginPage
