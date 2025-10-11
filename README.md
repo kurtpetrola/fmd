@@ -42,7 +42,7 @@ Follow these steps to get a copy of the project running on your local machine fo
     ```bash
     flutter pub get
     ```
-3.  Run the Application: Start the application locally:
+3.  Run the application:
     ```bash
     flutter run
     ```
@@ -67,11 +67,11 @@ We welcome contributions! If you have suggestions or find bugs, please open an i
 4.  Push to the Branch (`git push origin feature/AmazingFeature`)
 5.  Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/kurtpetrola/fmd/blob/main/LICENSE) file for details.
-
 ## Find this repository useful? ❤️
 
 Support it by joining **[stargazers](https://github.com/kurtpetrola/fmd/stargazers)** for this repository. ⭐ <br>
 Also, **[follow me](https://github.com/kurtpetrola)** on GitHub for my next creations! 🤩
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/kurtpetrola/fmd/blob/main/LICENSE) file for details.
