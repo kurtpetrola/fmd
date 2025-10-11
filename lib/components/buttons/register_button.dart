@@ -1,10 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:findmydorm/pages/login_page.dart';
+// register_button.dart
 
-class LoginButton extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:findmydorm/pages/registration_page.dart';
+
+class RegisterButton extends StatelessWidget {
   final Function()? onPressed;
 
-  const LoginButton({
+  const RegisterButton({
     super.key,
     required this.onPressed,
   });
@@ -13,24 +15,24 @@ class LoginButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (BuildContext context) => LoginPage()));
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (BuildContext context) => SignUpScreen()));
       },
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.all(15),
-        backgroundColor: Colors.amber,
+        backgroundColor: Colors.black,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        minimumSize: Size(250, 55), // This sets a minimum width and height
+        minimumSize: Size(250, 55), // Sets minimum width and height
         elevation: 2, // Adds a small shadow
       ),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 55),
         child: Text(
-          "LOGIN",
+          "REGISTER",
           style: TextStyle(
-            color: Colors.black,
+            color: Colors.white,
             fontFamily: 'Lato',
             fontWeight: FontWeight.w700,
             fontSize: 20,

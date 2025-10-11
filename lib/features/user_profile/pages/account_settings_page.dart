@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/models/users.dart';
-import 'package:findmydorm/server/sqlite.dart';
-import 'package:findmydorm/screen_pages/change_password_page.dart';
+import 'package:findmydorm/services/sqlite.dart';
+import 'package:findmydorm/features/auth/change_password_page.dart';
 
 class AccountSettingsPage extends StatefulWidget {
   final Users user;

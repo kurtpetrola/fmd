@@ -1,6 +1,8 @@
+//selection_page.dart
+
 import 'package:flutter/material.dart';
-import 'package:findmydorm/components/login_button.dart';
-import 'package:findmydorm/components/register_button.dart';
+import 'package:findmydorm/components/buttons/login_button.dart';
+import 'package:findmydorm/components/buttons/register_button.dart';
 import 'package:findmydorm/components/main_header.dart';
 
 class SelectionPage extends StatelessWidget {

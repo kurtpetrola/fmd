@@ -1,7 +1,9 @@
+//home_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:findmydorm/models/dorms.dart'; // Dorms Model
-import 'package:findmydorm/server/sqlite.dart'; // DatabaseHelper
-import 'package:findmydorm/dorms_directory/dorm_detail_page.dart';
+import 'package:findmydorm/services/sqlite.dart'; // DatabaseHelper
+import 'package:findmydorm/features/dorms/pages/dorm_detail_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

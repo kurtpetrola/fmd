@@ -1,4 +1,4 @@
-// auth/auth_manager.dart (or server/auth_manager.dart)
+//auth_manager.dart
 
 import 'package:findmydorm/models/users.dart';
 

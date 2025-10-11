@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:bcrypt/bcrypt.dart';
-import 'package:findmydorm/server/sqlite.dart';
+import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/models/users.dart';
 
 class ChangePasswordPage extends StatefulWidget {

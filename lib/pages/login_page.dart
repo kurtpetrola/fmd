@@ -1,7 +1,7 @@
 // login_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:findmydorm/server/sqlite.dart';
+import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/components/bottom_navbar.dart';
 import 'registration_page.dart';
