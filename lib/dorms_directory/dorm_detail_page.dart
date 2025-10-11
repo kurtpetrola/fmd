@@ -1,32 +1,125 @@
-// dorms_detail_page.dart
+// dorms_detail_page.dart for favorite feature linking
 
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:findmydorm/server/sqlite.dart';
+import 'package:findmydorm/server/auth_manager.dart';
 import 'package:findmydorm/models/dorms.dart';
 import 'package:findmydorm/maps_directory/maps_detail_page.dart';
 
-class DormDetailPage extends StatelessWidget {
-  // 1. Change the final field type from String to the Dorms object
+// 1. Convert to a StatefulWidget to manage the favorite state
+class DormDetailPage extends StatefulWidget {
   final Dorms dorm;
 
-  // 2. Update the constructor to require the Dorms object
   const DormDetailPage(this.dorm, {super.key});
+
+  @override
+  State<DormDetailPage> createState() => _DormDetailPageState();
+}
+
+class _DormDetailPageState extends State<DormDetailPage> {
+  // State variable to hold the favorite status
+  bool _isFavorite = false;
+
+  // FIX: Define dbHelper here, inside the state class, so all methods can use it
+  final dbHelper = DatabaseHelper.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFavoriteStatus();
+  }
+
+  // Function to check initial favorite status from the database
+  Future<void> _checkFavoriteStatus() async {
+    final currentUser = AuthManager.currentUser;
+
+    // FIX: Use currentUser.usrId, as confirmed by the Users model
+    if (currentUser != null && currentUser.usrId != null) {
+      final isFav = await dbHelper.isDormFavorite(
+        currentUser.usrId!,
+        widget.dorm.dormId!, // Use the actual INTEGER ID of the dorm
+      );
+      setState(() {
+        _isFavorite = isFav;
+      });
+    }
+  }
+
+  // Function to toggle the favorite status
+  Future<void> _toggleFavorite() async {
+    final currentUser = AuthManager.currentUser;
+
+    // FIX: Ensure the user is logged in and has a usrId
+    if (currentUser == null || currentUser.usrId == null) {
+      _showSnackbar('Please log in to add favorites.', Colors.red);
+      return;
+    }
+
+    try {
+      if (_isFavorite) {
+        // Remove from favorites
+        await dbHelper.removeFavorite(
+          currentUser.usrId!,
+          widget.dorm.dormId!,
+        );
+        _showSnackbar(
+            'Removed ${widget.dorm.dormName} from favorites.', Colors.orange);
+      } else {
+        // Add to favorites
+        await dbHelper.addFavorite(
+          currentUser.usrId!,
+          widget.dorm.dormId!,
+        );
+        _showSnackbar(
+            'Added ${widget.dorm.dormName} to favorites!', Colors.green);
+      }
+      // Update the state to change the icon immediately
+      setState(() {
+        _isFavorite = !_isFavorite;
+      });
+    } catch (e) {
+      _showSnackbar('Failed to update favorite status: $e', Colors.red);
+    }
+  }
+
+  // Helper to show a simple Snackbar message
+  void _showSnackbar(String message, Color color) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: color,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Use the actual dorm name in the AppBar title
-        title: Text(dorm.dormName),
+        title: Text(widget.dorm.dormName),
         backgroundColor: Colors.amber,
         centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              _isFavorite ? Ionicons.heart : Ionicons.heart_outline,
+              color: _isFavorite ? Colors.red : Colors.white,
+              size: 28,
+            ),
+            onPressed: _toggleFavorite, // Call the toggle function
+          ),
+          const SizedBox(width: 10), // Spacing from the edge
+        ],
       ),
       body: Column(
         children: <Widget>[
-          // 3. Image Section (Remains the same for now)
+          // Image Section
           Container(
-            height: MediaQuery.of(context).size.height *
-                0.4, // Reduced height for more detail space
+            height: MediaQuery.of(context).size.height * 0.4,
             width: double.infinity,
             child: Image.asset(
               'assets/images/dorm.jpeg',
@@ -34,16 +127,15 @@ class DormDetailPage extends StatelessWidget {
             ),
           ),
 
-          // 4. Details Section (Expanded to show all data)
+          // Details Section
           Expanded(
             child: SingleChildScrollView(
-              // Use SingleChildScrollView to prevent overflow
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    dorm.dormName,
+                    widget.dorm.dormName,
                     style: const TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
@@ -59,7 +151,7 @@ class DormDetailPage extends StatelessWidget {
                           color: Colors.amber, size: 24),
                       const SizedBox(width: 8),
                       Text(
-                        'Location: ${dorm.dormLocation}',
+                        'Location: ${widget.dorm.dormLocation}',
                         style:
                             const TextStyle(fontSize: 18, fontFamily: 'Lato'),
                       ),
@@ -73,7 +165,7 @@ class DormDetailPage extends StatelessWidget {
                       const Icon(Icons.pin, color: Colors.amber, size: 24),
                       const SizedBox(width: 8),
                       Text(
-                        'Dorm ID/Number: ${dorm.dormNumber}',
+                        'Dorm ID/Number: ${widget.dorm.dormNumber}',
                         style:
                             const TextStyle(fontSize: 18, fontFamily: 'Lato'),
                       ),
@@ -87,9 +179,8 @@ class DormDetailPage extends StatelessWidget {
                       const Icon(Icons.calendar_today,
                           color: Colors.amber, size: 24),
                       const SizedBox(width: 8),
-                      // Format the date for better readability if possible
                       Text(
-                        'Listed on: ${dorm.createdAt.substring(0, 10)}',
+                        'Listed on: ${widget.dorm.createdAt.substring(0, 10)}',
                         style:
                             const TextStyle(fontSize: 18, fontFamily: 'Lato'),
                       ),
@@ -106,7 +197,7 @@ class DormDetailPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // Placeholder for a longer description (you can add this field to your model later)
+                  // Placeholder for a longer description
                   const Text(
                     "This is a brief description of the dorm amenities, rules, and general information. It's a quiet place suitable for students looking for a focus environment near campus.",
                     style: TextStyle(
@@ -119,7 +210,7 @@ class DormDetailPage extends StatelessWidget {
         ],
       ),
 
-      // Bottom Navigation Bar (Remains the same)
+      // Bottom Navigation Bar (Map Button)
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
@@ -132,12 +223,11 @@ class DormDetailPage extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => MapsDetailPage(
-                      // ⚠️ Assumes dorm.latitude and dorm.longitude are implemented in the model
-                      latitude: dorm.latitude ??
+                      latitude: widget.dorm.latitude ??
                           51.5, // Use actual data or safe default
-                      longitude: dorm.longitude ??
+                      longitude: widget.dorm.longitude ??
                           -0.09, // Use actual data or safe default
-                      dormName: dorm.dormName,
+                      dormName: widget.dorm.dormName,
                     ),
                   ),
                 );

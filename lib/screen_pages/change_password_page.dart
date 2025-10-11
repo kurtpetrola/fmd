@@ -16,7 +16,7 @@ class ChangePasswordPage extends StatefulWidget {
 
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final _formKey = GlobalKey<FormState>();
-  final dbHelper = DatabaseHelper();
+  final dbHelper = DatabaseHelper.instance;
 
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();

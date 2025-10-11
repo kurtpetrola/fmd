@@ -22,7 +22,7 @@ class AccountSettingsPage extends StatefulWidget {
 
 class _AccountSettingsPageState extends State<AccountSettingsPage> {
   final _formKey = GlobalKey<FormState>();
-  final dbHelper = DatabaseHelper();
+  final dbHelper = DatabaseHelper.instance;
 
   // State variable to manage View (false) vs Edit (true) mode
   bool _isEditing = false;

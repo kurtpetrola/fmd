@@ -21,7 +21,7 @@ class _LoginScreenState extends State<LoginPage> {
   bool isLoginTrue = false;
   String errorMessage = "Username or password is incorrect";
 
-  final db = DatabaseHelper();
+  final db = DatabaseHelper.instance;
   final formKey = GlobalKey<FormState>();
 
   // --- Core Login Logic ---

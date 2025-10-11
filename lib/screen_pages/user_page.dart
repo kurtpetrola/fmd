@@ -1,3 +1,5 @@
+// user_page.dart - MODIFIED
+
 import 'package:findmydorm/screen_pages/account_settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -5,18 +7,16 @@ import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/pages/selection_page.dart';
 import 'package:findmydorm/dialog/alert_dialog.dart';
 import 'package:findmydorm/server/sqlite.dart';
+import 'package:findmydorm/pages/favorite_dorms_page.dart';
 
 class UserPage extends StatefulWidget {
-  // 1. Define a final variable to hold the Users object
   final Users currentUser;
-
-  // Accept the update callback function
   final ValueChanged<Users> onUserUpdated;
 
   const UserPage({
     super.key,
     required this.currentUser,
-    required this.onUserUpdated, // ADD THIS
+    required this.onUserUpdated,
   });
 
   @override
@@ -24,19 +24,40 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserState extends State<UserPage> {
-  // We no longer need Future<List<Users>> notes here unless you intend to
-  // display notes on this page, but we'll keep the handler for potential future use.
-  late DatabaseHelper handler;
+  final DatabaseHelper handler = DatabaseHelper.instance; // Cleaner syntax
 
+  // FIX: Re-add the missing state variables
   DateTime backPressedTime = DateTime.now();
   String title = 'AlertDialog';
-  bool tappedYes = false;
+  bool tappedYes = false; // <--- ADD THIS LINE BACK
 
   @override
   void initState() {
     super.initState();
-    handler = DatabaseHelper();
-    // The user data is now available via widget.currentUser
+  }
+
+// NEW Helper method to navigate to the Favorites Page
+  void _navigateToFavorites() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => FavoriteDormsPage(
+          currentUser: widget.currentUser,
+        ),
+      ),
+    );
+  }
+
+  // Helper method to navigate to the Account Settings and re-fetch favorites if needed
+  void _navigateToSettings() async {
+    // Navigate to the AccountSettingsPage
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AccountSettingsPage(
+          user: widget.currentUser,
+          onUserUpdated: widget.onUserUpdated,
+        ),
+      ),
+    );
   }
 
   @override
@@ -50,28 +71,29 @@ class _UserState extends State<UserPage> {
             const SizedBox(height: 40),
             _buildUserIcon(),
             const SizedBox(height: 15),
-            // 4. Pass the currentUser object to the info widget
             _buildUserInfo(widget.currentUser),
             const SizedBox(height: 40),
+
+            // FAVORITES BUTTON (NEW)
             GestureDetector(
-              onTap: () {
-                // Navigate to the AccountSettingsPage
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => AccountSettingsPage(
-                      user: widget.currentUser,
-                      // PASS THE CALLBACK FUNCTION DOWN!
-                      onUserUpdated: widget.onUserUpdated,
-                    ),
-                  ),
-                );
-              },
+              onTap: _navigateToFavorites,
+              child:
+                  _buildProfileOption('My Favorites', Ionicons.heart_outline),
+            ),
+            const SizedBox(height: 10),
+
+            // ACCOUNT SETTINGS BUTTON
+            GestureDetector(
+              onTap: _navigateToSettings,
               child: _buildProfileOption(
                   'Account Settings', Ionicons.person_circle_outline),
             ),
             const SizedBox(height: 10),
+
+            // SIGN OUT BUTTON
             _buildSignOutOption(context),
             const SizedBox(height: 20),
+
             const Spacer(),
           ],
         ),
@@ -87,12 +109,10 @@ class _UserState extends State<UserPage> {
     );
   }
 
-  // 3. Update the method signature to accept the Users object
   Widget _buildUserInfo(Users user) {
     return Column(
       children: [
         Text(
-          // Use the username from the passed Users object
           user.usrName,
           style: const TextStyle(
             fontSize: 24,
@@ -101,7 +121,6 @@ class _UserState extends State<UserPage> {
           ),
         ),
         Text(
-          // Optionally, display the email here
           'Welcome to Find My Dorm',
           style: const TextStyle(
             fontSize: 16,

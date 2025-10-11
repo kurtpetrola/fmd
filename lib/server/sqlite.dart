@@ -2,11 +2,20 @@
 
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/models/dorms.dart';
+import 'package:findmydorm/server/auth_manager.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:bcrypt/bcrypt.dart';
 
 class DatabaseHelper {
+  // 1. Private named constructor to prevent external instantiation
+  DatabaseHelper._privateConstructor();
+
+  // 2. Static final field to hold the single instance
+  static final DatabaseHelper _instance = DatabaseHelper._privateConstructor();
+
+  // 3. Public static getter to provide global access to the single instance
+  static DatabaseHelper get instance => _instance;
   static Database? _database;
   final databaseName = "fmd.db";
 
@@ -18,6 +27,9 @@ class DatabaseHelper {
 
   String dormsTable =
       "CREATE TABLE dorms (dormId INTEGER PRIMARY KEY AUTOINCREMENT, dormNumber TEXT, dormName TEXT UNIQUE, dormLocation TEXT,latitude REAL, longitude REAL, createdAt TEXT)";
+
+  String favoritesTable =
+      "CREATE TABLE favorites (favId INTEGER PRIMARY KEY AUTOINCREMENT, usrId INTEGER, dormId INTEGER, FOREIGN KEY(usrId) REFERENCES users(usrId), FOREIGN KEY(dormId) REFERENCES dorms(dormId), UNIQUE(usrId, dormId))";
 
   Future<Database> get database async {
     if (_database != null) {
@@ -35,6 +47,7 @@ class DatabaseHelper {
       await db.execute(users);
       await db.execute(noteTable);
       await db.execute(dormsTable);
+      await db.execute(favoritesTable);
 
       // ==========================================================
       // >>> ADMIN USER & DORM SEEDING (Inside onCreate) <<<
@@ -119,16 +132,78 @@ class DatabaseHelper {
     });
   }
 
-  // --- All other CRUD methods remain the same ---
+  // ==========================================================
+  // NEW: FAVORITES CRUD METHODS
+  // ==========================================================
+
+  // NOTE: You'll need to know the current logged-in user's ID (usrId) to use these methods.
+  // We'll assume you have a way to retrieve the current user's ID (e.g., from a Session/Auth service).
+
+  // 1. ADD a dorm to favorites
+  Future<int> addFavorite(int usrId, int dormId) async {
+    final db = await database;
+    try {
+      return await db.insert(
+        'favorites',
+        {
+          'usrId': usrId,
+          'dormId': dormId,
+        },
+        conflictAlgorithm: ConflictAlgorithm.ignore, // Prevent duplicates
+      );
+    } catch (e) {
+      print("Error adding favorite: $e");
+      return -1; // Indicate failure
+    }
+  }
+
+  // 2. REMOVE a dorm from favorites
+  Future<int> removeFavorite(int usrId, int dormId) async {
+    final db = await database;
+    return await db.delete(
+      'favorites',
+      where: 'usrId = ? AND dormId = ?',
+      whereArgs: [usrId, dormId],
+    );
+  }
+
+  // 3. CHECK if a dorm is a favorite
+  Future<bool> isDormFavorite(int usrId, int dormId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.query(
+      'favorites',
+      where: 'usrId = ? AND dormId = ?',
+      whereArgs: [usrId, dormId],
+      limit: 1,
+    );
+    return result.isNotEmpty;
+  }
+
+  // 4. GET all favorite dorms for a user
+  Future<List<Dorms>> getFavoriteDorms(int usrId) async {
+    final db = await database;
+    // Join favorites table with dorms table to get dorm details
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT d.* FROM dorms d
+      INNER JOIN favorites f ON d.dormId = f.dormId
+      WHERE f.usrId = ?
+    ''', [usrId]);
+
+    return List.generate(maps.length, (i) {
+      return Dorms.fromSqlite(maps[i]);
+    });
+  }
 
   // Login Method (Securely checks password against the stored hash)
   Future<bool> login(Users user) async {
     final Database db = await database;
     final String identifier = user.usrName;
-    // ... (logic remains the same) ...
+
+    // Query to get user data including the hashed password
     var result = await db.query(
       'users',
-      columns: ['usrPassword'],
+      // Get all columns so we can create the full Users object later
+      columns: ['*'],
       where: 'usrName = ? OR usrEmail = ?',
       whereArgs: [identifier, identifier],
       limit: 1,
@@ -139,7 +214,15 @@ class DatabaseHelper {
       final plainTextPassword = user.usrPassword;
       final bool isPasswordValid =
           BCrypt.checkpw(plainTextPassword, storedHash);
-      return isPasswordValid;
+
+      if (isPasswordValid) {
+        // SUCCESS: Get the full user object and set the session
+        final Users loggedInUser = Users.fromJson(result.first);
+        AuthManager.login(loggedInUser); // SET THE SESSION HERE
+        return true;
+      } else {
+        return false; // Invalid password
+      }
     } else {
       return false; // User not found
     }
