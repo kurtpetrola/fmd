@@ -18,6 +18,10 @@ class _AdminPageState extends State<AdminPage> {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
   late Future<List<Dorms>> _dormsFuture;
 
+  // PRIMARY STYLING REFERENCE from user_page.dart
+  final Color _appBarColor = Colors.amber;
+  final Color _foregroundColor = Colors.black;
+
   @override
   void initState() {
     super.initState();
@@ -32,21 +36,27 @@ class _AdminPageState extends State<AdminPage> {
 
   @override
   Widget build(BuildContext context) {
-    // ... (Your build method remains mostly the same, only the title changed) ...
     return Scaffold(
       appBar: AppBar(
+        // 1. CENTER TEXT & USE USER PAGE STYLE
         title: const Text('Admin: Dormitory CRUD'),
-        backgroundColor: Colors.amber,
+        backgroundColor: _appBarColor,
+        foregroundColor: _foregroundColor,
+        centerTitle: true,
+
+        // 2. REMOVE BACK BUTTON (from previous request)
+        automaticallyImplyLeading: false,
+
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
-            color: Colors.white,
+            icon: const Icon(Icons.add_location_alt_sharp),
             onPressed: () => _showAddDormDialog(context),
+            tooltip: 'Add New Dorm',
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
-            color: Colors.white,
             onPressed: _refreshDorms,
+            tooltip: 'Refresh List',
           ),
         ],
       ),
@@ -57,7 +67,8 @@ class _AdminPageState extends State<AdminPage> {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(
-                child: Text('Error loading dorms: ${snapshot.error}'));
+                child: Text('Error loading dorms: ${snapshot.error}',
+                    style: const TextStyle(color: Colors.red)));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
                 child: Text('No local dormitories found. Click + to add one.'));
@@ -79,32 +90,84 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
+  // --- Card/List Tile UI ---
   Widget _buildDormCard(Dorms dorm) {
-    // ... (Your _buildDormCard remains the same) ...
+    final Color adminDeleteColor = Colors.red.shade700;
+
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      elevation: 5,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      child: ListTile(
-        title: Text(dorm.dormName,
-            style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle:
-            Text('Location: ${dorm.dormLocation} | Number: ${dorm.dormNumber}'),
-        trailing: IconButton(
-          icon: const Icon(Icons.delete, color: Colors.redAccent),
-          onPressed: () => _deleteDorm(dorm),
+      elevation: 3,
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+        child: Row(
+          children: [
+            // Dorm Name and Details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Dorm Name (Primary Title)
+                  Text(
+                    dorm.dormName,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      // Using a different, strong color for list items for contrast with the amber bar
+                      color: Colors.deepPurple,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  // Location Details (Secondary Information)
+                  Text(
+                    'ID: ${dorm.dormId ?? 'N/A'} | Location: ${dorm.dormLocation}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  // Coordinates (Tertiary information - helpful for Admin)
+                  Text(
+                    'Lat: ${dorm.latitude?.toStringAsFixed(6)}, Lng: ${dorm.longitude?.toStringAsFixed(6)}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.blueGrey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Action Buttons
+            IconButton(
+              icon: const Icon(Icons.edit, color: Colors.blueGrey),
+              onPressed: () {
+                // TODO: Implement _showEditDormDialog(context, dorm);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Edit feature not yet implemented')),
+                );
+              },
+              tooltip: 'Edit Dorm',
+            ),
+            IconButton(
+              icon:
+                  Icon(Icons.delete_forever, color: adminDeleteColor, size: 28),
+              onPressed: () => _deleteDorm(dorm),
+              tooltip: 'Delete Dorm',
+            ),
+          ],
         ),
-        onTap: () {
-          // TODO: Navigate to the DormDetailPage
-        },
       ),
     );
   }
 
   void _deleteDorm(Dorms dorm) async {
-    // ... (Your _deleteDorm remains the same) ...
     if (dorm.dormId != null) {
       await _dbHelper.deleteDorm(dorm.dormId!);
       _refreshDorms();
@@ -114,150 +177,216 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
-  // --- UPDATED Dialog to Add Dorm ---
+  // --- Helper methods for Dialog UI ---
+  Widget _buildStyledTextField({
+    required TextEditingController controller,
+    required String label,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15.0),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReadOnlyField({
+    required TextEditingController controller,
+    required String label,
+  }) {
+    return TextField(
+      controller: controller,
+      readOnly: true,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        fillColor: Colors.grey.shade100,
+        filled: true,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      ),
+      style: const TextStyle(
+          fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w600),
+    );
+  }
+
+  // --- Dialog uses StatefulBuilder for map selection update ---
   Future<void> _showAddDormDialog(BuildContext context) async {
     final TextEditingController nameController = TextEditingController();
     final TextEditingController numberController = TextEditingController();
     final TextEditingController locationController = TextEditingController();
-
-    // NEW: Controllers for Latitude and Longitude
     final TextEditingController latController = TextEditingController();
     final TextEditingController lngController = TextEditingController();
 
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add New Dorm'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Dorm Name')),
-              TextField(
-                  controller: numberController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Dorm Number')),
-              TextField(
-                  controller: locationController,
-                  decoration:
-                      const InputDecoration(labelText: 'Location Text')),
-
-              const SizedBox(height: 15),
-
-              // Location Picker Button
-              ElevatedButton.icon(
-                icon: const Icon(Icons.map),
-                label: Text(latController.text.isEmpty
-                    ? 'Pick Location on Map'
-                    : 'Location Selected'),
-                onPressed: () async {
-                  // Launch the map picker and wait for a result
-                  final LatLng? pickedLocation = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AdminLocationPicker(),
-                    ),
-                  );
-
-                  // Update controllers if a location was picked
-                  if (pickedLocation != null) {
-                    // Using a dummy setState here since this isn't the primary state of the AdminPage,
-                    // but it forces the dialog UI to update the button text.
-                    (context as Element).markNeedsBuild();
-                    latController.text =
-                        pickedLocation.latitude.toStringAsFixed(6);
-                    lngController.text =
-                        pickedLocation.longitude.toStringAsFixed(6);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: latController.text.isEmpty
-                        ? Colors.amber
-                        : Colors.green,
-                    foregroundColor: Colors.white),
+      builder: (dialogContext) {
+        // Use StatefulBuilder to manage local state changes within the dialog
+        return StatefulBuilder(
+          builder: (stfContext, stfSetState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              title: Text(
+                'Add New Dormitory',
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: _appBarColor),
               ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Input Fields
+                    _buildStyledTextField(
+                      controller: nameController,
+                      label: 'Dorm Name',
+                    ),
+                    _buildStyledTextField(
+                      controller: numberController,
+                      label: 'Dorm Number (Optional)',
+                      keyboardType: TextInputType.number,
+                    ),
+                    _buildStyledTextField(
+                      controller: locationController,
+                      label: 'Location/Address Text',
+                    ),
 
-              const SizedBox(height: 10),
+                    const SizedBox(height: 20),
 
-              // Read-only fields to display the chosen coordinates
-              TextField(
-                  controller: latController,
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                      labelText: 'Latitude (Auto-filled)'),
-                  style: const TextStyle(fontSize: 12, color: Colors.blueGrey)),
-              TextField(
-                  controller: lngController,
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                      labelText: 'Longitude (Auto-filled)'),
-                  style: const TextStyle(fontSize: 12, color: Colors.blueGrey)),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              // Basic validation check
-              if (nameController.text.isNotEmpty &&
-                  locationController.text.isNotEmpty &&
-                  latController.text.isNotEmpty && // Check if lat/lng are set
-                  lngController.text.isNotEmpty) {
-                final newDorm = Dorms(
-                  dormName: nameController.text,
-                  dormNumber: numberController.text.isEmpty
-                      ? 'N/A'
-                      : numberController.text,
-                  dormLocation: locationController.text,
+                    // Location Picker Button
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.location_on),
+                      label: Text(
+                        latController.text.isEmpty
+                            ? 'SELECT LOCATION ON MAP'
+                            : 'LOCATION SELECTED',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () async {
+                        final LatLng? pickedLocation = await Navigator.push(
+                          stfContext, // Use the StatefulBuilder context
+                          MaterialPageRoute(
+                            builder: (context) => const AdminLocationPicker(),
+                          ),
+                        );
 
-                  // NEW: Parse and save the location data
-                  latitude: double.tryParse(latController.text),
-                  longitude: double.tryParse(lngController.text),
+                        if (pickedLocation != null) {
+                          stfSetState(() {
+                            // Call local setState to update the button text
+                            latController.text =
+                                pickedLocation.latitude.toStringAsFixed(6);
+                            lngController.text =
+                                pickedLocation.longitude.toStringAsFixed(6);
+                          });
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 45),
+                        backgroundColor: latController.text.isEmpty
+                            ? Colors.amber.shade700
+                            : Colors.green.shade600,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
 
-                  // Required placeholders for image/description
-                  // dormImageUrl: '',
-                  // dormDescription: '',
-                  createdAt: DateTime.now().toIso8601String(),
-                );
+                    const SizedBox(height: 15),
 
-                try {
-                  await _dbHelper.insertDorm(newDorm);
+                    // Read-only coordinates display
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildReadOnlyField(
+                            controller: latController,
+                            label: 'Latitude',
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildReadOnlyField(
+                            controller: lngController,
+                            label: 'Longitude',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(stfContext),
+                  child:
+                      const Text('CANCEL', style: TextStyle(color: Colors.red)),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    // Basic validation check
+                    if (nameController.text.isNotEmpty &&
+                        locationController.text.isNotEmpty &&
+                        latController.text.isNotEmpty &&
+                        lngController.text.isNotEmpty) {
+                      final newDorm = Dorms(
+                        dormName: nameController.text,
+                        dormNumber: numberController.text.isEmpty
+                            ? 'N/A'
+                            : numberController.text,
+                        dormLocation: locationController.text,
+                        latitude: double.tryParse(latController.text),
+                        longitude: double.tryParse(lngController.text),
+                        createdAt: DateTime.now().toIso8601String(),
+                      );
 
-                  if (mounted) {
-                    Navigator.pop(context);
-                    _refreshDorms();
+                      try {
+                        await _dbHelper.insertDorm(newDorm);
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text('${newDorm.dormName} added locally!')),
-                    );
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text('Failed to add dorm to local DB: $e')),
-                    );
-                  }
-                }
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text(
-                          'Please fill all required fields and pick a map location.')),
-                );
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
+                        if (mounted) {
+                          Navigator.pop(stfContext);
+                          _refreshDorms();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text('${newDorm.dormName} added locally!')),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text('Failed to add dorm to local DB: $e')),
+                          );
+                        }
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text(
+                                'Please fill all required fields and pick a map location.')),
+                      );
+                    }
+                  },
+                  child: const Text('ADD DORM',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: _appBarColor),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
