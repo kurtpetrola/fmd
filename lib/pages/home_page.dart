@@ -1,9 +1,10 @@
-//home_page.dart
+// home_page.dart
 
 import 'package:flutter/material.dart';
 import 'package:findmydorm/models/dorms.dart'; // Dorms Model
 import 'package:findmydorm/services/sqlite.dart'; // DatabaseHelper
 import 'package:findmydorm/features/dorms/pages/dorm_detail_page.dart';
+import 'package:collection/collection.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,7 +17,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   late TabController _tabController;
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
-  // 1. Storage for fetched dorm data
+  // Storage for fetched dorm data
   List<Dorms> _allDorms = [];
   List<Dorms> _femaleDorms = [];
   List<Dorms> _maleDorms = [];
@@ -24,7 +25,6 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   // Helper getter for the Autocomplete search feature (list of names only)
   List<String> get _dormNames => _allDorms.map((d) => d.dormName).toList();
 
-  // --- Initialization and Data Loading ---
   @override
   void initState() {
     super.initState();
@@ -32,13 +32,11 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
     _loadDorms();
   }
 
-  // Fetches data from SQLite and populates the lists
   void _loadDorms() async {
     final fetchedDorms = await _dbHelper.getDorms();
 
     // Placeholder Logic: For real use, you should filter based on a
     // 'gender' or 'category' field in your Dorms model.
-    // Here, we split based on the index/ID just to demonstrate the flow.
     final femaleDorms =
         fetchedDorms.where((d) => (d.dormId ?? 0).isEven).toList();
     final maleDorms = fetchedDorms.where((d) => (d.dormId ?? 1).isOdd).toList();
@@ -56,75 +54,95 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  // --- Helper Methods to improve build() readability ---
-
   Widget _buildHeaderSection() {
-    return Expanded(
-      flex: 4,
+    return SizedBox(
+      height: 370, // Adjusted height for better vertical distribution
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Container(
-            color: Colors.brown.shade100,
+          // Background Image
+          Image.asset(
+            "assets/images/dorm.jpeg",
+            fit: BoxFit.cover,
+            color: Colors.black54,
+            colorBlendMode: BlendMode.darken,
           ),
-          // Background Image (semi-transparent)
-          Opacity(
-            opacity: 0.5,
-            child: Image.asset("assets/images/dorm.jpeg", fit: BoxFit.cover),
-          ),
+
+          // Content Area
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 15, 20, 0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // === AUTOSUGGEST SEARCH BAR (Updated) ===
+                // Spacer to push content down from the very top
+                const SizedBox(
+                    height: 30), // Adjust this value to move title up/down
+
+                // Title Section (Moved up, now more centrally aligned vertically)
+                const Text(
+                  "Discover Dorms Near You",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 32,
+                    fontFamily: 'Lato',
+                  ),
+                ),
+                const SizedBox(height: 15),
+
+                // === AUTOSUGGEST SEARCH BAR ===
                 Autocomplete<String>(
                   optionsBuilder: (TextEditingValue textEditingValue) {
                     if (textEditingValue.text.isEmpty) {
                       return const Iterable<String>.empty();
                     }
-                    // Filter logic uses the dynamically loaded dorm names
                     return _dormNames.where((String option) {
                       return option
                           .toLowerCase()
                           .contains(textEditingValue.text.toLowerCase());
                     });
                   },
-
-                  // Style the Text Field (No changes needed)
                   fieldViewBuilder:
                       (context, textController, focusNode, onFieldSubmitted) {
                     return Container(
-                      height: 48,
+                      height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.white24,
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: TextField(
                         controller: textController,
                         focusNode: focusNode,
                         onSubmitted: (value) => onFieldSubmitted(),
                         style: const TextStyle(
-                            color: Colors.white, fontFamily: 'Lato'),
-                        decoration: const InputDecoration(
-                          contentPadding:
-                              EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+                            color: Colors.black, fontFamily: 'Lato'),
+                        decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                              horizontal:
+                                  8), // Vertical padding for center alignment
                           hintText: "Search for a dorm...",
                           hintStyle: TextStyle(
-                            color: Colors.white70,
+                            color: Colors.grey.shade500,
                             fontSize: 16,
                             fontFamily: 'Lato',
                           ),
                           border: InputBorder.none,
-                          prefixIcon: Icon(
+                          prefixIcon: const Icon(
                             Icons.search,
-                            color: Colors.white,
+                            color: Colors.grey,
                           ),
                         ),
                       ),
                     );
                   },
-
-                  // Style the Floating Suggestions Pop-up (No changes needed)
                   optionsViewBuilder: (context, onSelected, options) {
                     return Align(
                       alignment: Alignment.topLeft,
@@ -152,17 +170,10 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                     );
                   },
-
-                  // 2. FIX: Action when a dorm is selected from the list
                   onSelected: (String selection) {
-                    // Find the full Dorms object from the list
-                    final Dorms? selectedDorm = _allDorms.firstWhere(
+                    final Dorms? selectedDorm = _allDorms.firstWhereOrNull(
                       (dorm) => dorm.dormName == selection,
-                      orElse: () => _allDorms
-                          .first, // Fallback, though ideally null check is better
                     );
-
-                    // Navigate using the full Dorms object
                     if (selectedDorm != null) {
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => DormDetailPage(selectedDorm),
@@ -172,41 +183,26 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                 ),
                 // === END OF AUTOSUGGEST SEARCH BAR ===
 
-                const SizedBox(height: 24),
+                const Spacer(), // Pushes tabs to the bottom
 
-                // Title Section (No changes needed)
-                const Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "Discover Dorms Near You",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 40,
-                          fontFamily: 'Lato',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const Spacer(),
-
-                // Divider and TabBar (No changes needed)
-                const Divider(color: Colors.white, thickness: 2),
+                // TabBar
                 TabBar(
                   controller: _tabController,
                   labelColor: Colors.white,
-                  unselectedLabelColor: Colors.white60,
+                  unselectedLabelColor: Colors.white70,
                   labelStyle: const TextStyle(
-                    fontSize: 19,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Lato',
                   ),
-                  indicator: CircleTabIndicator(
-                    color: Colors.amber,
-                    radius: 5,
+                  // *** REPLACED CircleTabIndicator with UnderlineTabIndicator ***
+                  indicator: const UnderlineTabIndicator(
+                    borderSide: BorderSide(
+                      width: 4.0, // Thickness of the rectangle/underline
+                      color: Colors.amber, // Color of the indicator
+                    ),
+                    insets: EdgeInsets.symmetric(
+                        horizontal: 16.0), // Padding on sides
                   ),
                   tabs: const [
                     Tab(text: "Female Dorms"),
@@ -221,16 +217,12 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  // UPDATED: Now wrapped in Flexible to take up remaining screen space
   Widget _buildDormContent() {
-    // 3. FIX: Pass the actual Dorms lists to the DormListView
-    return Container(
-      padding: const EdgeInsets.only(left: 20),
-      height: 320,
-      width: double.maxFinite,
+    return Flexible(
       child: TabBarView(
         controller: _tabController,
         children: [
-          // Pass the filtered list of Dorms objects
           DormListView(dorms: _femaleDorms),
           DormListView(dorms: _maleDorms),
         ],
@@ -241,7 +233,6 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   // --- Main Build Method ---
   @override
   Widget build(BuildContext context) {
-    // Show a loading screen if the data hasn't been fetched yet
     if (_allDorms.isEmpty && mounted) {
       return const Scaffold(
         body: Center(
@@ -252,44 +243,87 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            _buildHeaderSection(),
-            _buildDormContent(),
-          ],
-        ),
+      body: Column(
+        children: <Widget>[
+          _buildHeaderSection(),
+
+          // Section Title for the List
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Available Options",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Lato',
+                    color: Colors.black87,
+                  ),
+                ),
+
+                // *** UPDATED: TextButton with Subtle Shade/Background Color ***
+                TextButton(
+                  style: TextButton.styleFrom(
+                    // Added a very light amber shade for the background
+                    backgroundColor: Colors.amber.shade50, // Lightest amber
+
+                    foregroundColor: Colors.amber.shade700,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    side: BorderSide(
+                      color: Colors.amber.shade700,
+                      width: 1.5,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                  ),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Viewing All is not yet implemented')));
+                  },
+                  child: const Text(
+                    'View All',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                )
+              ],
+            ),
+          ),
+
+          _buildDormContent(),
+        ],
       ),
     );
   }
 }
 
-// 4. FIX: Reusable Dorm List View (Updated to use Dorms objects)
+// Reusable Dorm List View (Remains the same)
 class DormListView extends StatelessWidget {
-  final List<Dorms> dorms; // Changed type to List<Dorms>
+  final List<Dorms> dorms;
 
-  const DormListView({required this.dorms, Key? key}) : super(key: key);
+  const DormListView({required this.dorms, super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Handles case where a list (e.g., male dorms) is empty
     if (dorms.isEmpty) {
       return const Center(child: Text("No dorms available in this category."));
     }
 
     return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
       itemCount: dorms.length,
       scrollDirection: Axis.horizontal,
       itemBuilder: (BuildContext context, int index) {
-        final Dorms dorm = dorms[index]; // Get the full Dorms object
+        final Dorms dorm = dorms[index];
 
-        // Use real data fields for the card display
         String itemText = dorm.dormName;
         String subtitle = dorm.dormLocation;
 
         return GestureDetector(
           onTap: () {
-            // FIX: Pass the full 'dorm' object to the detail page
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => DormDetailPage(dorm),
             ));
@@ -311,81 +345,83 @@ class _DormCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(
-        right: 15,
-        top: 30,
-        bottom: 30,
-      ),
+      margin: const EdgeInsets.only(right: 15, bottom: 20),
       width: 200,
-      height: 150,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(15),
         color: Colors.white,
-        image: const DecorationImage(
-          image: AssetImage("assets/images/dorm.jpeg"),
-          fit: BoxFit.cover,
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 1,
+            blurRadius: 7,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Stack(
         children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Spacer(),
-              Icon(Icons.info_outline, color: Colors.white, size: 30),
-            ],
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Image.asset(
+                "assets/images/dorm.jpeg",
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-          const Spacer(),
-          Text(
-            itemText,
-            style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Lato',
-                color: Colors.white),
+          const Positioned(
+            top: 10,
+            right: 10,
+            child: Icon(Icons.info_outline, color: Colors.white, size: 30),
           ),
-          Text(
-            subtitle,
-            style: const TextStyle(
-                fontSize: 15, fontFamily: 'Lato', color: Colors.white),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                borderRadius:
+                    const BorderRadius.vertical(bottom: Radius.circular(15)),
+                gradient: LinearGradient(
+                  colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    itemText,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Lato',
+                      color: Colors.white,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontFamily: 'Lato',
+                      color: Colors.white70,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
     );
-  }
-}
-
-// CircleTabIndicator (Remains the same)
-class CircleTabIndicator extends Decoration {
-  final Color color;
-  final double radius;
-
-  CircleTabIndicator({required this.color, required this.radius});
-
-  @override
-  BoxPainter createBoxPainter([VoidCallback? onChanged]) {
-    return _CirclePainter(color: color, radius: radius);
-  }
-}
-
-class _CirclePainter extends BoxPainter {
-  final Color color;
-  final double radius;
-
-  _CirclePainter({required this.color, required this.radius});
-
-  @override
-  void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-    final Paint paint = Paint()
-      ..color = color
-      ..isAntiAlias = true;
-
-    final Offset circleOffset = offset +
-        Offset(configuration.size!.width / 2,
-            configuration.size!.height - radius - 4);
-
-    canvas.drawCircle(circleOffset, radius, paint);
   }
 }
