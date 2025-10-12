@@ -35,7 +35,7 @@ class _UserState extends State<UserPage> {
     super.initState();
   }
 
-  // NEW Helper method to navigate to the Favorites Page
+  // Helper method to navigate to the Favorites Page
   void _navigateToFavorites() {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -53,123 +53,169 @@ class _UserState extends State<UserPage> {
       MaterialPageRoute(
         builder: (context) => AccountSettingsPage(
           user: widget.currentUser,
-          // The onUserUpdated callback here updates the currentUser reference
-          // in the parent (HomeHolder/main widget), but not the UI of *this* page.
           onUserUpdated: widget.onUserUpdated,
         ),
       ),
     );
 
-    // ----------------------------------------------------------------------
     // FIX: Trigger a rebuild of the UserPage's UI
-    // The widget.currentUser is already updated by the callback,
-    // we just need to tell the widget to redraw itself with the new data.
-    // ----------------------------------------------------------------------
     if (mounted) {
-      setState(() {
-        // Empty setState is fine, as it forces the build method to run
-        // and pull the updated widget.currentUser data.
-      });
+      setState(() {});
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // The UI elements like _buildUserInfo rely on widget.currentUser.
-    // Calling setState in _navigateToSettings ensures this build method runs
-    // after the AccountSettingsPage returns.
     return Scaffold(
-      appBar: null,
-      body: Padding(
+      appBar: AppBar(
+        title: const Text('My Profile'),
+        backgroundColor: Colors.amber,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: 40),
-            _buildUserIcon(),
+            _buildProfileHeaderCard(widget.currentUser),
+            const SizedBox(height: 30),
+
+            _buildSettingsGroup([
+              _buildProfileOption('My Favorites', Ionicons.heart_outline,
+                  _navigateToFavorites, Colors.redAccent),
+              _buildProfileOption(
+                  'Account Settings',
+                  Ionicons.person_circle_outline,
+                  _navigateToSettings,
+                  Colors.deepPurple),
+            ]),
             const SizedBox(height: 15),
-            // This widget uses the updated widget.currentUser
-            _buildUserInfo(widget.currentUser),
-            const SizedBox(height: 40),
 
-            // FAVORITES BUTTON (NEW)
-            GestureDetector(
-              onTap: _navigateToFavorites,
-              child:
-                  _buildProfileOption('My Favorites', Ionicons.heart_outline),
+            // 4. UPDATED SIGN OUT BUTTON WITH BORDER
+            Card(
+              // Wrap in Card for consistent elevation and rounded corners
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              child: _buildSignOutOption(context),
             ),
-            const SizedBox(height: 10),
-
-            // ACCOUNT SETTINGS BUTTON
-            GestureDetector(
-              onTap: _navigateToSettings,
-              child: _buildProfileOption(
-                  'Account Settings', Ionicons.person_circle_outline),
-            ),
-            const SizedBox(height: 10),
-
-            // SIGN OUT BUTTON
-            _buildSignOutOption(context),
             const SizedBox(height: 20),
-
-            const Spacer(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildUserIcon() {
-    return const Icon(
-      Ionicons.person,
-      size: 80,
-      color: Colors.amber,
-    );
-  }
-
-  Widget _buildUserInfo(Users user) {
-    return Column(
-      children: [
-        Text(
-          user.usrName, // This shows the updated name after setState
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Lato',
-          ),
-        ),
-        const Text(
-          'Welcome to Find My Dorm',
-          style: TextStyle(
-            fontSize: 16,
-            fontFamily: 'Lato',
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildProfileOption(String title, IconData iconData) {
+  // --------------------------------------------------------------------------
+  // ## PROFILE HEADER CARD
+  // --------------------------------------------------------------------------
+  Widget _buildProfileHeaderCard(Users user) {
     return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 20.0),
+      margin: const EdgeInsets.only(bottom: 5),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(6),
-        color: Colors.deepPurple.withOpacity(.2),
+        color: Colors.amber.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(15),
       ),
-      child: ListTile(
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontFamily: 'Lato',
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 40,
+            backgroundColor: Colors.deepPurple,
+            child: Text(
+              user.usrName.isNotEmpty ? user.usrName[0].toUpperCase() : 'U',
+              style: const TextStyle(
+                fontSize: 40,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ),
-        ),
-        leading: Icon(iconData, color: Colors.black),
-        tileColor: Colors.white,
+          const SizedBox(height: 15),
+          Text(
+            user.usrName,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Lato',
+              color: Colors.deepPurple,
+            ),
+          ),
+          Text(
+            user.usrEmail,
+            style: TextStyle(
+              fontSize: 14,
+              fontFamily: 'Lato',
+              color: Colors.grey.shade700,
+            ),
+          ),
+          const SizedBox(height: 5),
+          const Text(
+            'Welcome to Find My Dorm',
+            style: TextStyle(
+              fontSize: 14,
+              fontFamily: 'Lato',
+              fontStyle: FontStyle.italic,
+              color: Colors.black54,
+            ),
+          ),
+        ],
       ),
     );
   }
 
+  // --------------------------------------------------------------------------
+  // ## SETTINGS GROUPING CARD (Used for Favorites and Settings)
+  // --------------------------------------------------------------------------
+  Widget _buildSettingsGroup(List<Widget> options) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Column(
+        children: [
+          for (int i = 0; i < options.length; i++) ...[
+            options[i],
+            if (i < options.length - 1)
+              const Divider(height: 1, indent: 20, endIndent: 20),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // ## PROFILE OPTION
+  // --------------------------------------------------------------------------
+  Widget _buildProfileOption(
+      String title, IconData iconData, VoidCallback onTap, Color iconColor) {
+    return ListTile(
+      leading: Icon(iconData, color: iconColor),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontFamily: 'Lato',
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      trailing: const Icon(Ionicons.chevron_forward, color: Colors.grey),
+      onTap: onTap,
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // ## SIGN OUT OPTION (Now wrapped in a Card for border/elevation consistency)
+  // --------------------------------------------------------------------------
   Widget _buildSignOutOption(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
+    return _buildProfileOption(
+      'Sign Out',
+      Ionicons.log_out_outline,
+      () async {
         final action = await AlertDialogs.yesCancelDialog(
           context,
           'Log out of your account?',
@@ -186,7 +232,7 @@ class _UserState extends State<UserPage> {
           setState(() => tappedYes = false);
         }
       },
-      child: _buildProfileOption('Sign Out', Ionicons.log_out_outline),
+      Colors.red,
     );
   }
 }
