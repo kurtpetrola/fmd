@@ -1,5 +1,9 @@
 # 🏠 Find My Dorm
 
+> [!NOTE]
+> This application is currently not production-ready. It is developed and maintained solely for **educational, portfolio, and demonstration purposes**. Please do not use it for real-world, critical accommodation searches or rely on the data for decision-making.
+---
+
 **Find My Dorm is a dedicated location-based application designed to help individuals find suitable long-term accommodation and dormitories near Pangasinan.** By simplifying the search process, the app provides a user-friendly platform for anyone—whether a student, professional, or long-term visitor—to explore, compare, and locate safe and comfortable lodging options based on their specific needs and location preferences in the area.
 
 ## ✨ Features
