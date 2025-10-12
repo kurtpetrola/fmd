@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/models/users.dart';
+import 'package:ionicons/ionicons.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   final Users user;
@@ -24,7 +25,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   bool _isLoading = false;
   String? _errorMessage;
-  bool _isVisible = false; // For password visibility toggle
+  // Use separate visibility flags for security, though one can be shared if only one field is ever focused
+  bool _isCurrentVisible = false;
+  bool _isNewVisible = false;
+  bool _isConfirmVisible = false;
 
   @override
   void dispose() {
@@ -47,9 +51,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
     try {
       // 1. Verify the current password
-      // Since the Users object passed to this page only has the HASHED password in its
-      // usrPassword field (from the login retrieval), we verify the current password
-      // against that stored hash.
       final bool isCurrentPasswordValid = BCrypt.checkpw(
         plainCurrentPassword,
         widget.user.usrPassword, // This holds the stored hash!
@@ -62,19 +63,11 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         return;
       }
 
-      // Prevent changing to the same password (optional but good practice)
-      // Note: This check only prevents the new plaintext password from being
-      // identical to the plaintext password they *just* entered as "current".
-      // A more robust check might compare the *new hash* to the *old hash*,
-      // but the BCrypt library handles comparison securely, so checking the plaintext
-      // against itself is fine for basic UX.
-
       // 2. Hash the new password securely
       final String salt = BCrypt.gensalt();
       final String hashedPassword = BCrypt.hashpw(plainNewPassword, salt);
 
       // 3. Update the database
-      // The database helper needs to be updated to accept the user ID and the new hash.
       int rowsAffected =
           await dbHelper.updatePassword(widget.user.usrId!, hashedPassword);
 
@@ -84,11 +77,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             const SnackBar(content: Text('Password updated successfully!')),
           );
           // 4. Important: Log the user out after a password change for security
-          // You should navigate back to your LoginPage or SelectionPage,
-          // forcing a re-login with the new password.
+          // Navigate to the root (login page)
           Navigator.of(context).popUntil((route) => route.isFirst);
-          // Assuming your LoginPage is the first route, adjust as needed.
-          // A safer route is to push a dedicated login prompt/page.
         }
       } else {
         setState(() {
@@ -110,6 +100,58 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     }
   }
 
+  // --- Generic Card Container for Info Grouping (Copied from AccountSettingsPage) ---
+  Widget _buildInfoCard(
+      {required String title, required List<Widget> children}) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      margin: const EdgeInsets.only(bottom: 20),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple,
+              ),
+            ),
+            const Divider(height: 15, thickness: 1.5),
+            ...children,
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- Password Field Builder with Card Consistency ---
+  Widget _buildPasswordField(
+      TextEditingController controller,
+      String label,
+      bool isVisible,
+      ValueChanged<bool> onVisibilityToggle,
+      String? Function(String?) validator) {
+    return TextFormField(
+      controller: controller,
+      obscureText: !isVisible,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        prefixIcon: const Icon(Ionicons.lock_closed_outline),
+        suffixIcon: IconButton(
+          icon:
+              Icon(isVisible ? Ionicons.eye_outline : Ionicons.eye_off_outline),
+          onPressed: () => onVisibilityToggle(!isVisible),
+        ),
+      ),
+      validator: validator,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,47 +166,72 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              const Text(
-                'Enter your current and new passwords.',
-                style: TextStyle(fontSize: 16, color: Colors.black54),
+              // Apply the Card design to the password fields
+              _buildInfoCard(
+                title: 'Security Update',
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 10.0),
+                    child: Text(
+                      'Enter your current and new passwords. You will be logged out after a successful password change.',
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+
+                  // Current Password Field
+                  _buildPasswordField(
+                    _currentPasswordController,
+                    'Current Password',
+                    _isCurrentVisible,
+                    (value) => setState(() => _isCurrentVisible = value),
+                    (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your current password.';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 15),
+
+                  // New Password Field
+                  _buildPasswordField(
+                    _newPasswordController,
+                    'New Password',
+                    _isNewVisible,
+                    (value) => setState(() => _isNewVisible = value),
+                    (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a new password.';
+                      }
+                      if (value.length < 6) {
+                        return 'Password must be at least 6 characters.';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 15),
+
+                  // Confirm New Password Field
+                  _buildPasswordField(
+                    _confirmPasswordController,
+                    'Confirm New Password',
+                    _isConfirmVisible,
+                    (value) => setState(() => _isConfirmVisible = value),
+                    (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please confirm your new password.';
+                      }
+                      if (value != _newPasswordController.text) {
+                        return 'Passwords do not match.';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
 
-              // Current Password Field
-              _buildPasswordField(
-                  _currentPasswordController, 'Current Password', (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your current password.';
-                }
-                return null;
-              }),
-              const SizedBox(height: 20),
-
-              // New Password Field
-              _buildPasswordField(_newPasswordController, 'New Password',
-                  (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a new password.';
-                }
-                if (value.length < 6) {
-                  return 'Password must be at least 6 characters.';
-                }
-                return null;
-              }),
-              const SizedBox(height: 20),
-
-              // Confirm New Password Field
-              _buildPasswordField(
-                  _confirmPasswordController, 'Confirm New Password', (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please confirm your new password.';
-                }
-                if (value != _newPasswordController.text) {
-                  return 'Passwords do not match.';
-                }
-                return null;
-              }),
-              const SizedBox(height: 30),
+              const SizedBox(height: 10),
 
               if (_errorMessage != null)
                 Padding(
@@ -206,28 +273,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildPasswordField(TextEditingController controller, String label,
-      String? Function(String?) validator) {
-    return TextFormField(
-      controller: controller,
-      obscureText: !_isVisible,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-        prefixIcon: const Icon(Icons.lock),
-        suffixIcon: IconButton(
-          icon: Icon(_isVisible ? Icons.visibility : Icons.visibility_off),
-          onPressed: () {
-            setState(() {
-              _isVisible = !_isVisible;
-            });
-          },
-        ),
-      ),
-      validator: validator,
     );
   }
 }

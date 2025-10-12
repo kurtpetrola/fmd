@@ -24,19 +24,18 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserState extends State<UserPage> {
-  final DatabaseHelper handler = DatabaseHelper.instance; // Cleaner syntax
+  final DatabaseHelper handler = DatabaseHelper.instance;
 
-  // FIX: Re-add the missing state variables
   DateTime backPressedTime = DateTime.now();
   String title = 'AlertDialog';
-  bool tappedYes = false; // <--- ADD THIS LINE BACK
+  bool tappedYes = false;
 
   @override
   void initState() {
     super.initState();
   }
 
-// NEW Helper method to navigate to the Favorites Page
+  // NEW Helper method to navigate to the Favorites Page
   void _navigateToFavorites() {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -54,14 +53,31 @@ class _UserState extends State<UserPage> {
       MaterialPageRoute(
         builder: (context) => AccountSettingsPage(
           user: widget.currentUser,
+          // The onUserUpdated callback here updates the currentUser reference
+          // in the parent (HomeHolder/main widget), but not the UI of *this* page.
           onUserUpdated: widget.onUserUpdated,
         ),
       ),
     );
+
+    // ----------------------------------------------------------------------
+    // FIX: Trigger a rebuild of the UserPage's UI
+    // The widget.currentUser is already updated by the callback,
+    // we just need to tell the widget to redraw itself with the new data.
+    // ----------------------------------------------------------------------
+    if (mounted) {
+      setState(() {
+        // Empty setState is fine, as it forces the build method to run
+        // and pull the updated widget.currentUser data.
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // The UI elements like _buildUserInfo rely on widget.currentUser.
+    // Calling setState in _navigateToSettings ensures this build method runs
+    // after the AccountSettingsPage returns.
     return Scaffold(
       appBar: null,
       body: Padding(
@@ -71,6 +87,7 @@ class _UserState extends State<UserPage> {
             const SizedBox(height: 40),
             _buildUserIcon(),
             const SizedBox(height: 15),
+            // This widget uses the updated widget.currentUser
             _buildUserInfo(widget.currentUser),
             const SizedBox(height: 40),
 
@@ -113,16 +130,16 @@ class _UserState extends State<UserPage> {
     return Column(
       children: [
         Text(
-          user.usrName,
+          user.usrName, // This shows the updated name after setState
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             fontFamily: 'Lato',
           ),
         ),
-        Text(
+        const Text(
           'Welcome to Find My Dorm',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontFamily: 'Lato',
           ),

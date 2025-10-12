@@ -24,6 +24,9 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   final _formKey = GlobalKey<FormState>();
   final dbHelper = DatabaseHelper.instance;
 
+  // 1. STATE VARIABLE TO HOLD LOCAL USER DATA
+  late Users _localUser;
+
   // State variable to manage View (false) vs Edit (true) mode
   bool _isEditing = false;
 
@@ -31,7 +34,6 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   late final TextEditingController _emailController;
   late final TextEditingController _addressController;
 
-  // 1. ADD STATE FOR GENDER SELECTION
   late String _selectedGender;
 
   bool _isLoading = false;
@@ -43,14 +45,21 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   @override
   void initState() {
     super.initState();
-    // Initialize controllers with the current user data
-    _usernameController = TextEditingController(text: widget.user.usrName);
-    _emailController = TextEditingController(text: widget.user.usrEmail);
-    _addressController = TextEditingController(text: widget.user.usrAddress);
+    // 2. INITIALIZE LOCAL USER FROM WIDGET PROPERTY
+    _localUser = widget.user;
 
-    // 2. INITIALIZE GENDER STATE
-    _selectedGender = widget.user.usrGender;
+    // Initialize controllers with the current user data (from _localUser now)
+    _usernameController = TextEditingController(text: _localUser.usrName);
+    _emailController = TextEditingController(text: _localUser.usrEmail);
+    _addressController = TextEditingController(text: _localUser.usrAddress);
+
+    // INITIALIZE GENDER STATE
+    _selectedGender = _localUser.usrGender;
   }
+
+  // NOTE: If the UserPage were to update the user object while this page
+  // is on the screen, didUpdateWidget would be needed, but since this
+  // page is modal, we can skip that for simplicity.
 
   @override
   void dispose() {
@@ -67,20 +76,12 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       _errorMessage = null; // Clear error message when toggling mode
     });
 
-    if (_isEditing) {
-      // Restore controllers and state to current widget data when entering edit mode
-      _usernameController.text = widget.user.usrName;
-      _emailController.text = widget.user.usrEmail;
-      _addressController.text = widget.user.usrAddress;
-      _selectedGender = widget.user.usrGender; // Restore Gender
-    }
-
+    // Restore controllers and state to current widget data when CANCELING edit mode
     if (!_isEditing) {
-      // Restore controllers and state to current widget data after save/cancel
-      _usernameController.text = widget.user.usrName;
-      _emailController.text = widget.user.usrEmail;
-      _addressController.text = widget.user.usrAddress;
-      _selectedGender = widget.user.usrGender; // Restore Gender
+      _usernameController.text = _localUser.usrName;
+      _emailController.text = _localUser.usrEmail;
+      _addressController.text = _localUser.usrAddress;
+      _selectedGender = _localUser.usrGender; // Restore Gender
     }
   }
 
@@ -90,14 +91,13 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     final newUsername = _usernameController.text.trim();
     final newEmail = _emailController.text.trim();
     final newAddress = _addressController.text.trim();
-    // CAPTURE NEW GENDER VALUE
     final newGender = _selectedGender;
 
-    // Check if anything has actually changed (NOW INCLUDING GENDER)
-    if (newUsername == widget.user.usrName &&
-        newEmail == widget.user.usrEmail &&
-        newAddress == widget.user.usrAddress &&
-        newGender == widget.user.usrGender) {
+    // Check if anything has actually changed (use _localUser for comparison)
+    if (newUsername == _localUser.usrName &&
+        newEmail == _localUser.usrEmail &&
+        newAddress == _localUser.usrAddress &&
+        newGender == _localUser.usrGender) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No changes detected.')),
@@ -115,7 +115,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     try {
       // 1. Check if the new username or email is already taken
       bool isTaken = await dbHelper.isUsernameOrEmailTaken(
-        widget.user.usrId!,
+        _localUser.usrId!, // Use local user ID
         newUsername,
         newEmail,
       );
@@ -129,19 +129,26 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
       // 2. Create a new Users object with the updated details
       final updatedUser = Users(
-        usrId: widget.user.usrId,
+        usrId: _localUser.usrId,
         usrName: newUsername,
         usrEmail: newEmail,
-        usrPassword: widget.user.usrPassword,
+        usrPassword: _localUser.usrPassword,
         usrAddress: newAddress,
-        usrGender: newGender, // <<< SAVE NEW GENDER
+        usrGender: newGender,
       );
 
       // 3. Persist the changes to the database
       int rowsAffected = await dbHelper.updateUser(updatedUser);
 
       if (rowsAffected > 0) {
-        // 4. Update the local state in HomeHolder via the callback
+        // 4. Update the local state FIRST, then notify the parent, then switch modes
+        if (mounted) {
+          setState(() {
+            _localUser = updatedUser; // <<< THE KEY FIX: UPDATE LOCAL STATE
+          });
+        }
+
+        // 5. Update the parent state via the callback
         widget.onUserUpdated(updatedUser);
 
         if (mounted) {
@@ -191,164 +198,285 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              const Text(
-                'User Profile Information',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
-                ),
-              ),
-              const Divider(height: 30, thickness: 2),
-
-              // Conditional UI rendering based on the editing state
-              _isEditing ? _buildEditModeFields() : _buildViewModeFields(),
-
-              const SizedBox(height: 30),
-
-              if (_errorMessage != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 15.0),
-                  child: Text(
-                    _errorMessage!,
-                    style: const TextStyle(
-                        color: Colors.red, fontWeight: FontWeight.bold),
-                  ),
-                ),
-
-              // Save button (only visible in Edit Mode)
-              if (_isEditing)
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _saveChanges,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                              color: Colors.black, strokeWidth: 2),
-                        )
-                      : const Text(
-                          'SAVE CHANGES',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
-                          ),
-                        ),
-                ),
-            ],
-          ),
+          child: _buildCommonBody(),
         ),
       ),
     );
   }
 
-  // --- Widget Builders for Read-Only View Mode ---
+  // --------------------------------------------------------------------------
+  // ## Common Body Builder for View and Edit Mode
+  // --------------------------------------------------------------------------
 
-  Widget _buildViewModeFields() {
+  Widget _buildCommonBody() {
     return Column(
-      children: [
-        // View Username
-        ListTile(
-          leading: const Icon(Ionicons.person, color: Colors.deepPurple),
-          title: const Text(
-            'Username',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text(
-            widget.user.usrName,
-            style: const TextStyle(fontSize: 16),
-          ),
-        ),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        // 1. Conditional Header/Title (Use _localUser)
+        if (_isEditing)
+          _buildEditModeTitle()
+        else
+          _buildProfileHeader(context, _localUser.usrName, _localUser.usrEmail),
 
-        // View Email
-        ListTile(
-          leading: const Icon(Ionicons.mail, color: Colors.deepPurple),
-          title: const Text(
-            'Email Address',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text(
-            widget.user.usrEmail,
-            style: const TextStyle(fontSize: 16),
-          ),
-        ),
+        // 2. Account Details Card (View or Edit fields)
+        _isEditing ? _buildEditModeCard() : _buildViewModeCard(),
 
-        const Divider(height: 20),
+        // 3. Security Card (Always visible, separate from details)
+        _buildSecurityCard(),
 
-        // View Address
-        ListTile(
-          leading:
-              const Icon(Ionicons.location_outline, color: Colors.deepPurple),
-          title: const Text(
-            'Address',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text(
-            widget.user.usrAddress,
-            style: const TextStyle(fontSize: 16),
-          ),
-        ),
+        const SizedBox(height: 30),
 
-        // View Gender
-        ListTile(
-          leading:
-              const Icon(Ionicons.people_outline, color: Colors.deepPurple),
-          title: const Text(
-            'Gender',
-            style: TextStyle(fontWeight: FontWeight.bold),
+        if (_errorMessage != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 15.0),
+            child: Text(
+              _errorMessage!,
+              style: const TextStyle(
+                  color: Colors.red, fontWeight: FontWeight.bold),
+            ),
           ),
-          subtitle: Text(
-            widget.user.usrGender,
-            style: const TextStyle(fontSize: 16),
-          ),
-        ),
 
-        const Divider(height: 30), // Separator
-
-        // Change Password Option
-        ListTile(
-          leading: const Icon(Ionicons.key_outline, color: Colors.deepPurple),
-          title: const Text(
-            'Change Password',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          trailing: const Icon(Ionicons.chevron_forward),
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => ChangePasswordPage(user: widget.user),
+        // 4. Save button (only visible in Edit Mode)
+        if (_isEditing)
+          ElevatedButton(
+            onPressed: _isLoading ? null : _saveChanges,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.amber,
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
               ),
-            );
-          },
-        ),
+            ),
+            child: _isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                        color: Colors.black, strokeWidth: 2),
+                  )
+                : const Text(
+                    'SAVE CHANGES',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
+                    ),
+                  ),
+          ),
       ],
     );
   }
 
-  // --- Widget Builders for Editable Mode ---
+  // --- Compact Title for Edit Mode ---
+  Widget _buildEditModeTitle() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
+      child: Text(
+        'Update Your Profile Information',
+        style: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: Colors.deepPurple,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
 
-  Widget _buildEditModeFields() {
-    return Column(
-      children: [
-        // Editable Username Field
-        TextFormField(
-          controller: _usernameController,
-          decoration: const InputDecoration(
-            labelText: 'Username',
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Ionicons.person),
+  // --------------------------------------------------------------------------
+  // ## Profile Header (View Mode Only)
+  // --------------------------------------------------------------------------
+
+  Widget _buildProfileHeader(BuildContext context, String name, String email) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final headerHeight = screenHeight * 0.20;
+    const minHeight = 150.0;
+
+    return Container(
+      height: headerHeight > minHeight ? headerHeight : minHeight,
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: Colors.amber.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircleAvatar(
+            radius: 30,
+            backgroundColor: Colors.deepPurple,
+            child: Text(
+              name.isNotEmpty ? name[0].toUpperCase() : 'U',
+              style: const TextStyle(
+                  fontSize: 24,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold),
+            ),
           ),
+          const SizedBox(height: 8),
+          Text(
+            name,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            email,
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // ## Component Builders (Shared)
+  // --------------------------------------------------------------------------
+
+  // --- Info Row (for key-value display) ---
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.deepPurple.shade400, size: 24),
+          const SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Generic Card Container for Info Grouping ---
+  Widget _buildInfoCard(
+      {required String title, required List<Widget> children}) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      margin: const EdgeInsets.only(bottom: 20),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple,
+              ),
+            ),
+            const Divider(height: 15, thickness: 1.5),
+            ...children,
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- Security Card (Change Password) ---
+  Widget _buildSecurityCard() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      margin: const EdgeInsets.only(bottom: 20),
+      child: ListTile(
+        leading: const Icon(Ionicons.key_outline,
+            color: Colors.redAccent), // Highlight security
+        title: const Text(
+          'Change Password',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        trailing: const Icon(Ionicons.chevron_forward),
+        onTap: () {
+          // Pass the updated local user object to ChangePasswordPage
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => ChangePasswordPage(user: _localUser),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // --- Helper for consistent TextFormField styling ---
+  Widget _buildTextFormField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    String? Function(String?)? validator,
+    TextInputType keyboardType = TextInputType.text,
+    int maxLines = 1,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        prefixIcon: Icon(icon),
+      ),
+      validator: validator,
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // ## View Mode (Read-Only)
+  // --------------------------------------------------------------------------
+
+  Widget _buildViewModeCard() {
+    // Returns a single card for account details in view mode
+    return _buildInfoCard(
+      title: 'Account Details',
+      children: [
+        // Address (Uses _localUser)
+        _buildInfoRow(
+            Ionicons.location_outline, 'Address', _localUser.usrAddress),
+        const Divider(height: 0, indent: 45),
+        // Gender (Uses _localUser)
+        _buildInfoRow(Ionicons.people_outline, 'Gender', _localUser.usrGender),
+      ],
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // ## Edit Mode (Consistent Card Design)
+  // --------------------------------------------------------------------------
+
+  Widget _buildEditModeCard() {
+    // Returns a single card containing all editable fields
+    return _buildInfoCard(
+      title: 'Edit Account Details',
+      children: [
+        // ... (TextFormFields and Dropdown remain the same, bound to controllers)
+        // Editable Username Field
+        _buildTextFormField(
+          controller: _usernameController,
+          label: 'Username',
+          icon: Ionicons.person,
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return 'Username cannot be empty.';
@@ -356,17 +484,14 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             return null;
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 15),
 
         // Editable Email Field
-        TextFormField(
+        _buildTextFormField(
           controller: _emailController,
+          label: 'Email Address',
+          icon: Ionicons.mail,
           keyboardType: TextInputType.emailAddress,
-          decoration: const InputDecoration(
-            labelText: 'Email Address',
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Ionicons.mail),
-          ),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return 'Email cannot be empty.';
@@ -377,17 +502,14 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             return null;
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 15),
 
         // Editable Address Field
-        TextFormField(
+        _buildTextFormField(
           controller: _addressController,
-          maxLines: 2, // Allow address to take more space
-          decoration: const InputDecoration(
-            labelText: 'Address',
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Ionicons.location),
-          ),
+          label: 'Address',
+          icon: Ionicons.location,
+          maxLines: 2,
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return 'Address cannot be empty.';
@@ -395,11 +517,10 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             return null;
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 15),
 
-        // 3. NEW: Editable Gender Dropdown
+        // Editable Gender Dropdown
         DropdownButtonFormField<String>(
-          // Set value to null if empty string to display the hint/label text properly
           value: _selectedGender.isNotEmpty &&
                   _genderOptions.contains(_selectedGender)
               ? _selectedGender
