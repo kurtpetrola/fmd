@@ -104,23 +104,27 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   Widget _buildInfoCard(
       {required String title, required List<Widget> children}) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      margin: const EdgeInsets.only(bottom: 20),
+      // Consistent card style
+      elevation: 6,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12)), // Match fields
+      margin: const EdgeInsets.only(bottom: 25), // Increased margin
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(18.0), // Consistent padding
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               title,
               style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.deepPurple,
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                // 🟢 IMPROVEMENT: Use a dark neutral color
+                color: Colors.black87,
               ),
             ),
-            const Divider(height: 15, thickness: 1.5),
+            // Thinner divider
+            const Divider(height: 20, thickness: 0.8, color: Colors.grey),
             ...children,
           ],
         ),
@@ -135,16 +139,39 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       bool isVisible,
       ValueChanged<bool> onVisibilityToggle,
       String? Function(String?) validator) {
+    final Color amberColor = Colors.amber.shade700; // Define primary color
+
     return TextFormField(
       controller: controller,
       obscureText: !isVisible,
       decoration: InputDecoration(
         labelText: label,
-        border: const OutlineInputBorder(),
-        prefixIcon: const Icon(Ionicons.lock_closed_outline),
+        // Modern, filled styling
+        filled: true,
+        fillColor: Colors.grey.shade100,
+
+        // Soft, rounded border
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+
+        // Themed focused border
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: amberColor, width: 2.0),
+        ),
+
+        // Themed icon color for consistency
+        prefixIcon: Icon(Ionicons.lock_closed_outline, color: amberColor),
+        contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+
         suffixIcon: IconButton(
-          icon:
-              Icon(isVisible ? Ionicons.eye_outline : Ionicons.eye_off_outline),
+          icon: Icon(
+            isVisible ? Ionicons.eye_outline : Ionicons.eye_off_outline,
+            color:
+                Colors.grey.shade600, // Use a neutral color for secondary icon
+          ),
           onPressed: () => onVisibilityToggle(!isVisible),
         ),
       ),
@@ -156,8 +183,18 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Change Password'),
-        backgroundColor: Colors.amber,
+        title: const Text(
+          'Change Password',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Lato',
+          ),
+        ),
+        // Use the specific shade and color contrast from other pages
+        backgroundColor: Colors.amber.shade700,
+        foregroundColor: Colors.white, // Text and back button color
+        centerTitle: true,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
@@ -247,25 +284,31 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               ElevatedButton(
                 onPressed: _isLoading ? null : _changePassword,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  //  Use the specific shade and white text for high contrast
+                  backgroundColor: Colors.amber.shade700,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 18), // Taller button
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius:
+                        BorderRadius.circular(12), // Match field radius
                   ),
+                  elevation: 6, // Make it pop
                 ),
                 child: _isLoading
                     ? const SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                            color: Colors.black, strokeWidth: 2),
+                            color: Colors.white, // White spinner for contrast
+                            strokeWidth: 2.5),
                       )
                     : const Text(
                         'UPDATE PASSWORD',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
-                          color: Colors.black,
+                          color: Colors.white, // White text for contrast
+                          letterSpacing: 0.5,
                         ),
                       ),
               ),
