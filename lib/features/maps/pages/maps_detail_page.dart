@@ -31,8 +31,15 @@ class _MapsDetailState extends State<MapsDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.dormName} Location'), // Use the dynamic name
-        backgroundColor: Colors.amber,
+        title: Text(
+          '${widget.dormName} Location',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Lato',
+          ),
+        ), // Use the dynamic name
+        backgroundColor: Colors.amber.shade700,
+        foregroundColor: Colors.white,
         centerTitle: true,
       ),
       body: FlutterMap(

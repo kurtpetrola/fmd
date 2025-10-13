@@ -10,7 +10,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:findmydorm/features/dorms/pages/dorm_lists.dart';
 
 class HomeHolder extends StatefulWidget {
-  // 1. The initial user object received from the LoginPage
+  //  The initial user object received from the LoginPage
   final Users currentUser;
 
   const HomeHolder({super.key, required this.currentUser});
@@ -22,32 +22,32 @@ class HomeHolder extends StatefulWidget {
 class _HomeHolderState extends State<HomeHolder> {
   GlobalKey _navKey = GlobalKey();
 
-  // 2. Mutable state variable to hold the current user data.
+  // Mutable state variable to hold the current user data.
   // We use 'late' because it will be initialized in initState.
   late Users _currentUser;
 
-  // 3. Mutable list of pages, which will be built with the current user state.
+  //  Mutable list of pages, which will be built with the current user state.
   late List<Widget> _pagesAll;
-  var myIndex = 0;
+  var myIndex = 0; // Current selected index
 
   @override
   void initState() {
     super.initState();
-    // 4. Initialize the late fields in the correct lifecycle stage (initState)
+    // Initialize the late fields in the correct lifecycle stage (initState)
     // using the data passed to the widget.
     _currentUser = widget.currentUser;
     // Build the initial list of pages
     _pagesAll = _buildPages();
   }
 
-// 5. Function to rebuild the pages with the updated user data
+// unction to rebuild the pages with the updated user data
   List<Widget> _buildPages() {
     final bool isAdmin = _currentUser.usrRole == 'Admin';
 
     return [
       const HomePage(),
 
-      // Conditional Page Load: Admin gets CRUD page, User gets view list.
+      // Conditional Page Load
       isAdmin
           ? const AdminPage() // ADMIN: Full CRUD control
           : const DormList(), // USER: View-only dynamic list
@@ -59,7 +59,7 @@ class _HomeHolderState extends State<HomeHolder> {
     ];
   }
 
-// 6. Callback function to update the user data and trigger a rebuild
+// Callback function to update the user data and trigger a rebuild
   void _updateUser(Users updatedUser) {
     setState(() {
       _currentUser = updatedUser;
@@ -70,12 +70,29 @@ class _HomeHolderState extends State<HomeHolder> {
   @override
   Widget build(BuildContext context) {
     final bool isAdmin = _currentUser.usrRole == 'Admin';
+    final Color primaryAmber =
+        Colors.amber.shade700; // Define a consistent primary color
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      // Removed resizeToAvoidBottomInset: false for better keyboard handling
+
+      // === SMOOTH NAVIGATION BODY: Using IndexedStack ===
+      body: IndexedStack(
+        index: myIndex,
+        children: _pagesAll,
+      ),
+
       bottomNavigationBar: CurvedNavigationBar(
+        // The color of the bar itself (the curved background)
+        color: primaryAmber,
+
+        // This ensures the curve looks natural against the Scaffold body
         backgroundColor: Colors.transparent,
+
         key: _navKey,
+        index: myIndex,
+        height: 60.0, // Standard height for a comfortable feel
+
         items: [
           Icon(
             (myIndex == 0) ? Ionicons.home : Ionicons.home_outline,
@@ -97,16 +114,19 @@ class _HomeHolderState extends State<HomeHolder> {
             color: Colors.white,
           ),
         ],
-        buttonBackgroundColor: Colors.amber,
+
+        // The color of the circular button highlight
+        buttonBackgroundColor: primaryAmber,
+
         onTap: (index) {
           setState(() {
             myIndex = index;
           });
         },
-        animationCurve: Curves.fastLinearToSlowEaseIn,
-        color: Colors.amber,
+        // Slightly faster animation curve feels snappier
+        animationCurve: Curves.easeInOutQuad,
+        animationDuration: const Duration(milliseconds: 300),
       ),
-      body: _pagesAll[myIndex],
     );
   }
 }

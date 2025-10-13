@@ -181,8 +181,17 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Profile' : 'Account Settings'),
-        backgroundColor: Colors.amber,
+        title: Text(
+          _isEditing ? 'Edit Profile' : 'Account Settings',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Lato',
+          ),
+        ),
+        backgroundColor: Colors.amber.shade700,
+        foregroundColor: Colors.white, // For the back button and text color
+        centerTitle: true,
+        elevation: 0,
         actions: [
           // Toggle button to switch between View and Edit mode
           IconButton(
