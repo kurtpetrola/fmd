@@ -4,39 +4,35 @@ import 'package:flutter/material.dart';
 import 'package:findmydorm/pages/registration_page.dart';
 
 class RegisterButton extends StatelessWidget {
-  final Function()? onPressed;
-
   const RegisterButton({
     super.key,
-    required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
+    // Used a different widget for visual hierarchy
+    return OutlinedButton(
       onPressed: () {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (BuildContext context) => SignUpScreen()));
+            builder: (BuildContext context) => const SignUpScreen()));
       },
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.all(15),
-        backgroundColor: Colors.black,
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 15),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(15),
         ),
-        minimumSize: Size(250, 55), // Sets minimum width and height
-        elevation: 2, // Adds a small shadow
+        side: BorderSide(
+          color: Colors.amber.shade700,
+          width: 2,
+        ),
       ),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 55),
-        child: Text(
-          "REGISTER",
-          style: TextStyle(
-            color: Colors.white,
-            fontFamily: 'Lato',
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-          ),
+      child: Text(
+        "REGISTER",
+        style: TextStyle(
+          color: Colors.amber.shade700, // Amber text
+          fontFamily: 'Inter', // Consistent font family
+          fontWeight: FontWeight.w700,
+          fontSize: 18,
         ),
       ),
     );
