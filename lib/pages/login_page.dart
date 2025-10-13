@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/components/bottom_navbar.dart';
+import 'package:ionicons/ionicons.dart';
 import 'registration_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -24,24 +25,27 @@ class _LoginScreenState extends State<LoginPage> {
   final db = DatabaseHelper.instance;
   final formKey = GlobalKey<FormState>();
 
+  // --- THEME COLOR CONSTANTS ---
+  final Color primaryAmber = Colors.amber.shade700;
+  final Color inputFillColor = Colors.grey.shade100;
+
   // --- Core Login Logic ---
   login() async {
     final enteredIdentifier = identifierController.text.trim();
     final enteredPassword = passwordController.text.trim();
 
     try {
-      // 1. Attempt login verification using the identifier and password
+      // Attempt login verification using the identifier and password
       var isAuthenticated = await db.login(Users(
-        usrName:
-            enteredIdentifier, // Used as the identifier for the OR check in DB
-        usrEmail: '', // Placeholder
+        usrName: enteredIdentifier,
+        usrEmail: '',
         usrPassword: enteredPassword,
-        usrAddress: '', // Placeholder
-        usrGender: '', // Placeholder
+        usrAddress: '',
+        usrGender: '',
       ));
 
       if (isAuthenticated == true) {
-        // 2. If login is successful, retrieve the full Users object (needed for role and details)
+        // If login is successful, retrieve the full Users object (needed for role and details)
         Users? loggedInUser =
             await db.getUserByUsernameOrEmail(enteredIdentifier);
 
@@ -54,7 +58,7 @@ class _LoginScreenState extends State<LoginPage> {
             isLoginTrue = false; // Clear any previous error messages
           });
 
-          // 3. Navigate and pass the full, correct Users object to HomeHolder
+          // Navigate and pass the full, correct Users object to HomeHolder
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -79,8 +83,8 @@ class _LoginScreenState extends State<LoginPage> {
 
   void _showError({String message = "Username or password is incorrect"}) {
     setState(() {
-      isLoginTrue = true; // Show the red error text field
-      errorMessage = message; // Update the message
+      isLoginTrue = true;
+      errorMessage = message;
     });
     // Also display a SnackBar for quick user feedback
     ScaffoldMessenger.of(context).showSnackBar(
@@ -98,143 +102,189 @@ class _LoginScreenState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Form(
-              key: formKey,
-              child: Column(
-                children: [
-                  Image.asset(
-                    "assets/images/logo1.png",
-                    height: 200,
-                  ),
-                  const Text(
-                    'Find My Dorm',
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w900,
-                        fontSize: 20),
-                  ),
-                  const SizedBox(height: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 15.0),
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 80),
 
-                  // Username/Email field
-                  Container(
-                    margin: const EdgeInsets.all(8),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.deepPurple.withOpacity(.2)),
-                    child: TextFormField(
-                      controller: identifierController,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return "Username or Email is required.";
-                        }
-                        return null;
+                // Logo
+                Center(
+                  child: Image.asset(
+                    "assets/images/logo1.png",
+                    height: 150,
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // "Find My Dorm" text
+                const Text(
+                  'Find My Dorm',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w900,
+                    fontSize: 24, // Slightly larger font for prominence
+                  ),
+                ),
+                const SizedBox(height: 40), // More space before input fields
+
+                // Username/Email field (Styled)
+                TextFormField(
+                  controller: identifierController,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "Username or Email is required.";
+                    }
+                    return null;
+                  },
+                  decoration: _buildInputDecoration(
+                    hintText: 'Username or Email Address',
+                    icon: Ionicons.person_outline,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Password field (Styled)
+                TextFormField(
+                  controller: passwordController,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "Password is required.";
+                    }
+                    return null;
+                  },
+                  obscureText: !isVisible,
+                  decoration: _buildInputDecoration(
+                    hintText: 'Password',
+                    icon: Ionicons.lock_closed_outline,
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          isVisible = !isVisible;
+                        });
                       },
-                      decoration: const InputDecoration(
-                        icon: Icon(Icons.person),
-                        border: InputBorder.none,
-                        labelText: 'Username or Email Address',
+                      icon: Icon(
+                        isVisible
+                            ? Ionicons.eye_off_outline
+                            : Ionicons.eye_outline,
+                        color: primaryAmber,
                       ),
                     ),
                   ),
+                ),
 
-                  // Password field
-                  Container(
-                    margin: const EdgeInsets.all(8),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.deepPurple.withOpacity(.2)),
-                    child: TextFormField(
-                      controller: passwordController,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return "This field is required.";
-                        }
-                        return null;
-                      },
-                      obscureText: !isVisible,
-                      decoration: InputDecoration(
-                          icon: const Icon(Icons.lock),
-                          border: InputBorder.none,
-                          labelText: 'Password',
-                          suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  isVisible = !isVisible;
-                                });
-                              },
-                              icon: Icon(isVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off))),
+                const SizedBox(height: 30),
+
+                // Login button (Styled)
+                SizedBox(
+                  height: 55,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.black,
+                      backgroundColor: primaryAmber,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 5,
+                    ),
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        setState(() {
+                          isLoginTrue = false;
+                        });
+                        login();
+                      }
+                    },
+                    child: const Text(
+                      "LOGIN",
+                      style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 18),
                     ),
                   ),
+                ),
+                const SizedBox(height: 10),
 
-                  const SizedBox(height: 10),
-                  // Login button
-                  Container(
-                    height: 55,
-                    width: MediaQuery.of(context).size.width * .9,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: Colors.amber),
-                    child: TextButton(
-                        onPressed: () {
-                          if (formKey.currentState!.validate()) {
-                            // Clear previous errors before attempting new login
-                            setState(() {
-                              isLoginTrue = false;
-                            });
-                            login(); // Calls the async login logic
-                          }
-                        },
-                        child: const Text(
-                          "LOGIN",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w700,
-                              fontSize: 18),
-                        )),
-                  ),
+                // Sign up button (Styled)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Don't have an account yet?",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const SignUpScreen()));
+                      },
+                      child: Text(
+                        "Register now",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: primaryAmber,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
 
-                  // Sign up button
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Don't have an account yet?"),
-                      TextButton(
-                          onPressed: () {
-                            //Navigate to sign up
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const SignUpScreen()));
-                          },
-                          child: const Text("Register now"))
-                    ],
-                  ),
+                const SizedBox(height: 20),
 
-                  // Error message display
-                  isLoginTrue
-                      ? Text(
-                          errorMessage, // Display the dynamic error message
-                          style: const TextStyle(color: Colors.red),
-                        )
-                      : const SizedBox(),
-                ],
-              ),
+                // Error message display
+                if (isLoginTrue)
+                  Text(
+                    errorMessage,
+                    style: const TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.bold),
+                  )
+                else
+                  const SizedBox.shrink(),
+              ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // --- UI HELPER FUNCTIONS ---
+
+  // Helper function for consistent decoration style (Copied from registration_page)
+  InputDecoration _buildInputDecoration({
+    required String hintText,
+    required IconData icon,
+    Widget? suffixIcon,
+  }) {
+    const borderRadius = BorderRadius.all(Radius.circular(15.0));
+    return InputDecoration(
+      hintText: hintText,
+      filled: true,
+      fillColor: inputFillColor,
+      prefixIcon: Icon(icon, color: primaryAmber),
+      suffixIcon: suffixIcon,
+      contentPadding:
+          const EdgeInsets.symmetric(vertical: 18.0, horizontal: 20.0),
+      border: const OutlineInputBorder(
+        borderRadius: borderRadius,
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: borderRadius,
+        borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: borderRadius,
+        borderSide: BorderSide(color: primaryAmber, width: 2.0),
       ),
     );
   }
