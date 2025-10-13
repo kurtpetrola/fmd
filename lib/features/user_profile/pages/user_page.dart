@@ -68,9 +68,15 @@ class _UserState extends State<UserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Profile'),
-        backgroundColor: Colors.amber,
-        foregroundColor: Colors.black,
+        title: const Text(
+          'My Profile',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Lato',
+          ),
+        ),
+        backgroundColor: Colors.amber.shade700,
+        foregroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
         centerTitle: true,

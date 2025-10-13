@@ -198,9 +198,15 @@ class _DormListState extends State<DormList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('All Dormitories List'),
-        backgroundColor: Colors.amber,
-        foregroundColor: Colors.black,
+        title: const Text(
+          'All Dormitories List',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Lato',
+          ),
+        ),
+        backgroundColor: Colors.amber.shade700,
+        foregroundColor: Colors.white,
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
