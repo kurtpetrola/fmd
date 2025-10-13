@@ -250,25 +250,30 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
           ElevatedButton(
             onPressed: _isLoading ? null : _saveChanges,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber,
-              padding: const EdgeInsets.symmetric(vertical: 15),
+              // Use the strong primary color for the button
+              backgroundColor: Colors.amber.shade700,
+              padding: const EdgeInsets.symmetric(
+                  vertical: 18), // Slightly taller button
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(12), // Match field radius
               ),
+              elevation: 6, // Make it pop more
             ),
             child: _isLoading
                 ? const SizedBox(
                     height: 20,
                     width: 20,
                     child: CircularProgressIndicator(
-                        color: Colors.black, strokeWidth: 2),
+                        color: Colors.white, // White spinner for contrast
+                        strokeWidth: 2.5), // Slightly thicker spinner
                   )
                 : const Text(
                     'SAVE CHANGES',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: Colors.black,
+                      color: Colors.white, // White text for contrast
+                      letterSpacing: 0.5,
                     ),
                   ),
           ),
@@ -285,7 +290,8 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         style: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.bold,
-          color: Colors.deepPurple,
+          // Use a neutral or primary color, not deepPurple
+          color: Colors.black87,
         ),
         textAlign: TextAlign.center,
       ),
@@ -345,12 +351,13 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   // --- Info Row (for key-value display) ---
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.deepPurple.shade400, size: 24),
-          const SizedBox(width: 15),
+          // 🟢 IMPROVEMENT: Themed Icon Color
+          Icon(icon, color: Colors.amber.shade700, size: 24),
+          const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,14 +366,19 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                   label,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
+                    fontSize: 13,
+                    // 🟢 IMPROVEMENT: Lighter text for the label/key
+                    color: Colors.grey.shade500,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
                   value,
-                  style: const TextStyle(fontSize: 16),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500, // Make value text stand out
+                    color: Colors.black,
+                  ),
                 ),
               ],
             ),
@@ -380,23 +392,28 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   Widget _buildInfoCard(
       {required String title, required List<Widget> children}) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      margin: const EdgeInsets.only(bottom: 20),
+      // 🟢 IMPROVEMENT: Subtle increase in elevation for a modern 'floating' feel
+      elevation: 6,
+      // 🟢 IMPROVEMENT: Match the radius (12) used in the Edit Mode fields
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      // 🟢 IMPROVEMENT: Add a subtle border color for definition
+      margin: const EdgeInsets.only(bottom: 25),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(18.0), // Slightly more padding
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               title,
               style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.deepPurple,
+                fontSize: 17, // Slightly smaller
+                fontWeight: FontWeight.w700, // Slightly bolder
+                // 🟢 IMPROVEMENT: Use a dark neutral color for card titles
+                color: Colors.black87,
               ),
             ),
-            const Divider(height: 15, thickness: 1.5),
+            // 🟢 IMPROVEMENT: Use a thinner divider for a lighter look
+            const Divider(height: 20, thickness: 0.8, color: Colors.grey),
             ...children,
           ],
         ),
@@ -407,17 +424,20 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   // --- Security Card (Change Password) ---
   Widget _buildSecurityCard() {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      margin: const EdgeInsets.only(bottom: 20),
+      elevation: 6, // Match other cards
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.only(bottom: 25), // Match margin
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(
+            vertical: 4, horizontal: 16), // Taller touch target
+        // 🟢 IMPROVEMENT: Use a prominent, but professional, security color
         leading: const Icon(Ionicons.key_outline,
-            color: Colors.redAccent), // Highlight security
+            color: Colors.deepOrangeAccent, size: 28),
         title: const Text(
           'Change Password',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
         ),
-        trailing: const Icon(Ionicons.chevron_forward),
+        trailing: const Icon(Ionicons.chevron_forward, color: Colors.grey),
         onTap: () {
           // Pass the updated local user object to ChangePasswordPage
           Navigator.of(context).push(
@@ -439,14 +459,35 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
   }) {
+    // Define the primary Amber color once for consistency
+    final Color amberColor = Colors.amber.shade700;
+
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: label,
-        border: const OutlineInputBorder(),
-        prefixIcon: Icon(icon),
+        // Use filled background for a modern look
+        filled: true,
+        fillColor:
+            Colors.grey.shade100, // Light grey fill is less harsh than white
+
+        // Use a soft, rounded border
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none, // Hide the default outline
+        ),
+
+        // Themed focused border
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: amberColor, width: 2.0),
+        ),
+
+        // Themed icon color
+        prefixIcon: Icon(icon, color: amberColor),
+        contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
       ),
       validator: validator,
     );
@@ -534,10 +575,21 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                   _genderOptions.contains(_selectedGender)
               ? _selectedGender
               : null,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: 'Gender',
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Ionicons.people),
+            // APPLY MODERN STYLING:
+            filled: true,
+            fillColor: Colors.grey.shade100,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.amber.shade700, width: 2.0),
+            ),
+            prefixIcon: Icon(Ionicons.people, color: Colors.amber.shade700),
+            contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
           ),
           items: _genderOptions.map((String value) {
             return DropdownMenuItem<String>(
