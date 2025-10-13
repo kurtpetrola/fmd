@@ -1,9 +1,8 @@
-// admin_location_picker.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:geocoding/geocoding.dart'; // <<< NEW: For geocoding logic
+import 'package:geocoding/geocoding.dart';
+// REMOVED: import 'package:flutter_map/plugin_api.dart'; // <--- Removed this line
 
 class AdminLocationPicker extends StatefulWidget {
   const AdminLocationPicker({super.key});
@@ -13,23 +12,25 @@ class AdminLocationPicker extends StatefulWidget {
 }
 
 class _AdminLocationPickerState extends State<AdminLocationPicker> {
-  // NEW: MapController to programmatically move the map
   final MapController mapController = MapController();
-
-  // Initial center set to a default (e.g., a central point in the Philippines)
   final LatLng _initialCenter = const LatLng(14.5995, 120.9842);
   LatLng? _selectedLocation;
-
-  // NEW: TextEditingController for the search bar
   final TextEditingController _searchController = TextEditingController();
 
-  // 1. Core Geocoding Logic (Converts text to LatLng)
-  Future<LatLng?> getCoordinatesFromAddress(String address) async {
-    try {
-      // NOTE: This uses the platform's native geocoder (Google/Apple),
-      // which is generally good but has rate limits.
-      List<Location> locations = await locationFromAddress(address);
+  // Define colors for consistent theming
+  final Color primaryAmber = Colors.amber.shade700;
+  final Color foregroundColor = Colors.white;
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<LatLng?> getCoordinatesFromAddress(String address) async {
+    // ... (logic remains the same) ...
+    try {
+      List<Location> locations = await locationFromAddress(address);
       if (locations.isNotEmpty) {
         Location firstResult = locations.first;
         return LatLng(firstResult.latitude, firstResult.longitude);
@@ -41,21 +42,17 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
     }
   }
 
-  // 2. Navigation Logic (Moves the map and selects the location)
   void navigateToPlace(String placeName) async {
+    // ... (logic remains the same) ...
     final LatLng? coordinates = await getCoordinatesFromAddress(placeName);
-
     if (coordinates != null) {
       setState(() {
         _selectedLocation = coordinates;
       });
-
-      // Animate the map camera to the new coordinates
       mapController.move(
-        coordinates, // The LatLng destination
-        16.0, // The desired zoom level
+        coordinates,
+        16.0,
       );
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Found and selected: $placeName'),
@@ -71,31 +68,30 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
     }
   }
 
-  // Existing tap handler
   void _handleTap(TapPosition tapPosition, LatLng latLng) {
     setState(() {
       _selectedLocation = latLng;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-            'Selected: Lat ${latLng.latitude.toStringAsFixed(4)}, Lng ${latLng.longitude.toStringAsFixed(4)}'),
-        duration: const Duration(milliseconds: 1000),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Select Dorm Location'),
-        backgroundColor: Colors.amber,
+        title: const Text(
+          'Select Dorm Location',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Lato',
+          ),
+        ),
+        backgroundColor: primaryAmber,
+        foregroundColor: foregroundColor,
+        centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.check, color: Colors.white),
+            icon: Icon(Icons.check, color: foregroundColor),
             onPressed: () {
-              // Return the selected location (lat/lng) back to the AdminPage
               if (_selectedLocation != null) {
                 Navigator.pop(context, _selectedLocation);
               } else {
@@ -109,15 +105,14 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
         ],
       ),
       body: Stack(
-        // Use Stack to layer the search bar over the map
         children: [
           // 1. The Map Widget
           FlutterMap(
-            mapController: mapController, // Pass the controller
+            mapController: mapController,
             options: MapOptions(
               initialCenter: _initialCenter,
               initialZoom: 12.0,
-              onTap: _handleTap, // Capture taps to get coordinates
+              onTap: _handleTap,
             ),
             children: [
               TileLayer(
@@ -129,15 +124,23 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
                   markers: [
                     Marker(
                       point: _selectedLocation!,
-                      child: const Icon(Icons.location_on,
-                          color: Colors.blue, size: 40),
+                      width: 50.0,
+                      height: 50.0,
+                      // 🟢 FIX: Removed the problematic 'anchor' property entirely.
+                      // The map will use default centering, which is usually fine
+                      // for an icon of this shape.
+                      child: Icon(
+                        Icons.location_on,
+                        color: primaryAmber,
+                        size: 50,
+                      ),
                     ),
                   ],
                 ),
             ],
           ),
 
-          // 2. The Search Bar UI
+          // 2. The Search Bar UI (Improved Styling)
           Positioned(
             top: 10,
             left: 10,
@@ -145,34 +148,34 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
+                borderRadius: BorderRadius.circular(10.0),
                 boxShadow: const [
                   BoxShadow(
                     color: Colors.black26,
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
+                    blurRadius: 6,
+                    offset: Offset(0, 3),
                   ),
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                padding: const EdgeInsets.only(left: 8.0),
                 child: TextField(
                   controller: _searchController,
+                  style: const TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'Search place, city, or address...',
+                    hintStyle: TextStyle(color: Colors.grey.shade600),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 15.0),
                     border: InputBorder.none,
-                    prefixIcon: const Icon(Icons.search, color: Colors.blue),
-                    // Optional: Add a clear button
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear, color: Colors.grey),
-                            onPressed: () {
-                              setState(() {
-                                _searchController.clear();
-                              });
-                            },
-                          )
-                        : null,
+                    prefixIcon: Icon(Icons.search, color: primaryAmber),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.send, color: primaryAmber),
+                      onPressed: () {
+                        if (_searchController.text.isNotEmpty) {
+                          navigateToPlace(_searchController.text);
+                        }
+                      },
+                    ),
                   ),
                   onSubmitted: (value) {
                     if (value.isNotEmpty) {
@@ -183,6 +186,36 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
               ),
             ),
           ),
+
+          // 3. Floating Location Display (Permanent Feedback)
+          if (_selectedLocation != null)
+            Positioned(
+              bottom: 20,
+              left: 20,
+              right: 20,
+              child: Container(
+                padding: const EdgeInsets.all(12.0),
+                decoration: BoxDecoration(
+                  color: primaryAmber.withOpacity(0.95),
+                  borderRadius: BorderRadius.circular(10.0),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black38,
+                      blurRadius: 6,
+                    ),
+                  ],
+                ),
+                child: Text(
+                  'LAT: ${(_selectedLocation!.latitude).toStringAsFixed(6)} | LNG: ${(_selectedLocation!.longitude).toStringAsFixed(6)}',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: foregroundColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
