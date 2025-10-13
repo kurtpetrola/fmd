@@ -18,9 +18,9 @@ class _AdminPageState extends State<AdminPage> {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
   late Future<List<Dorms>> _dormsFuture;
 
-  // PRIMARY STYLING REFERENCE from user_page.dart
-  final Color _appBarColor = Colors.amber;
-  final Color _foregroundColor = Colors.black;
+  // PRIMARY STYLING REFERENCE
+  final Color _appBarColor = Colors.amber.shade700;
+  //final Color _backgroundColor = Colors.white;
 
   @override
   void initState() {
@@ -38,25 +38,28 @@ class _AdminPageState extends State<AdminPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // 1. CENTER TEXT & USE USER PAGE STYLE
-        title: const Text('Admin: Dormitory CRUD'),
-        backgroundColor: _appBarColor,
-        foregroundColor: _foregroundColor,
+        title: const Text(
+          'Admin: Dormitory CRUD',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Lato',
+          ),
+        ),
+        backgroundColor: Colors.amber.shade700,
+        foregroundColor: Colors.white,
         centerTitle: true,
-
-        // 2. REMOVE BACK BUTTON (from previous request)
         automaticallyImplyLeading: false,
-
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_location_alt_sharp),
-            onPressed: () => _showAddDormDialog(context),
-            tooltip: 'Add New Dorm',
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh), // refresh for quick data update
             onPressed: _refreshDorms,
             tooltip: 'Refresh List',
+          ),
+          IconButton(
+            // Changed to the standard 'add' icon
+            icon: const Icon(Icons.add),
+            onPressed: () => _showAddDormDialog(context),
+            tooltip: 'Add New Dorm',
           ),
         ],
       ),
@@ -93,18 +96,20 @@ class _AdminPageState extends State<AdminPage> {
   // --- Card/List Tile UI ---
   Widget _buildDormCard(Dorms dorm) {
     final Color adminDeleteColor = Colors.red.shade700;
+    final Color primaryAmber = Colors.amber.shade700;
 
     return Card(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(15),
       ),
-      elevation: 3,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      elevation: 5, // Slightly deeper shadow
+      margin: const EdgeInsets.symmetric(
+          horizontal: 16, vertical: 8), // Increased horizontal margin
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+        padding: const EdgeInsets.symmetric(
+            vertical: 12.0, horizontal: 16.0), // Increased padding
         child: Row(
           children: [
-            // Dorm Name and Details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,43 +120,38 @@ class _AdminPageState extends State<AdminPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      // Using a different, strong color for list items for contrast with the amber bar
-                      color: Colors.deepPurple,
+                      color: Colors.black87, // Stronger text color
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
-                  // Location Details (Secondary Information)
-                  Text(
-                    'ID: ${dorm.dormId ?? 'N/A'} | Location: ${dorm.dormLocation}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                  const SizedBox(height: 6), // Increased spacing
+
+                  // Location Details
+                  _buildDetailRow(
+                    Icons.location_on_outlined,
+                    dorm.dormLocation,
+                    primaryAmber, // Highlight location
                   ),
                   const SizedBox(height: 2),
+
                   // Coordinates (Tertiary information - helpful for Admin)
                   Text(
-                    'Lat: ${dorm.latitude?.toStringAsFixed(6)}, Lng: ${dorm.longitude?.toStringAsFixed(6)}',
+                    'Coords: ${dorm.latitude?.toStringAsFixed(6)}, ${dorm.longitude?.toStringAsFixed(6)}',
                     style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.blueGrey,
+                      fontSize: 13,
+                      color: Colors.grey, // Subtle grey for coordinates
                     ),
                   ),
                 ],
               ),
             ),
 
-            // Action Buttons
+            // Action Buttons (Keep current functionality but with consistent icon colors)
             IconButton(
-              icon: const Icon(Icons.edit, color: Colors.blueGrey),
+              icon: Icon(Icons.edit,
+                  color: primaryAmber), // Use primary color for edit
               onPressed: () {
-                // TODO: Implement _showEditDormDialog(context, dorm);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Edit feature not yet implemented')),
-                );
+                // ...
               },
               tooltip: 'Edit Dorm',
             ),
@@ -164,6 +164,24 @@ class _AdminPageState extends State<AdminPage> {
           ],
         ),
       ),
+    );
+  }
+
+  // NEW HELPER WIDGET for cleaner data presentation
+  Widget _buildDetailRow(IconData icon, String text, Color color) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 5),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 
@@ -182,17 +200,44 @@ class _AdminPageState extends State<AdminPage> {
     required TextEditingController controller,
     required String label,
     TextInputType keyboardType = TextInputType.text,
+    bool isRequired = false,
   }) {
+    final Color primaryAmber = Colors.amber.shade700;
+    const borderRadius = BorderRadius.all(Radius.circular(15.0));
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 15.0),
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
+        style: const TextStyle(color: Colors.black),
         decoration: InputDecoration(
           labelText: label,
-          border: const OutlineInputBorder(),
+          hintText: isRequired ? '(Required)' : '',
+          hintStyle: TextStyle(color: Colors.red.shade400, fontSize: 12),
+          fillColor: Colors.grey.shade100,
+          filled: true,
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+
+          // Set the color of the label when it floats up
+          floatingLabelStyle: TextStyle(
+            color: primaryAmber, // Use your primary amber color
+            fontWeight: FontWeight.bold,
+          ),
+          // FIX 3: Set the color of the label when it is inside the field
+          labelStyle: TextStyle(
+            color: Colors.grey.shade600, // Use a neutral color
+          ),
+
+          border: const OutlineInputBorder(
+            borderRadius: borderRadius,
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: borderRadius,
+            borderSide: BorderSide(color: primaryAmber, width: 2.0),
+          ),
         ),
       ),
     );
@@ -207,14 +252,17 @@ class _AdminPageState extends State<AdminPage> {
       readOnly: true,
       decoration: InputDecoration(
         labelText: label,
-        border: const OutlineInputBorder(),
-        fillColor: Colors.grey.shade100,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15.0), // Consistent radius
+          borderSide: BorderSide.none,
+        ),
+        fillColor: Colors.grey.shade200, // Slightly darker fill for read-only
         filled: true,
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       ),
       style: const TextStyle(
-          fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w600),
+          fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w600),
     );
   }
 
@@ -225,6 +273,10 @@ class _AdminPageState extends State<AdminPage> {
     final TextEditingController locationController = TextEditingController();
     final TextEditingController latController = TextEditingController();
     final TextEditingController lngController = TextEditingController();
+
+    // local state for validation feedback
+    String validationError = '';
+    final Color errorRed = Colors.red.shade700;
 
     await showDialog(
       context: context,
@@ -258,6 +310,17 @@ class _AdminPageState extends State<AdminPage> {
                       controller: locationController,
                       label: 'Location/Address Text',
                     ),
+
+                    // Display validation error below fields
+                    if (validationError.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: Text(
+                          validationError,
+                          style: TextStyle(
+                              color: errorRed, fontWeight: FontWeight.bold),
+                        ),
+                      ),
 
                     const SizedBox(height: 20),
 
@@ -323,10 +386,13 @@ class _AdminPageState extends State<AdminPage> {
                 ),
               ),
               actions: [
+                // CANCEL Button (Secondary action: TextButton with Red color)
                 TextButton(
                   onPressed: () => Navigator.pop(stfContext),
-                  child:
-                      const Text('CANCEL', style: TextStyle(color: Colors.red)),
+                  child: const Text('CANCEL',
+                      style: TextStyle(
+                          color:
+                              Colors.grey)), // Use a neutral color for Cancel
                 ),
                 ElevatedButton(
                   onPressed: () async {
@@ -335,6 +401,10 @@ class _AdminPageState extends State<AdminPage> {
                         locationController.text.isNotEmpty &&
                         latController.text.isNotEmpty &&
                         lngController.text.isNotEmpty) {
+                      // Clear error on success attempt
+                      if (validationError.isNotEmpty) {
+                        stfSetState(() => validationError = '');
+                      }
                       final newDorm = Dorms(
                         dormName: nameController.text,
                         dormNumber: numberController.text.isEmpty
@@ -378,9 +448,16 @@ class _AdminPageState extends State<AdminPage> {
                   },
                   child: const Text('ADD DORM',
                       style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
-                  style:
-                      ElevatedButton.styleFrom(backgroundColor: _appBarColor),
+                          color: Colors.black,
+                          fontWeight:
+                              FontWeight.bold)), // Black text on Amber button
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Colors.amber.shade700, // Consistent Amber
+                      shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(10)) // Nicer shape
+                      ),
                 ),
               ],
             );
