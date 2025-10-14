@@ -33,6 +33,30 @@ class Dorms {
   });
 
   // =========================================================
+  // copyWith METHOD
+  // This method allows creating a new Dorms object with updated properties.
+  // =========================================================
+  Dorms copyWith({
+    int? dormId,
+    String? dormName,
+    String? dormNumber,
+    String? dormLocation,
+    double? latitude,
+    double? longitude,
+    String? createdAt,
+  }) {
+    return Dorms(
+      dormId: dormId ?? this.dormId,
+      dormName: dormName ?? this.dormName,
+      dormNumber: dormNumber ?? this.dormNumber,
+      dormLocation: dormLocation ?? this.dormLocation,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  // =========================================================
   // 1. JSON Conversion (for API)
   // =========================================================
 
@@ -53,6 +77,9 @@ class Dorms {
         "dormLocation": dormLocation,
         //"dormImageUrl": dormImageUrl,
         //"dormDescription": dormDescription,
+        // When sending to server, include coordinates if they are set
+        "latitude": latitude,
+        "longitude": longitude,
         "createdAt": createdAt,
       };
 

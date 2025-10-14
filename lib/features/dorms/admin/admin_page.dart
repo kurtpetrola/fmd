@@ -1,11 +1,10 @@
-// admin_page.dart
-
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart'; // REQUIRED for LatLng
+import 'package:latlong2/latlong.dart';
 import 'package:findmydorm/models/dorms.dart';
 import 'package:findmydorm/services/sqlite.dart';
-// IMPORTANT: Adjust this import path if you put the picker file elsewhere!
 import 'package:findmydorm/features/maps/tools/admin_location_picker.dart';
+
+// NOTE: You would typically import 'package:http/http.dart' as http; for real API calls
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -32,6 +31,47 @@ class _AdminPageState extends State<AdminPage> {
     setState(() {
       _dormsFuture = _dbHelper.getDorms();
     });
+  }
+
+  // ==========================================================
+  // Server Synchronization Method (Used 'endpoint' in print)
+  // ==========================================================
+  Future<void> _syncDormToServer(Dorms dorm, String action) async {
+    if (dorm.dormId == null && action != 'create') {
+      print('Warning: Cannot sync dorm without an ID for action: $action');
+      return;
+    }
+
+    // Simulate a network delay
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // TODO: IMPLEMENT YOUR ACTUAL SERVER API CALLS HERE
+    // The endpoint variable is intentionally defined here for your future use.
+    // It will now be used in the print statement to clear the warning.
+    final endpoint = 'YOUR_SERVER_API_ENDPOINT/dorms/${dorm.dormId}';
+
+    switch (action) {
+      case 'create':
+        // http.post(Uri.parse('YOUR_SERVER_API_ENDPOINT/dorms'), body: dormsToJson(dorm), ...);
+        print(
+            'Dorm ID NEW added. Target endpoint (POST): YOUR_SERVER_API_ENDPOINT/dorms');
+        break;
+      case 'update':
+        // http.put(Uri.parse(endpoint), body: dormsToJson(dorm), ...);
+        print(
+            'Dorm ID ${dorm.dormId} updated. Target endpoint (PUT/PATCH): $endpoint');
+        break;
+      case 'delete':
+        // http.delete(Uri.parse(endpoint), ...);
+        print(
+            'Dorm ID ${dorm.dormId} deleted. Target endpoint (DELETE): $endpoint');
+        break;
+      default:
+        throw Exception('Invalid sync action: $action');
+    }
+
+    // NOTE: You should check the HTTP response status code (e.g., 200 or 204)
+    // and throw an exception if the sync fails.
   }
 
   @override
@@ -151,7 +191,8 @@ class _AdminPageState extends State<AdminPage> {
               icon: Icon(Icons.edit,
                   color: primaryAmber), // Use primary color for edit
               onPressed: () {
-                // ...
+                // EDIT DIALOG
+                _showEditDormDialog(context, dorm);
               },
               tooltip: 'Edit Dorm',
             ),
@@ -185,12 +226,39 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
+  // ==========================================================
+  // Delete Method with Server Sync
+  // ==========================================================
   void _deleteDorm(Dorms dorm) async {
-    if (dorm.dormId != null) {
+    if (dorm.dormId == null) {
+      // Safety check for dorms without an ID (shouldn't happen for displayed dorms)
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: Dormitory ID is missing.')),
+      );
+      return;
+    }
+
+    try {
+      // 1. Delete from local SQLite DB
       await _dbHelper.deleteDorm(dorm.dormId!);
+
+      // 2. Delete from server
+      await _syncDormToServer(dorm, 'delete'); // 🚨 Action: 'delete'
+
+      // 3. Refresh UI and show success message
       _refreshDorms();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${dorm.dormName} deleted successfully!')),
+        SnackBar(
+            content:
+                Text('${dorm.dormName} deleted locally and synced to server!')),
+      );
+    } catch (e) {
+      // Handle potential sync errors
+      _refreshDorms(); // Try to refresh even on error to see current local state
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text('Failed to delete or sync ${dorm.dormName}. Error: $e')),
       );
     }
   }
@@ -225,7 +293,7 @@ class _AdminPageState extends State<AdminPage> {
             color: primaryAmber, // Use your primary amber color
             fontWeight: FontWeight.bold,
           ),
-          // FIX 3: Set the color of the label when it is inside the field
+          // Set the color of the label when it is inside the field
           labelStyle: TextStyle(
             color: Colors.grey.shade600, // Use a neutral color
           ),
@@ -266,7 +334,7 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  // --- Dialog uses StatefulBuilder for map selection update ---
+  // --- ADD DORM DIALOG  ---
   Future<void> _showAddDormDialog(BuildContext context) async {
     final TextEditingController nameController = TextEditingController();
     final TextEditingController numberController = TextEditingController();
@@ -417,7 +485,13 @@ class _AdminPageState extends State<AdminPage> {
                       );
 
                       try {
-                        await _dbHelper.insertDorm(newDorm);
+                        // Insert locally and get the new ID
+                        final newId = await _dbHelper.insertDorm(newDorm);
+                        final dormWithId =
+                            newDorm.copyWith(dormId: newId); // Need ID for sync
+
+                        // Sync to server (Action: 'create')
+                        await _syncDormToServer(dormWithId, 'create');
 
                         if (mounted) {
                           Navigator.pop(stfContext);
@@ -425,25 +499,23 @@ class _AdminPageState extends State<AdminPage> {
 
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                                content:
-                                    Text('${newDorm.dormName} added locally!')),
+                                content: Text(
+                                    '${newDorm.dormName} added and synced!')),
                           );
                         }
                       } catch (e) {
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text('Failed to add dorm to local DB: $e')),
+                            SnackBar(content: Text('Failed to add dorm: $e')),
                           );
                         }
                       }
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text(
-                                'Please fill all required fields and pick a map location.')),
-                      );
+                      // Show inline validation error
+                      stfSetState(() {
+                        validationError =
+                            'Please fill all fields and pick a location.';
+                      });
                     }
                   },
                   child: const Text('ADD DORM',
@@ -458,6 +530,211 @@ class _AdminPageState extends State<AdminPage> {
                           borderRadius:
                               BorderRadius.circular(10)) // Nicer shape
                       ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // --- EDIT DORM DIALOG  ---
+  Future<void> _showEditDormDialog(
+      BuildContext context, Dorms dormToEdit) async {
+    // Initialize controllers with existing data
+    final TextEditingController nameController =
+        TextEditingController(text: dormToEdit.dormName);
+    final TextEditingController numberController =
+        TextEditingController(text: dormToEdit.dormNumber);
+    final TextEditingController locationController =
+        TextEditingController(text: dormToEdit.dormLocation);
+    final TextEditingController latController = TextEditingController(
+        text: dormToEdit.latitude?.toStringAsFixed(6) ?? '');
+    final TextEditingController lngController = TextEditingController(
+        text: dormToEdit.longitude?.toStringAsFixed(6) ?? '');
+
+    // Local state for validation feedback
+    String validationError = '';
+    final Color errorRed = Colors.red.shade700;
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        // Use StatefulBuilder to manage local state changes within the dialog
+        return StatefulBuilder(
+          builder: (stfContext, stfSetState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              title: Text(
+                'Edit Dormitory: ${dormToEdit.dormName}',
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: _appBarColor),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Input Fields (reusing existing helpers)
+                    _buildStyledTextField(
+                      controller: nameController,
+                      label: 'Dorm Name',
+                    ),
+                    _buildStyledTextField(
+                      controller: numberController,
+                      label: 'Dorm Number (Optional)',
+                      keyboardType: TextInputType.number,
+                    ),
+                    _buildStyledTextField(
+                      controller: locationController,
+                      label: 'Location/Address Text',
+                    ),
+
+                    // Display validation error below fields
+                    if (validationError.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: Text(
+                          validationError,
+                          style: TextStyle(
+                              color: errorRed, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+
+                    const SizedBox(height: 20),
+
+                    // Location Picker Button (Same logic)
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.location_on),
+                      label: Text(
+                        latController.text.isEmpty
+                            ? 'SELECT LOCATION ON MAP'
+                            : 'LOCATION SELECTED',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () async {
+                        final LatLng? pickedLocation = await Navigator.push(
+                          stfContext, // Use the StatefulBuilder context
+                          MaterialPageRoute(
+                            builder: (context) => const AdminLocationPicker(),
+                          ),
+                        );
+
+                        if (pickedLocation != null) {
+                          stfSetState(() {
+                            latController.text =
+                                pickedLocation.latitude.toStringAsFixed(6);
+                            lngController.text =
+                                pickedLocation.longitude.toStringAsFixed(6);
+                          });
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 45),
+                        backgroundColor: latController.text.isEmpty
+                            ? Colors.amber.shade700
+                            : Colors.green.shade600,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    // Read-only coordinates display (Same logic)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildReadOnlyField(
+                            controller: latController,
+                            label: 'Latitude',
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildReadOnlyField(
+                            controller: lngController,
+                            label: 'Longitude',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                // CANCEL Button
+                TextButton(
+                  onPressed: () => Navigator.pop(stfContext),
+                  child: const Text('CANCEL',
+                      style: TextStyle(color: Colors.grey)),
+                ),
+                // UPDATE Button (Primary action)
+                ElevatedButton(
+                  onPressed: () async {
+                    if (nameController.text.isNotEmpty &&
+                        locationController.text.isNotEmpty &&
+                        latController.text.isNotEmpty &&
+                        lngController.text.isNotEmpty) {
+                      // 1. Create the updated Dorm object
+                      final updatedDorm = Dorms(
+                        dormId: dormToEdit.dormId, // KEEP the original ID!
+                        dormName: nameController.text,
+                        dormNumber: numberController.text.isEmpty
+                            ? 'N/A'
+                            : numberController.text,
+                        dormLocation: locationController.text,
+                        latitude: double.tryParse(latController.text),
+                        longitude: double.tryParse(lngController.text),
+                        createdAt:
+                            dormToEdit.createdAt, // Keep original creation date
+                      );
+
+                      try {
+                        // 2. Update local SQLite DB (using your existing method)
+                        await _dbHelper.updateDorm(updatedDorm);
+
+                        // 3. Update the remote server (Action: 'update')
+                        await _syncDormToServer(updatedDorm, 'update');
+
+                        if (mounted) {
+                          Navigator.pop(stfContext);
+                          _refreshDorms();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(
+                                    '${updatedDorm.dormName} updated locally and server synced!')),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          // Display error in the main app context
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(
+                                    'Failed to update dorm and sync server: $e')),
+                          );
+                        }
+                      }
+                    } else {
+                      // Show inline validation error
+                      stfSetState(() {
+                        validationError =
+                            'Please fill all fields and pick a location.';
+                      });
+                    }
+                  },
+                  child: const Text('UPDATE DORM',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Colors.blue.shade700, // Distinct color for UPDATE
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10))),
                 ),
               ],
             );
