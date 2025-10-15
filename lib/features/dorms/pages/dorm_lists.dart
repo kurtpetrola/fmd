@@ -7,7 +7,13 @@ import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/features/dorms/pages/dorm_detail_page.dart';
 
 class DormList extends StatefulWidget {
-  const DormList({Key? key}) : super(key: key);
+  // Only keep initialSearchQuery, as the filtering is done inside this page.
+  final String? initialSearchQuery;
+
+  const DormList({
+    Key? key,
+    this.initialSearchQuery,
+  }) : super(key: key);
 
   @override
   _DormListState createState() => _DormListState();
@@ -19,27 +25,40 @@ class _DormListState extends State<DormList> {
   List<Dorms> _allDorms = [];
   List<Dorms> _foundDorms = [];
   bool _isLoading = true;
+  // Controller for the search field to set initial value
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _refreshDorms();
+    _loadDormsAndFilter();
   }
 
-  void _refreshDorms() async {
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _loadDormsAndFilter() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
       final fetchedDorms = await _dbHelper.getDorms();
-      setState(() {
-        _allDorms = fetchedDorms;
+      _allDorms = fetchedDorms;
+
+      if (widget.initialSearchQuery != null &&
+          widget.initialSearchQuery!.isNotEmpty) {
+        _searchController.text = widget.initialSearchQuery!;
+        _runFilter(widget.initialSearchQuery!);
+      } else {
         _foundDorms = fetchedDorms;
-        _isLoading = false;
-      });
+      }
     } catch (e) {
       print("Error loading dorms: $e");
+    } finally {
       setState(() {
         _isLoading = false;
       });
@@ -76,10 +95,6 @@ class _DormListState extends State<DormList> {
     );
   }
 
-  // -------------------------------------------------------------------
-  // ## UPDATED: Dorm Card Widget with Image Placeholder
-  // -------------------------------------------------------------------
-
   Widget _buildDormCard(Dorms dorm) {
     return Card(
       elevation: 4,
@@ -94,7 +109,6 @@ class _DormListState extends State<DormList> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 1. IMAGE/HEADER SECTION (Using static Image.asset)
-            // If dormImageUrl were available, you would use Image.network or Image.asset here.
             Container(
               height: 150, // Fixed height for the image area
               decoration: BoxDecoration(
@@ -198,9 +212,11 @@ class _DormListState extends State<DormList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'All Dormitories List',
-          style: TextStyle(
+        title: Text(
+          widget.initialSearchQuery != null
+              ? 'Results for "${widget.initialSearchQuery}"'
+              : 'All Dormitories List',
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontFamily: 'Lato',
           ),
@@ -216,6 +232,7 @@ class _DormListState extends State<DormList> {
           children: [
             // 1. IMPROVED SEARCH BAR STYLE
             TextField(
+              controller: _searchController,
               onChanged: _runFilter,
               decoration: InputDecoration(
                 hintText: 'Search by Name or Location',
@@ -239,10 +256,13 @@ class _DormListState extends State<DormList> {
                   ? const Center(
                       child: CircularProgressIndicator(color: Colors.amber))
                   : _foundDorms.isEmpty
-                      ? const Center(
+                      ? Center(
                           child: Text(
-                            'No dormitories found.',
-                            style: TextStyle(fontSize: 20, color: Colors.grey),
+                            _searchController.text.isEmpty
+                                ? 'No dormitories available.'
+                                : 'No dormitories found for this search.',
+                            style: const TextStyle(
+                                fontSize: 20, color: Colors.grey),
                           ),
                         )
                       : ListView.builder(
