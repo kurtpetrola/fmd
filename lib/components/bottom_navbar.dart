@@ -30,6 +30,13 @@ class _HomeHolderState extends State<HomeHolder> {
   late List<Widget> _pagesAll;
   var myIndex = 0; // Current selected index
 
+  // --- NEW: Method to change the bottom navigation index ---
+  void navigateToTab(int index) {
+    setState(() {
+      myIndex = index;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -40,17 +47,22 @@ class _HomeHolderState extends State<HomeHolder> {
     _pagesAll = _buildPages();
   }
 
-// unction to rebuild the pages with the updated user data
+// Function to rebuild the pages with the updated user data
   List<Widget> _buildPages() {
     final bool isAdmin = _currentUser.usrRole == 'Admin';
 
     return [
-      const HomePage(),
+      // Pass the callback to HomePage
+      HomePage(
+        onViewAllTap: () =>
+            navigateToTab(1), // Index 1 is the Dorm List/Admin tab
+      ),
 
-      // Conditional Page Load
+      // Conditional Page Load (ensure DormList is initialized correctly)
       isAdmin
-          ? const AdminPage() // ADMIN: Full CRUD control
-          : const DormList(), // USER: View-only dynamic list
+          ? const AdminPage()
+          : const DormList(
+              initialSearchQuery: null), // Pass null for a full list
 
       UserPage(
         currentUser: _currentUser,

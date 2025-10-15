@@ -4,10 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:findmydorm/models/dorms.dart'; // Dorms Model
 import 'package:findmydorm/services/sqlite.dart'; // DatabaseHelper
 import 'package:findmydorm/features/dorms/pages/dorm_detail_page.dart';
+import 'package:findmydorm/features/dorms/pages/dorm_lists.dart';
 import 'package:collection/collection.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  // 🚨 CRITICAL ADDITION: Add the callback property
+  final VoidCallback? onViewAllTap;
+
+  const HomePage({super.key, this.onViewAllTap});
 
   @override
   State<HomePage> createState() => _HomeScreenState();
@@ -21,6 +25,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   List<Dorms> _allDorms = [];
   List<Dorms> _femaleDorms = [];
   List<Dorms> _maleDorms = [];
+  List<Dorms> _otherDorms = []; // List for Other Dorms
 
   // Helper getter for the Autocomplete search feature (list of names only)
   List<String> get _dormNames => _allDorms.map((d) => d.dormName).toList();
@@ -28,23 +33,29 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    // Length is now 3 for Female, Male, and Other
+    _tabController = TabController(length: 3, vsync: this);
     _loadDorms();
   }
 
   void _loadDorms() async {
     final fetchedDorms = await _dbHelper.getDorms();
 
-    // Placeholder Logic: For real use, you should filter based on a
-    // 'gender' or 'category' field in your Dorms model.
+    // Filtering logic to split into 3 categories
+    // This uses the modulo operator (%) to roughly distribute dorms across the three lists
+    // based on their dormId (1, 2, 3, 4, 5, 6, ... -> Group 1, 2, 0, 1, 2, 0, ...)
     final femaleDorms =
-        fetchedDorms.where((d) => (d.dormId ?? 0).isEven).toList();
-    final maleDorms = fetchedDorms.where((d) => (d.dormId ?? 1).isOdd).toList();
+        fetchedDorms.where((d) => (d.dormId ?? 0) % 3 == 1).toList();
+    final maleDorms =
+        fetchedDorms.where((d) => (d.dormId ?? 1) % 3 == 2).toList();
+    final otherDorms =
+        fetchedDorms.where((d) => (d.dormId ?? 2) % 3 == 0).toList();
 
     setState(() {
       _allDorms = fetchedDorms;
       _femaleDorms = femaleDorms;
       _maleDorms = maleDorms;
+      _otherDorms = otherDorms;
     });
   }
 
@@ -170,14 +181,40 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                     );
                   },
-                  onSelected: (String selection) {
-                    final Dorms? selectedDorm = _allDorms.firstWhereOrNull(
-                      (dorm) => dorm.dormName == selection,
-                    );
-                    if (selectedDorm != null) {
+                  // onSelected logic
+                  onSelected: (String selectionWithPrefix) {
+                    // 1. Clean the selection string (remove prefix)
+                    final String selection = selectionWithPrefix.replaceAll(
+                        RegExp(r'^(🏠 |📍 )'), '');
+                    final bool isLocation =
+                        selectionWithPrefix.startsWith('📍 ');
+
+                    // 2. Decide the action based on the prefix/type
+                    if (isLocation) {
+                      // Case A: LOCATION SEARCH (Navigate to DormList and pass the query)
                       Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => DormDetailPage(selectedDorm),
+                        builder: (context) => DormList(
+                          initialSearchQuery: selection,
+                        ),
                       ));
+                    } else {
+                      // Case B: DORM NAME SEARCH (Navigate to Detail Page)
+                      // This uses your original simple logic.
+
+                      // Find the exact dorm object corresponding to the name
+                      final Dorms? selectedDorm = _allDorms
+                          .firstWhereOrNull((d) => d.dormName == selection);
+
+                      if (selectedDorm != null) {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => DormDetailPage(selectedDorm),
+                        ));
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text('Dorm not found: "$selection"')),
+                        );
+                      }
                     }
                   },
                 ),
@@ -188,8 +225,8 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                 // TabBar
                 TabBar(
                   controller: _tabController,
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.white70,
+                  labelColor: Colors.amber.shade400, // Bright Amber
+                  unselectedLabelColor: Colors.white, // White for unselected
                   labelStyle: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -207,6 +244,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                   tabs: const [
                     Tab(text: "Female Dorms"),
                     Tab(text: "Male Dorms"),
+                    Tab(text: "Other Dorms"), // 🟢 NEW Tab
                   ],
                 ),
               ],
@@ -223,8 +261,10 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
       child: TabBarView(
         controller: _tabController,
         children: [
-          DormListView(dorms: _femaleDorms),
-          DormListView(dorms: _maleDorms),
+          // ADDED maxItems: 3
+          DormListView(dorms: _femaleDorms, maxItems: 3),
+          DormListView(dorms: _maleDorms, maxItems: 3),
+          DormListView(dorms: _otherDorms, maxItems: 3), // TabView Content
         ],
       ),
     );
@@ -254,7 +294,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  "Available Options",
+                  "Featured Dorms",
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -281,8 +321,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   ),
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('Viewing All is not yet implemented')));
+                    widget.onViewAllTap?.call();
                   },
                   child: const Text(
                     'View All',
@@ -300,11 +339,12 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   }
 }
 
-// Reusable Dorm List View (Remains the same)
+// Reusable Dorm List View
 class DormListView extends StatelessWidget {
   final List<Dorms> dorms;
+  final int maxItems; // Limit the number of items
 
-  const DormListView({required this.dorms, super.key});
+  const DormListView({required this.dorms, this.maxItems = -1, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -312,9 +352,13 @@ class DormListView extends StatelessWidget {
       return const Center(child: Text("No dorms available in this category."));
     }
 
+    // Calculate the actual count to display
+    final int displayCount =
+        maxItems > 0 && dorms.length > maxItems ? maxItems : dorms.length;
+
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-      itemCount: dorms.length,
+      itemCount: displayCount, // LIMITED COUNT
       scrollDirection: Axis.horizontal,
       itemBuilder: (BuildContext context, int index) {
         final Dorms dorm = dorms[index];
