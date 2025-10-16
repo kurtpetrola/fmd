@@ -135,6 +135,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         usrPassword: _localUser.usrPassword,
         usrAddress: newAddress,
         usrGender: newGender,
+        usrRole: _localUser.usrRole, // 🚨 FIX: Preserve the existing user role!
       );
 
       // 3. Persist the changes to the database
