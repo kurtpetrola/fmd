@@ -8,7 +8,7 @@ import 'package:findmydorm/models/dorms.dart';
 import 'package:findmydorm/features/maps/pages/maps_detail_page.dart';
 
 // -------------------------------------------------------------------
-// 1. Reusable Widget for Detail Rows (Retained improved typography)
+// 1. Reusable Widget for Detail Rows
 // -------------------------------------------------------------------
 
 class _DetailItem extends StatelessWidget {
@@ -25,7 +25,7 @@ class _DetailItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0), // Retained spacing
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -138,8 +138,12 @@ class _DormDetailPageState extends State<DormDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // --------------------------------------------------------------
+      // Map Button (Bottom Bar)
+      // --------------------------------------------------------------
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(
+            16, 8, 16, 24), // Increased bottom padding
         child: ElevatedButton.icon(
           onPressed: () {
             Navigator.push(
@@ -160,10 +164,12 @@ class _DormDetailPageState extends State<DormDetailPage> {
           ),
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(double.infinity, 55),
-            backgroundColor: Colors.amber,
+            backgroundColor:
+                Colors.amber.shade700, // Use a consistent amber shade
             foregroundColor: Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 8, // Added subtle elevation
           ),
         ),
       ),
@@ -177,118 +183,151 @@ class _DormDetailPageState extends State<DormDetailPage> {
             expandedHeight: MediaQuery.of(context).size.height * 0.35,
             pinned: true,
             elevation: 0,
-            backgroundColor: Colors.amber,
+            backgroundColor: Colors.amber.shade700, // Consistent color
+
+            // Favorite Button moved to AppBar actions
+            actions: [
+              IconButton(
+                icon: Icon(
+                  _isFavorite ? Ionicons.heart : Ionicons.heart_outline,
+                  color: _isFavorite ? Colors.red.shade400 : Colors.white,
+                  size: 28,
+                ),
+                onPressed: _toggleFavorite,
+              ),
+              const SizedBox(width: 8),
+            ],
+
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
               centerTitle: false,
-              title: const SizedBox.shrink(),
-              background: Image.asset(
-                'assets/images/dorm.jpeg',
-                fit: BoxFit.cover,
+              // Dorm Name as the actual title (appears on scroll)
+              title: Text(
+                widget.dorm.dormName,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontFamily: 'Lato',
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(
+                    'assets/images/dorm.jpeg',
+                    fit: BoxFit.cover,
+                  ),
+                  // Gradient Overlay for text contrast
+                  const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black87,
+                          Colors.transparent,
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
 
           // ----------------------------------------------------------
-          // 3. Scrollable Details Section (Reverted to plain box adapter)
+          // 3. Scrollable Details Section (Card Design)
           // ----------------------------------------------------------
           SliverToBoxAdapter(
             child: Container(
-              // REMOVED: BoxDecoration, BorderRadius, and BoxShadow
               color: Colors
-                  .white, // Explicitly set background color for the details
+                  .grey.shade50, // Slight off-white background for the body
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    // --- Dorm Name and Favorite Button (Retained updated typography/size) ---
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            widget.dorm.dormName,
-                            style: const TextStyle(
-                              fontSize: 32, // Retained size
-                              fontWeight: FontWeight.w800, // Retained weight
-                              color: Colors.deepPurple,
-                              fontFamily: 'Lato',
+                    // --- 1. Key Details CARD ---
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      margin: const EdgeInsets.only(bottom: 20),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Key Details",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Lato',
+                                color: Colors.deepPurple,
+                              ),
                             ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        // The Favorite Button (Retained size)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10.0),
-                          child: IconButton(
-                            icon: Icon(
-                              _isFavorite
-                                  ? Ionicons.heart
-                                  : Ionicons.heart_outline,
-                              color: _isFavorite
-                                  ? Colors.red
-                                  : Colors.grey.shade400,
-                              size: 36, // Retained size
+                            const Divider(height: 25, thickness: 1),
+                            _DetailItem(
+                              icon: Ionicons.location_outline,
+                              label: 'Physical Location',
+                              value: widget.dorm.dormLocation,
                             ),
-                            onPressed: _toggleFavorite,
-                          ),
+                            _DetailItem(
+                              icon: Ionicons.qr_code_outline,
+                              label: 'Dorm ID/Number',
+                              value: widget.dorm.dormNumber,
+                            ),
+                            _DetailItem(
+                              icon: Ionicons.calendar_outline,
+                              label: 'Listed On',
+                              value: widget.dorm.createdAt.substring(0, 10),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 25), // Retained spacing
-
-                    // --- Dormitory Details Header (Retained updated typography) ---
-                    const Text(
-                      "Dormitory Details",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Lato',
                       ),
                     ),
-                    const Divider(
-                        height: 25, thickness: 1), // Retained divider style
 
-                    // --- Key Details (using updated _DetailItem) ---
-                    _DetailItem(
-                      icon: Icons.location_on,
-                      label: 'Physical Location',
-                      value: widget.dorm.dormLocation,
-                    ),
-                    _DetailItem(
-                      icon: Icons.tag,
-                      label: 'Dorm ID/Number',
-                      value: widget.dorm.dormNumber,
-                    ),
-                    _DetailItem(
-                      icon: Icons.calendar_today,
-                      label: 'Listed On',
-                      value: widget.dorm.createdAt.substring(0, 10),
-                    ),
-
-                    const SizedBox(height: 35),
-
-                    // --- Description Section (Retained updated typography) ---
-                    const Text(
-                      "Description:",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Lato',
+                    // --- 2. Description CARD (Static Text Only) ---
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Description",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Lato',
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                            const Divider(height: 25, thickness: 1),
+                            const Text(
+                              "This is a brief description of the dorm amenities, rules, and general information. It's a quiet place suitable for students looking for a focus environment near campus. Future features will include a dynamic description from your database.",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'Lato',
+                                height: 1.5,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      "This is a brief description of the dorm amenities, rules, and general information. It's a quiet place suitable for students looking for a focus environment near campus. Future features will include a dynamic description from your database.",
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontFamily: 'Lato',
-                          height: 1.5,
-                          color: Colors.black54),
-                    ),
 
-                    const SizedBox(height: 50),
+                    const SizedBox(
+                        height: 40), // Spacing above the bottom nav bar/button
                   ],
                 ),
               ),
