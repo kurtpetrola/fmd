@@ -1,3 +1,5 @@
+// admin_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:findmydorm/models/dorms.dart';
@@ -341,6 +343,8 @@ class _AdminPageState extends State<AdminPage> {
     final TextEditingController locationController = TextEditingController();
     final TextEditingController latController = TextEditingController();
     final TextEditingController lngController = TextEditingController();
+    // 🚨 NEW CONTROLLER
+    final TextEditingController descriptionController = TextEditingController();
 
     // local state for validation feedback
     String validationError = '';
@@ -377,6 +381,12 @@ class _AdminPageState extends State<AdminPage> {
                     _buildStyledTextField(
                       controller: locationController,
                       label: 'Location/Address Text',
+                    ),
+                    // 🚨 NEW: Dorm Description Field
+                    _buildStyledTextField(
+                      controller: descriptionController,
+                      label: 'Dorm Description/Details',
+                      keyboardType: TextInputType.multiline,
                     ),
 
                     // Display validation error below fields
@@ -479,6 +489,10 @@ class _AdminPageState extends State<AdminPage> {
                             ? 'N/A'
                             : numberController.text,
                         dormLocation: locationController.text,
+                        // Pass the description
+                        dormDescription: descriptionController.text.isEmpty
+                            ? 'No description provided.'
+                            : descriptionController.text,
                         latitude: double.tryParse(latController.text),
                         longitude: double.tryParse(lngController.text),
                         createdAt: DateTime.now().toIso8601String(),

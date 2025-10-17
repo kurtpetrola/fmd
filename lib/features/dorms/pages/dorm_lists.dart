@@ -96,6 +96,15 @@ class _DormListState extends State<DormList> {
   }
 
   Widget _buildDormCard(Dorms dorm) {
+    // Helper function to truncate the description
+    String getSnippet(String description) {
+      const int maxLength = 100; // Max characters for the snippet
+      if (description.length <= maxLength) {
+        return description;
+      }
+      return '${description.substring(0, maxLength).trim()}...';
+    }
+
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -198,6 +207,18 @@ class _DormListState extends State<DormList> {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 10), // Added spacing
+
+                  // Row 3: Description Snippet
+                  Text(
+                    getSnippet(dorm.dormDescription),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
