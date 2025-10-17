@@ -26,7 +26,7 @@ class DatabaseHelper {
       "CREATE TABLE users (usrId INTEGER PRIMARY KEY AUTOINCREMENT, usrName TEXT UNIQUE, usrEmail TEXT UNIQUE, usrPassword TEXT, usrAddress TEXT, usrGender TEXT, usrRole TEXT DEFAULT 'User')";
 
   String dormsTable =
-      "CREATE TABLE dorms (dormId INTEGER PRIMARY KEY AUTOINCREMENT, dormNumber TEXT, dormName TEXT UNIQUE, dormLocation TEXT,latitude REAL, longitude REAL, createdAt TEXT)";
+      "CREATE TABLE dorms (dormId INTEGER PRIMARY KEY AUTOINCREMENT, dormNumber TEXT, dormName TEXT UNIQUE, dormLocation TEXT, dormDescription TEXT, latitude REAL, longitude REAL, createdAt TEXT)";
 
   String favoritesTable =
       "CREATE TABLE favorites (favId INTEGER PRIMARY KEY AUTOINCREMENT, usrId INTEGER, dormId INTEGER, FOREIGN KEY(usrId) REFERENCES users(usrId), FOREIGN KEY(dormId) REFERENCES dorms(dormId), UNIQUE(usrId, dormId))";
@@ -81,7 +81,8 @@ class DatabaseHelper {
                   latitude: 16.0354, // NEW
                   longitude: 120.3346, // NEW
                   // dormImageUrl: '',
-                  // dormDescription: '',
+                  dormDescription:
+                      'Modern dormitory located near the city center, offering single and double occupancy rooms with shared amenities.',
                   createdAt: now)
               .toSqlite());
 
@@ -95,7 +96,8 @@ class DatabaseHelper {
                   latitude: 16.1260, // NEW
                   longitude: 120.4490, // NEW
                   // dormImageUrl: '',
-                  // dormDescription: '',
+                  dormDescription:
+                      'Modern dormitory located near the city center, offering single and double occupancy rooms with shared amenities.',
                   createdAt: now)
               .toSqlite());
 
@@ -109,7 +111,8 @@ class DatabaseHelper {
                   latitude: 16.0594, // NEW
                   longitude: 120.4144, // NEW
                   // dormImageUrl: '',
-                  // dormDescription: '',
+                  dormDescription:
+                      'Modern dormitory located near the city center, offering single and double occupancy rooms with shared amenities.',
                   createdAt: now)
               .toSqlite());
 
@@ -123,7 +126,8 @@ class DatabaseHelper {
                   latitude: 15.9734, // NEW
                   longitude: 120.5739, // NEW
                   // dormImageUrl: '',
-                  // dormDescription: '',
+                  dormDescription:
+                      'Modern dormitory located near the city center, offering single and double occupancy rooms with shared amenities.',
                   createdAt: now)
               .toSqlite());
 

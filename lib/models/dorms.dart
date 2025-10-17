@@ -12,7 +12,7 @@ class Dorms {
   final String dormNumber;
   final String dormLocation;
   //final String dormImageUrl;
-  //final String dormDescription;
+  final String dormDescription;
   final double? latitude; // New Field
   final double? longitude; // New Field
   final String createdAt;
@@ -24,7 +24,7 @@ class Dorms {
     required this.dormLocation,
 
     //required this.dormImageUrl, // REQUIRED
-    //required this.dormDescription, // REQUIRED
+    this.dormDescription = '', // ADDED default value for safety
 
     // Default to null if not provided
     this.latitude,
@@ -41,6 +41,7 @@ class Dorms {
     String? dormName,
     String? dormNumber,
     String? dormLocation,
+    String? dormDescription,
     double? latitude,
     double? longitude,
     String? createdAt,
@@ -50,6 +51,7 @@ class Dorms {
       dormName: dormName ?? this.dormName,
       dormNumber: dormNumber ?? this.dormNumber,
       dormLocation: dormLocation ?? this.dormLocation,
+      dormDescription: dormDescription ?? this.dormDescription,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       createdAt: createdAt ?? this.createdAt,
@@ -66,7 +68,8 @@ class Dorms {
         dormNumber: json["dormNumber"].toString(),
         dormLocation: json["dormLocation"] as String,
         //dormImageUrl: json["dormImageUrl"] as String,
-        //dormDescription: json["dormDescription"] as String,
+        dormDescription: (json["dormDescription"] ?? '')
+            as String, // ADDED default empty string
         createdAt: json["createdAt"] as String,
       );
 
@@ -76,7 +79,7 @@ class Dorms {
         "dormNumber": dormNumber,
         "dormLocation": dormLocation,
         //"dormImageUrl": dormImageUrl,
-        //"dormDescription": dormDescription,
+        "dormDescription": dormDescription,
         // When sending to server, include coordinates if they are set
         "latitude": latitude,
         "longitude": longitude,
@@ -93,7 +96,8 @@ class Dorms {
         dormNumber: map["dormNumber"].toString(),
         dormLocation: map["dormLocation"] as String,
         //dormImageUrl: map["dormImageUrl"] as String,
-        //dormDescription: map["dormDescription"] as String,
+        // Handle null/missing description for old entries
+        dormDescription: (map["dormDescription"] ?? '') as String,
         // NEW: Safely read coordinates (SQLite stores REAL which Dart reads as double)
         latitude: map['latitude'] as double?,
         longitude: map['longitude'] as double?,
@@ -106,7 +110,7 @@ class Dorms {
         "dormNumber": dormNumber,
         "dormLocation": dormLocation,
         //"dormImageUrl": dormImageUrl,
-        //"dormDescription": dormDescription,
+        "dormDescription": dormDescription,
         // NEW: Include coordinates
         'latitude': latitude,
         'longitude': longitude,

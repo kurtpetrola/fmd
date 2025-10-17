@@ -292,7 +292,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
                       ),
                     ),
 
-                    // --- 2. Description CARD (Static Text Only) ---
+                    // --- 2. Description CARD (Dynamic Text) ---
                     Card(
                       elevation: 4,
                       shape: RoundedRectangleBorder(
@@ -312,9 +312,11 @@ class _DormDetailPageState extends State<DormDetailPage> {
                               ),
                             ),
                             const Divider(height: 25, thickness: 1),
-                            const Text(
-                              "This is a brief description of the dorm amenities, rules, and general information. It's a quiet place suitable for students looking for a focus environment near campus. Future features will include a dynamic description from your database.",
-                              style: TextStyle(
+                            // DYNAMIC DESCRIPTION IMPLEMENTATION
+                            Text(
+                              // Use the dynamic description from the Dorms model
+                              widget.dorm.dormDescription,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontFamily: 'Lato',
                                 height: 1.5,
