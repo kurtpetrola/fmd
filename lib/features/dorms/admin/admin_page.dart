@@ -563,6 +563,8 @@ class _AdminPageState extends State<AdminPage> {
         TextEditingController(text: dormToEdit.dormNumber);
     final TextEditingController locationController =
         TextEditingController(text: dormToEdit.dormLocation);
+    final TextEditingController descriptionController =
+        TextEditingController(text: dormToEdit.dormDescription);
     final TextEditingController latController = TextEditingController(
         text: dormToEdit.latitude?.toStringAsFixed(6) ?? '');
     final TextEditingController lngController = TextEditingController(
@@ -603,6 +605,11 @@ class _AdminPageState extends State<AdminPage> {
                     _buildStyledTextField(
                       controller: locationController,
                       label: 'Location/Address Text',
+                    ),
+                    _buildStyledTextField(
+                      controller: descriptionController,
+                      label: 'Dorm Description/Details',
+                      keyboardType: TextInputType.multiline,
                     ),
 
                     // Display validation error below fields
@@ -699,6 +706,9 @@ class _AdminPageState extends State<AdminPage> {
                         dormNumber: numberController.text.isEmpty
                             ? 'N/A'
                             : numberController.text,
+                        dormDescription: descriptionController.text.isEmpty
+                            ? 'No description provided.'
+                            : descriptionController.text,
                         dormLocation: locationController.text,
                         latitude: double.tryParse(latController.text),
                         longitude: double.tryParse(lngController.text),
