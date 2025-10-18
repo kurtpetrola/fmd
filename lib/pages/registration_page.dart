@@ -75,7 +75,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.black,
-                    fontFamily: 'Inter',
+                    fontFamily: 'Lato',
                     fontWeight: FontWeight.w900,
                     fontSize: 24,
                   ),
@@ -310,7 +310,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         child: const Text(
           "REGISTER ACCOUNT", // More explicit text
           style: TextStyle(
-            fontFamily: 'Inter',
+            fontFamily: 'Lato',
             fontWeight: FontWeight.w700,
             fontSize: 18,
           ),

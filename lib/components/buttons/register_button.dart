@@ -30,7 +30,7 @@ class RegisterButton extends StatelessWidget {
         "REGISTER",
         style: TextStyle(
           color: Colors.amber.shade700, // Amber text
-          fontFamily: 'Inter', // Consistent font family
+          fontFamily: 'Lato', // Consistent font family
           fontWeight: FontWeight.w700,
           fontSize: 18,
         ),

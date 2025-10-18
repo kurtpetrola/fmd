@@ -28,7 +28,7 @@ class LoginButton extends StatelessWidget {
         "LOGIN",
         style: TextStyle(
           color: Colors.black,
-          fontFamily: 'Inter', // Consistent font family
+          fontFamily: 'Lato', // Consistent font family
           fontWeight: FontWeight.w700,
           fontSize: 18, // Adjusted font size
         ),
