@@ -62,18 +62,15 @@ flutter:
     - assets/images/
     - assets/fonts/
   fonts:
-    - family: Inter
-      fonts:
-        - asset: assets/fonts/Inter-Black.ttf
-        - asset: assets/fonts/Inter-Medium.ttf
-        - asset: assets/fonts/Inter-Regular.ttf
-        - asset: assets/fonts/Inter-Light.ttf
-        - asset: assets/fonts/Inter-ExtraLight.ttf
-        - asset: assets/fonts/Inter-Thin.ttf
-        - asset: assets/fonts/Inter-Bold.ttf
-        - asset: assets/fonts/Inter-ExtraBold.ttf
     - family: Lato
       fonts:
-        - asset: assets/fonts/Lato-Regular.ttf
-        - asset: assets/fonts/Lato-Bold.ttf
         - asset: assets/fonts/Lato-Black.ttf
+        - asset: assets/fonts/Lato-BlackItalic.ttf
+        - asset: assets/fonts/Lato-Bold.ttf
+        - asset: assets/fonts/Lato-BoldItalic.ttf
+        - asset: assets/fonts/Lato-Italic.ttf
+        - asset: assets/fonts/Lato-Light.ttf
+        - asset: assets/fonts/Lato-LightItalic.ttf
+        - asset: assets/fonts/Lato-Regular.ttf
+        - asset: assets/fonts/Lato-Thin.ttf
+        - asset: assets/fonts/Lato-ThinItalic.ttf

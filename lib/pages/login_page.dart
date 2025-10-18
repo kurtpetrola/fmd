@@ -127,7 +127,7 @@ class _LoginScreenState extends State<LoginPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.black,
-                    fontFamily: 'Inter',
+                    fontFamily: 'Lato',
                     fontWeight: FontWeight.w900,
                     fontSize: 24, // Slightly larger font for prominence
                   ),
@@ -204,7 +204,7 @@ class _LoginScreenState extends State<LoginPage> {
                     child: const Text(
                       "LOGIN",
                       style: TextStyle(
-                          fontFamily: 'Inter',
+                          fontFamily: 'Lato',
                           fontWeight: FontWeight.w700,
                           fontSize: 18),
                     ),

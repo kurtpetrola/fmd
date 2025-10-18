@@ -40,7 +40,7 @@ class SelectionPage extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black,
-                  fontFamily: 'Inter',
+                  fontFamily: 'Lato',
                   fontWeight: FontWeight.w900,
                   fontSize: 24,
                 ),
