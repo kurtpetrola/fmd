@@ -1,32 +1,57 @@
-//auth_manager.dart
+// auth_manager.dart
 
 import 'package:findmydorm/models/users.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:findmydorm/services/sqlite.dart';
 
-// This is a simple in-memory session manager.
-// In a real application, you would use Shared Preferences or a state management solution (like Provider, Riverpod, BLoC)
-// to manage the current user and persist login status across app restarts.
 class AuthManager {
   static Users? _currentUser;
+  static const _userIdKey = 'logged_in_user_id'; // Key for SharedPreferences
 
-  // Getter to check if a user is logged in
   static bool get isLoggedIn => _currentUser != null;
-
-  // Getter to retrieve the current user object
   static Users? get currentUser => _currentUser;
-
-  // Getter to safely retrieve the current user's ID
-  // Returns null if no user is logged in
   static int? get currentUserId => _currentUser?.usrId;
 
-  // Sets the current user upon successful login/signup
-  static void login(Users user) {
+  // Login: Saves the user to memory and persists the ID locally
+  static void login(Users user) async {
     _currentUser = user;
-    print("User ${user.usrName} (${user.usrId}) is now logged in.");
+    final prefs = await SharedPreferences.getInstance();
+    // Only persist the ID if it's not null (shouldn't be after a successful login)
+    if (user.usrId != null) {
+      await prefs.setInt(_userIdKey, user.usrId!);
+    }
+    print(
+        "User ${user.usrName} (${user.usrId}) is now logged in. Status saved.");
   }
 
-  // Clears the current user upon logout
-  static void logout() {
+  // Logout: Clears the user from memory and removes the ID from local storage
+  static Future<void> logout() async {
     _currentUser = null;
-    print("User logged out.");
+    final prefs = await SharedPreferences.getInstance();
+
+    // Remove the persisted user ID from SharedPreferences
+    await prefs.remove(_userIdKey);
+
+    print("User logged out. Status cleared.");
+  }
+
+  // Load the persisted user status on app startup
+  static Future<bool> loadCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedUserId = prefs.getInt(_userIdKey);
+
+    if (storedUserId != null) {
+      // Use the new method from your DatabaseHelper
+      final user = await DatabaseHelper.instance.getUserById(storedUserId);
+
+      if (user != null) {
+        _currentUser = user; // Set the static in-memory session
+        print("Persisted user ${user.usrName} loaded.");
+        return true;
+      }
+    }
+
+    _currentUser = null; // No persisted user or user not found in DB
+    return false;
   }
 }

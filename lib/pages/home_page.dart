@@ -1,17 +1,29 @@
 // home_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:findmydorm/models/dorms.dart'; // Dorms Model
-import 'package:findmydorm/services/sqlite.dart'; // DatabaseHelper
+import 'package:findmydorm/models/dorms.dart';
+import 'package:findmydorm/models/users.dart';
+import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/features/dorms/pages/dorm_detail_page.dart';
 import 'package:findmydorm/features/dorms/pages/dorm_lists.dart';
 import 'package:collection/collection.dart';
 
 class HomePage extends StatefulWidget {
-  // 🚨 CRITICAL ADDITION: Add the callback property
+  // 1. Required parameter for the currently logged-in user
+  final Users currentUser;
+
+  // 2. Required callback function to update the user state
+  // (Used when settings or profile changes)
+  final ValueChanged<Users> onUserUpdated;
+
+  // 3. Keep the optional callback property
   final VoidCallback? onViewAllTap;
 
-  const HomePage({super.key, this.onViewAllTap});
+  const HomePage(
+      {super.key,
+      required this.currentUser,
+      required this.onUserUpdated,
+      this.onViewAllTap});
 
   @override
   State<HomePage> createState() => _HomeScreenState();
@@ -25,7 +37,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   List<Dorms> _allDorms = [];
   List<Dorms> _femaleDorms = [];
   List<Dorms> _maleDorms = [];
-  List<Dorms> _otherDorms = []; // List for Other Dorms
+  List<Dorms> _otherDorms = [];
 
   // Helper getter for the Autocomplete search feature (list of names only)
   List<String> get _dormNames => _allDorms.map((d) => d.dormName).toList();
@@ -67,7 +79,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
 
   Widget _buildHeaderSection() {
     return SizedBox(
-      height: 370, // Adjusted height for better vertical distribution
+      height: 370,
       child: Stack(
         fit: StackFit.expand,
         children: [

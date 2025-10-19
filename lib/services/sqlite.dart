@@ -50,7 +50,7 @@ class DatabaseHelper {
       await db.execute(favoritesTable);
 
       // ==========================================================
-      // >>> ADMIN USER & DORM SEEDING (Inside onCreate) <<<
+      // >>> ADMIN USER & DORM SEEDING <<<
       // ==========================================================
 
       final String salt = BCrypt.gensalt();
@@ -64,10 +64,10 @@ class DatabaseHelper {
         'usrPassword': adminPasswordHash,
         'usrAddress': 'Database HQ',
         'usrGender': 'N/A',
-        'usrRole': 'Admin', // KEEP: Admin Role
+        'usrRole': 'Admin', // Admin Role
       });
 
-      // 2. SEED DORMITORY DATA (Reverted to old constructor)
+      // 2. SEED DORMITORY DATA
       print("DATABASE IS EMPTY. Inserting initial dorm data...");
       final now = DateTime.now().toIso8601String();
 
@@ -137,7 +137,7 @@ class DatabaseHelper {
   }
 
   // ==========================================================
-  // NEW: FAVORITES CRUD METHODS
+  // FAVORITES CRUD METHODS
   // ==========================================================
 
   // NOTE: You'll need to know the current logged-in user's ID (usrId) to use these methods.
@@ -253,7 +253,7 @@ class DatabaseHelper {
     );
   }
 
-  // Method to retrieve all users (remains the same)
+  // Method to retrieve all users
   Future<List<Users>> getAllUsers() async {
     final Database db = await database;
     final List<Map<String, dynamic>> userMaps = await db.query('users');
@@ -262,7 +262,7 @@ class DatabaseHelper {
     });
   }
 
-  // Retrieves the full user record (remains the same)
+  // Retrieves the full user record
   Future<Users?> getUserByUsernameOrEmail(String identifier) async {
     final Database db = await database;
     var result = await db.query(
@@ -278,7 +278,23 @@ class DatabaseHelper {
     }
   }
 
-  // Checks if the new username or email is already in use (remains the same)
+  //  Retrieves the full user record by their ID
+  Future<Users?> getUserById(int userId) async {
+    final Database db = await database;
+    var result = await db.query(
+      'users',
+      where: 'usrId = ?',
+      whereArgs: [userId],
+      limit: 1,
+    );
+    if (result.isNotEmpty) {
+      return Users.fromJson(result.first);
+    } else {
+      return null;
+    }
+  }
+
+  // Checks if the new username or email is already in use
   Future<bool> isUsernameOrEmailTaken(
       int currentUserId, String username, String email) async {
     final Database db = await database;
@@ -294,7 +310,7 @@ class DatabaseHelper {
     return count > 0;
   }
 
-  // Updates a user's record (remains the same)
+  // Updates a user's record
   Future<int> updateUser(Users user) async {
     final Database db = await database;
     final Map<String, dynamic> updateMap = {
@@ -311,7 +327,7 @@ class DatabaseHelper {
     );
   }
 
-  // Updates the user's password field (remains the same)
+  // Updates the user's password field
   Future<int> updatePassword(int userId, String newHashedPassword) async {
     final Database db = await database;
     final Map<String, dynamic> updateMap = {
@@ -356,7 +372,7 @@ class DatabaseHelper {
     });
   }
 
-  // 3. READ: Fetch a single dorm by its ID (remains the same)
+  // 3. READ: Fetch a single dorm by its ID
   Future<Dorms?> getDormById(int id) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -383,7 +399,7 @@ class DatabaseHelper {
     );
   }
 
-  // 5. DELETE: Delete a dorm by ID (remains the same)
+  // 5. DELETE: Delete a dorm by ID
   Future<int> deleteDorm(int id) async {
     final db = await database;
     return await db.delete(
