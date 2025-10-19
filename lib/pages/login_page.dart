@@ -59,10 +59,15 @@ class _LoginScreenState extends State<LoginPage> {
           });
 
           // Navigate and pass the full, correct Users object to HomeHolder
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => HomeHolder(currentUser: loggedInUser)));
+          // Change to pushAndRemoveUntil
+          // Navigate to HomeHolder and clear ALL previous routes (LoginPage and SelectionPage)
+          Navigator.of(context).pushAndRemoveUntil(
+            // <-- CHANGED METHOD
+            MaterialPageRoute(
+              builder: (context) => HomeHolder(currentUser: loggedInUser),
+            ),
+            (Route<dynamic> route) => false, // Removes all routes
+          );
         } else {
           // Fallback error if authentication passed but user data couldn't be fetched
           _showError(message: "User data not found after successful login.");
