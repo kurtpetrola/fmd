@@ -6,6 +6,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/pages/selection_page.dart';
 import 'package:findmydorm/core/utils/alert_dialog.dart';
+import 'package:findmydorm/services/auth_manager.dart';
 import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/features/user_profile/pages/favorite_dorms_page.dart';
 
@@ -58,7 +59,7 @@ class _UserState extends State<UserPage> {
       ),
     );
 
-    // FIX: Trigger a rebuild of the UserPage's UI
+    // Trigger a rebuild of the UserPage's UI
     if (mounted) {
       setState(() {});
     }
@@ -88,7 +89,6 @@ class _UserState extends State<UserPage> {
           children: [
             _buildProfileHeaderCard(widget.currentUser),
             const SizedBox(height: 30),
-
             _buildSettingsGroup([
               _buildProfileOption('My Favorites', Ionicons.heart_outline,
                   _navigateToFavorites, Colors.redAccent),
@@ -99,8 +99,6 @@ class _UserState extends State<UserPage> {
                   Colors.deepPurple),
             ]),
             const SizedBox(height: 15),
-
-            // 4. UPDATED SIGN OUT BUTTON WITH BORDER
             Card(
               // Wrap in Card for consistent elevation and rounded corners
               elevation: 4,
@@ -227,15 +225,30 @@ class _UserState extends State<UserPage> {
           'Log out of your account?',
           'You can always come back any time.',
         );
+
         if (action == DialogsAction.yes) {
-          setState(() => tappedYes = true);
-          Navigator.of(context).pushReplacement(
+          // 1. Log out (clears SharedPreferences)
+          await AuthManager.logout();
+
+          // 2. Set the state flag *before* navigation
+          setState(() {
+            tappedYes = true;
+          });
+
+          // 3. Navigate and clear the stack.
+          // We use pushAndRemoveUntil to ensure the entire bottom nav stack is gone.
+          // NOTE: pushReplacement or pushAndRemoveUntil both return void,
+          // which is why they cannot be assigned to a variable.
+          Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
               builder: (BuildContext context) => const SelectionPage(),
             ),
+            (Route<dynamic> route) => false, // Clears all previous routes
           );
         } else {
-          setState(() => tappedYes = false);
+          setState(() {
+            tappedYes = false;
+          });
         }
       },
       Colors.red,

@@ -54,6 +54,8 @@ class _HomeHolderState extends State<HomeHolder> {
     return [
       // Pass the callback to HomePage
       HomePage(
+        currentUser: _currentUser, // Pass the user object
+        onUserUpdated: _updateUser, // Pass the update callback
         onViewAllTap: () =>
             navigateToTab(1), // Index 1 is the Dorm List/Admin tab
       ),
