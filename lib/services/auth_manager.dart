@@ -12,6 +12,17 @@ class AuthManager {
   static Users? get currentUser => _currentUser;
   static int? get currentUserId => _currentUser?.usrId;
 
+  // Allows external classes to update the in-memory user object
+  static void updateCurrentUser(Users updatedUser) {
+    if (_currentUser?.usrId == updatedUser.usrId) {
+      _currentUser = updatedUser;
+      print("AuthManager: Current user data updated in memory.");
+    } else {
+      print(
+          "AuthManager: Failed to update user - ID mismatch or no user logged in.");
+    }
+  }
+
   // Login: Saves the user to memory and persists the ID locally
   static void login(Users user) async {
     _currentUser = user;
