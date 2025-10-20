@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/services/sqlite.dart';
+import 'package:findmydorm/services/auth_manager.dart';
 import 'package:findmydorm/features/auth/change_password_page.dart';
 
 class AccountSettingsPage extends StatefulWidget {
@@ -135,7 +136,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         usrPassword: _localUser.usrPassword,
         usrAddress: newAddress,
         usrGender: newGender,
-        usrRole: _localUser.usrRole, // 🚨 FIX: Preserve the existing user role!
+        usrRole: _localUser.usrRole, // Preserve the existing user role!
       );
 
       // 3. Persist the changes to the database
@@ -145,11 +146,15 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         // 4. Update the local state FIRST, then notify the parent, then switch modes
         if (mounted) {
           setState(() {
-            _localUser = updatedUser; // <<< THE KEY FIX: UPDATE LOCAL STATE
+            _localUser = updatedUser; // <<< Updates local state
           });
         }
 
-        // 5. Update the parent state via the callback
+        // 5. Update the global AuthManager state!
+        // This ensures DormDetailPage gets the new address immediately.
+        AuthManager.updateCurrentUser(updatedUser);
+
+        // 6. Update the parent state via the callback
         widget.onUserUpdated(updatedUser);
 
         if (mounted) {
