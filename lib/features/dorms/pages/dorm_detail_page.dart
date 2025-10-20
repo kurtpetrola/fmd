@@ -6,6 +6,8 @@ import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/services/auth_manager.dart';
 import 'package:findmydorm/models/dorms.dart';
 import 'package:findmydorm/features/maps/pages/maps_detail_page.dart';
+import 'package:geocoding/geocoding.dart';
+import 'dart:async';
 
 // -------------------------------------------------------------------
 // 1. Reusable Widget for Detail Rows
@@ -135,6 +137,74 @@ class _DormDetailPageState extends State<DormDetailPage> {
     }
   }
 
+  // Handles Geocoding and Navigation
+  Future<void> _navigateToMapRoute() async {
+    final currentUser = AuthManager.currentUser;
+    final dormLat = widget.dorm.latitude;
+    final dormLng = widget.dorm.longitude;
+
+    if (currentUser == null || currentUser.usrAddress.isEmpty) {
+      _showSnackbar(
+          'Please log in or update your profile with an address to view the route.',
+          Colors.red);
+      return;
+    }
+    if (dormLat == null || dormLng == null) {
+      _showSnackbar('Dormitory location data is missing.', Colors.red);
+      return;
+    }
+
+    _showSnackbar('Calculating shortest route...', Colors.blue);
+
+    // Default values if geocoding fails (we still need them for the MapsDetailPage)
+    double userLat = dormLat;
+    double userLng = dormLng;
+
+    try {
+      // 1. Geocoding: Convert the user's address string to coordinates
+      List<Location> locations =
+          await locationFromAddress(currentUser.usrAddress);
+
+      if (locations.isNotEmpty) {
+        userLat = locations.first.latitude;
+        userLng = locations.first.longitude;
+
+        // Print for debug. Check your console!
+        print('User Geocoded Location: Lat $userLat, Lng $userLng');
+
+        // 3. Navigate to MapsDetailPage, passing the Directions URL
+        if (mounted) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MapsDetailPage(
+                latitude: dormLat,
+                longitude: dormLng,
+                dormName: widget.dorm.dormName,
+                userLatitude: userLat,
+                userLongitude: userLng,
+              ),
+            ),
+          );
+        }
+      } else {
+        // Fallback: Show dorm location only if user address is invalid
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        _showSnackbar(
+            'Could not accurately locate your address. Showing dorm location only.',
+            Colors.orange);
+      }
+    } catch (e) {
+      // Handle network or permission errors for geocoding
+      print("Geocoding error: $e");
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      _showSnackbar(
+          'Failed to get your location for routing. Showing dorm location only.',
+          Colors.orange);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,34 +212,22 @@ class _DormDetailPageState extends State<DormDetailPage> {
       // Map Button (Bottom Bar)
       // --------------------------------------------------------------
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(
-            16, 8, 16, 24), // Increased bottom padding
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         child: ElevatedButton.icon(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MapsDetailPage(
-                  latitude: widget.dorm.latitude ?? 51.5,
-                  longitude: widget.dorm.longitude ?? -0.09,
-                  dormName: widget.dorm.dormName,
-                ),
-              ),
-            );
-          },
+          // Call the new asynchronous method
+          onPressed: _navigateToMapRoute,
           icon: const Icon(Ionicons.map, size: 28),
           label: const Text(
-            'View on Map',
+            'View Route to Dorm', // Updated button text for clarity
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(double.infinity, 55),
-            backgroundColor:
-                Colors.amber.shade700, // Use a consistent amber shade
+            backgroundColor: Colors.amber.shade700,
             foregroundColor: Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 8, // Added subtle elevation
+            elevation: 8,
           ),
         ),
       ),
