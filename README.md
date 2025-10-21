@@ -12,6 +12,7 @@ We aim to simplify your dormitory search with these core functionalities:
 
 - **Dormitory Listings:** Browse a comprehensive list of dormitory options specifically located in and around the Pangasinan region.
 - **Interactive Map View:** Visually explore all dormitories on an **interactive map**, allowing users to easily check their proximity to universities, transportation hubs, and other essential services.
+- **Dynamic Routing:** Powered by OpenRouteService API, providing accurate route generation and path visualization between dormitories and nearby landmarks.
 - **Smart Filtering & Sorting:** Quickly narrow down search results using **advanced filters** (e.g., gender-specific, location) to find the perfect match.
 - **Favorites & Comparison:** Save preferred dormitories to a **Favorites List** for easy re-access and side-by-side comparison.
 
@@ -23,6 +24,7 @@ We aim to simplify your dormitory search with these core functionalities:
 | **Database**         | **SQLite**        | Local, lightweight, and fast data persistence for dorm listings and user data. |
 | **Security**         | **`bcrypt`**      | Used for secure one-way hashing of user passwords.                             |
 | **Mapping**          | **`flutter_map`** | Provides interactive map views and location tracking.                          |
+| **Routing API**      | **OpenRouteService API** | Enables dynamic route generation and location-based mapping features.                          |
 
 ## 🚀 Getting Started
 
