@@ -14,7 +14,7 @@ class MapsDetailPage extends StatefulWidget {
   final String dormName;
   final double? userLatitude;
   final double? userLongitude;
-  final String? directionsUrl; // We won't use this, but keeping it for context
+  final String? directionsUrl;
 
   const MapsDetailPage({
     super.key,
@@ -35,17 +35,44 @@ class _MapsDetailState extends State<MapsDetailPage> {
   bool _isLoadingRoute = true;
   String? _routeError;
 
+  // State to hold the calculated distance and duration
+  String? _routeDistance;
+  String? _routeDuration;
+
+  // Tracks if the distance calculation was skipped due to missing user address
+  bool _distanceCalculationSkipped = false;
+
+  // Define this GlobalKey outside the build method, within the _MapsDetailState class
+  final GlobalKey<TooltipState> _timeTooltipKey = GlobalKey<TooltipState>();
+
   @override
   void initState() {
     super.initState();
-    // Only attempt to fetch the route if user coordinates are available
-    if (widget.userLatitude != null && widget.userLongitude != null) {
+
+    final bool userLocationProvided =
+        widget.userLatitude != null && widget.userLongitude != null;
+
+    if (userLocationProvided) {
+      // Only attempt to fetch the route if user coordinates are available
       _fetchRoute();
     } else {
-      // If no user location, just show markers
+      // If no user location, just show markers and set the skipped flag
       setState(() {
         _isLoadingRoute = false;
+        _distanceCalculationSkipped = true; // Set flag here
       });
+    }
+  }
+
+  // Helper to convert seconds to a readable minute format
+  String _formatDuration(double seconds) {
+    final minutes = (seconds / 60).ceil();
+    if (minutes < 60) {
+      return '${minutes} min';
+    } else {
+      final hours = (minutes / 60).floor();
+      final remainingMinutes = minutes % 60;
+      return '${hours} hr ${remainingMinutes} min';
     }
   }
 
@@ -57,36 +84,46 @@ class _MapsDetailState extends State<MapsDetailPage> {
     final String orsApiKey = dotenv.env['ORS_API_KEY'] ?? '';
 
     if (startLat == null || startLng == null || orsApiKey.isEmpty) {
-      // This check is good, but if orsApiKey is empty, it will fail silently.
       if (mounted) {
-        // You can add a print here to confirm the key is loaded
-        print('ORS Key Loaded: ${orsApiKey.isNotEmpty}');
-        setState(() => _isLoadingRoute = false);
+        setState(() {
+          _isLoadingRoute = false;
+          _routeError = "Configuration or location error.";
+        });
       }
       return;
     }
 
-    // 1. DYNAMIC URL CONSTRUCTION: Use string interpolation
+    // DYNAMIC URL CONSTRUCTION: Use string interpolation
     final url =
         Uri.parse('https://api.openrouteservice.org/v2/directions/driving-car'
-            '?api_key=$orsApiKey' // Use the dynamic variable
+            '?api_key=$orsApiKey'
             // NOTE: ORS expects Longitude, Latitude order
-            '&start=$startLng,$startLat' // Use user variables
-            '&end=${widget.longitude},${widget.latitude}' // Use dorm variables
+            '&start=$startLng,$startLat' // User location
+            '&end=${widget.longitude},${widget.latitude}' // Dorm location
             );
 
     try {
       final response = await http.get(url, headers: {
-        // Optional: Some APIs prefer the key in a header
         'Authorization': orsApiKey,
       });
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
-        // Extract the coordinates from the route geometry
+        // Extract the coordinates
         final List<dynamic> coordinates =
             data['features'][0]['geometry']['coordinates'];
+
+        // Extract distance and duration from the summary
+        final Map<String, dynamic> summary =
+            data['features'][0]['properties']['summary'];
+
+        final double distanceMeters = summary['distance'];
+        final double durationSeconds = summary['duration'];
+
+        final String formattedDistance =
+            (distanceMeters / 1000.0).toStringAsFixed(1) + ' km';
+        final String formattedDuration = _formatDuration(durationSeconds);
 
         final List<LatLng> newPoints = coordinates.map((coord) {
           // NOTE: Coordinates from ORS are in [lng, lat] order
@@ -95,10 +132,12 @@ class _MapsDetailState extends State<MapsDetailPage> {
 
         setState(() {
           _routePoints = newPoints;
+          _routeDistance = formattedDistance; // Store distance
+          _routeDuration = formattedDuration; // Store duration
           _isLoadingRoute = false;
         });
       } else {
-        // 2. BETTER ERROR REPORTING: Show the API error response to debug failures
+        // Show the API error response to debug failures
         print('Route API Error (${response.statusCode}): ${response.body}');
         setState(() {
           _routeError =
@@ -113,6 +152,136 @@ class _MapsDetailState extends State<MapsDetailPage> {
         _isLoadingRoute = false;
       });
     }
+  }
+
+  Widget _buildInfoItem({
+    required IconData icon,
+    required String label,
+    required String value,
+    bool showInfoIcon = false,
+  }) {
+    // Use the correct key for the 'Driving Time' info item
+    final GlobalKey<TooltipState>? tooltipKey =
+        showInfoIcon ? _timeTooltipKey : null;
+
+    // The actual message for the tooltip
+    const String tooltipMessage =
+        'This is an approximation and does not account for real-time traffic or unforeseen delays.';
+
+    return Column(
+      children: [
+        Icon(icon, color: Colors.blue.shade700, size: 28),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue.shade900,
+              ),
+            ),
+            if (showInfoIcon)
+              Padding(
+                padding: const EdgeInsets.only(left: 4.0),
+                child: GestureDetector(
+                  // Detects the tap gesture
+                  onTap: () {
+                    // Use the key to access the state
+                    tooltipKey?.currentState?.ensureTooltipVisible();
+                  },
+                  child: Tooltip(
+                    key: tooltipKey, // Assign the typed GlobalKey here
+                    message: tooltipMessage,
+                    child: Icon(
+                      Ionicons.information_circle_outline,
+                      size: 16,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        Text(
+          label,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+        ),
+      ],
+    );
+  }
+
+  // Helper method for the floating card UI
+  Widget _buildFloatingInfoCard() {
+    // Case 1: Route calculation was skipped (no user address)
+    if (_distanceCalculationSkipped) {
+      return Positioned(
+        bottom: 20,
+        left: 20,
+        right: 20,
+        child: Card(
+          color: Colors.amber.shade100,
+          elevation: 8,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Icon(Ionicons.alert_circle_outline,
+                    color: Colors.orange, size: 24),
+                SizedBox(width: 10),
+                Flexible(
+                  child: Text(
+                    'Set your address in Profile Settings to see the route distance.',
+                    style: TextStyle(color: Colors.black87),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Case 2: Data hasn't loaded yet OR data is null (should only happen during loading)
+    if (_routeDistance == null || _routeDuration == null) {
+      return const SizedBox.shrink(); // Hide if data isn't ready
+    }
+
+    // Case 3: Data successfully loaded (route fetched)
+    return Positioned(
+      bottom: 20, // Spacing from the bottom
+      left: 20,
+      right: 20,
+      child: Card(
+        color: Colors.white,
+        elevation: 8,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildInfoItem(
+                icon: Ionicons.navigate_circle_outline,
+                label: 'Driving Distance',
+                value: _routeDistance!,
+              ),
+              Container(width: 1, height: 40, color: Colors.grey.shade300),
+              _buildInfoItem(
+                icon: Ionicons.time_outline,
+                label: 'Driving Time',
+                value: _routeDuration!,
+                showInfoIcon: true,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -139,6 +308,20 @@ class _MapsDetailState extends State<MapsDetailPage> {
     // Check if user and dorm are at the exact same point
     final bool userIsAtDorm = dormLocation == userLocation;
 
+    if (_isLoadingRoute && widget.userLatitude != null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_routeError != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text("Route Error")),
+        body: Center(child: Text('Error: $_routeError')),
+      );
+    }
+
+    // Use a Stack to layer the map and the info card
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -152,62 +335,64 @@ class _MapsDetailState extends State<MapsDetailPage> {
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: _isLoadingRoute && widget.userLatitude != null
-          ? const Center(child: CircularProgressIndicator())
-          : _routeError != null
-              ? Center(child: Text('Error: $_routeError'))
-              : FlutterMap(
-                  options: MapOptions(
-                    // Adjust initialCenter to zoom in on the route
-                    initialCenter: mapCenter,
-                    initialZoom: 12.0,
-                  ),
-                  children: <Widget>[
-                    TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                    ),
+      body: Stack(
+        children: <Widget>[
+          // 1. FlutterMap: This covers the whole screen
+          FlutterMap(
+            options: MapOptions(
+              // Adjust initialCenter to zoom in on the route
+              initialCenter: mapCenter,
+              initialZoom: 12.0,
+            ),
+            children: <Widget>[
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+              ),
 
-                    // PolylineLayer to draw the actual route
-                    if (_routePoints.isNotEmpty)
-                      PolylineLayer(
-                        polylines: [
-                          Polyline(
-                            points:
-                                _routePoints, // Use the fetched route points
-                            strokeWidth: 5.0,
-                            color: Colors.blue.shade700,
-                          ),
-                        ],
-                      ),
-
-                    // MARKERS
-                    MarkerLayer(
-                      markers: [
-                        // Dorm Marker (Red)
-                        Marker(
-                          point: dormLocation,
-                          child: const Icon(
-                            Ionicons.home,
-                            size: 35.0,
-                            color: Colors.red,
-                          ),
-                        ),
-                        // User Marker (Green) - Only show if not at the dorm
-                        if (widget.userLatitude != null && !userIsAtDorm)
-                          Marker(
-                            point: userLocation,
-                            child: const Icon(
-                              Icons.person_pin_circle,
-                              size: 48.0,
-                              color: Colors.green,
-                            ),
-                          ),
-                      ],
+              // PolylineLayer to draw the actual route
+              if (_routePoints.isNotEmpty)
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: _routePoints, // Use the fetched route points
+                      strokeWidth: 5.0,
+                      color: Colors.blue.shade700,
                     ),
                   ],
                 ),
+
+              // MARKERS
+              MarkerLayer(
+                markers: [
+                  // Dorm Marker (Red)
+                  Marker(
+                    point: dormLocation,
+                    child: const Icon(
+                      Ionicons.home,
+                      size: 35.0,
+                      color: Colors.red,
+                    ),
+                  ),
+                  // User Marker (Green) - Only show if not at the dorm
+                  if (widget.userLatitude != null && !userIsAtDorm)
+                    Marker(
+                      point: userLocation,
+                      child: const Icon(
+                        Icons.person_pin_circle,
+                        size: 48.0,
+                        color: Colors.green,
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+
+          // 2. Floating Info Card (Positioned Widget)
+          _buildFloatingInfoCard(),
+        ],
+      ),
     );
   }
 }
