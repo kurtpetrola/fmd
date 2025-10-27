@@ -117,32 +117,40 @@ class _DormListState extends State<DormList> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. IMAGE/HEADER SECTION (Using static Image.asset)
-            Container(
-              height: 150, // Fixed height for the image area
-              decoration: BoxDecoration(
-                // Top corners match card shape
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(15),
-                  topRight: Radius.circular(15),
-                ),
-                color: Colors.grey.shade300, // Placeholder background color
+            // 1. IMAGE/HEADER SECTION - FIXED TO DISPLAY ACTUAL IMAGES
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
               ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Ionicons.image_outline,
-                      size: 40,
-                      color: Colors.grey,
+              child: Image.asset(
+                dorm.dormImageAsset,
+                height: 180, // Fixed height for consistency
+                width: double.infinity,
+                fit: BoxFit
+                    .cover, // This ensures the image fills the space properly
+                errorBuilder: (context, error, stackTrace) {
+                  // Fallback if image fails to load
+                  return Container(
+                    height: 180,
+                    color: Colors.grey.shade300,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Ionicons.image_outline,
+                          size: 40,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Image not found',
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ),
+                      ],
                     ),
-                    Text(
-                      'Image Preview (Dorm #${dorm.dormNumber})',
-                      style: TextStyle(color: Colors.grey.shade600),
-                    )
-                  ],
-                ),
+                  );
+                },
               ),
             ),
 

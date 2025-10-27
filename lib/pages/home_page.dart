@@ -85,7 +85,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
         children: [
           // Background Image
           Image.asset(
-            "assets/images/dorm.jpeg",
+            "assets/images/dorm_default.jpeg",
             fit: BoxFit.cover,
             color: Colors.black54,
             colorBlendMode: BlendMode.darken,
@@ -256,7 +256,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                   tabs: const [
                     Tab(text: "Female Dorms"),
                     Tab(text: "Male Dorms"),
-                    Tab(text: "Other Dorms"), // 🟢 NEW Tab
+                    Tab(text: "Other Dorms"),
                   ],
                 ),
               ],
@@ -384,19 +384,27 @@ class DormListView extends StatelessWidget {
               builder: (context) => DormDetailPage(dorm),
             ));
           },
-          child: _DormCard(itemText: itemText, subtitle: subtitle),
+          child: _DormCard(
+            itemText: itemText,
+            subtitle: subtitle,
+            imageAsset: dorm.dormImageAsset,
+          ),
         );
       },
     );
   }
 }
 
-// Extracted Card Widget (Remains the same)
+// Extracted Card Widget
 class _DormCard extends StatelessWidget {
   final String itemText;
   final String subtitle;
+  final String imageAsset; // image asset parameter
 
-  const _DormCard({required this.itemText, required this.subtitle});
+  const _DormCard(
+      {required this.itemText,
+      required this.subtitle,
+      required this.imageAsset});
 
   @override
   Widget build(BuildContext context) {
@@ -421,8 +429,15 @@ class _DormCard extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(15),
               child: Image.asset(
-                "assets/images/dorm.jpeg",
+                imageAsset, // USE THE ACTUAL DORM IMAGE
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  // Fallback if image fails to load
+                  return Container(
+                    color: Colors.grey.shade300,
+                    child: const Icon(Icons.image_not_supported, size: 50),
+                  );
+                },
               ),
             ),
           ),

@@ -275,8 +275,20 @@ class _DormDetailPageState extends State<DormDetailPage> {
                 fit: StackFit.expand,
                 children: [
                   Image.asset(
-                    'assets/images/dorm.jpeg',
+                    widget.dorm.dormImageAsset, // NEW: Dynamic image
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey.shade300,
+                        child: const Center(
+                          child: Icon(
+                            Icons.image_not_supported,
+                            size: 80,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   // Gradient Overlay for text contrast
                   const DecoratedBox(

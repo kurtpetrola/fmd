@@ -170,16 +170,23 @@ class _FavoriteDormCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: <Widget>[
-              // 1. Image Preview
+              // 1. Image Preview - NOW USES ACTUAL DORM IMAGE
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.asset(
-                  "assets/images/dorm.jpeg", // Replace with actual dorm image eventually
+                  dorm.dormImageAsset, // USE THE ACTUAL DORM IMAGE
                   width: 80,
                   height: 80,
                   fit: BoxFit.cover,
-                  color: Colors.black12, // Subtle placeholder effect
-                  colorBlendMode: BlendMode.darken,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Fallback if image fails to load
+                    return Container(
+                      width: 80,
+                      height: 80,
+                      color: Colors.grey.shade300,
+                      child: const Icon(Icons.image_not_supported, size: 30),
+                    );
+                  },
                 ),
               ),
               const SizedBox(width: 15),
