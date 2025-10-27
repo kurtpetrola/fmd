@@ -81,7 +81,8 @@ class DatabaseHelper {
         dormNumber TEXT, 
         dormName TEXT UNIQUE, 
         dormLocation TEXT, 
-        dormDescription TEXT, 
+        dormDescription TEXT,
+        dormImageAsset TEXT DEFAULT 'assets/images/dorm_default.png', 
         latitude REAL, 
         longitude REAL, 
         createdAt TEXT
@@ -140,6 +141,7 @@ class DatabaseHelper {
         dormName: 'Anderson Hall',
         dormNumber: '101',
         dormLocation: 'Dagupan City',
+        dormImageAsset: 'assets/images/dorm_default.jpeg',
         latitude: 16.0354,
         longitude: 120.3346,
         dormDescription:
@@ -151,6 +153,7 @@ class DatabaseHelper {
         dormName: 'Blakely House',
         dormNumber: '202',
         dormLocation: 'San Fabian',
+        dormImageAsset: 'assets/images/dorm_general.png',
         latitude: 16.1260,
         longitude: 120.4490,
         dormDescription:
@@ -162,6 +165,7 @@ class DatabaseHelper {
         dormName: 'Curtis Dormitory',
         dormNumber: '303',
         dormLocation: 'Mangaldan',
+        dormImageAsset: 'assets/images/dorm_default.jpeg',
         latitude: 16.0594,
         longitude: 120.4144,
         dormDescription:
@@ -173,6 +177,7 @@ class DatabaseHelper {
         dormName: 'Davis Hall',
         dormNumber: '404',
         dormLocation: 'Urdaneta City',
+        dormImageAsset: 'assets/images/dorm_female.png',
         latitude: 15.9734,
         longitude: 120.5739,
         dormDescription:

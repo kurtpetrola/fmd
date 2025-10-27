@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:findmydorm/models/dorms.dart';
 import 'package:findmydorm/services/sqlite.dart';
+import 'package:findmydorm/core/constants/dorm_image_options.dart';
+import 'package:findmydorm/features/dorms/pages/image_picker_dialog.dart';
 import 'package:findmydorm/features/maps/tools/admin_location_picker.dart';
 
 // NOTE: You would typically import 'package:http/http.dart' as http; for real API calls
@@ -135,6 +137,14 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
+  Future<String?> _showImagePickerDialog(String currentImagePath) async {
+    return await showDialog<String>(
+      context: context,
+      builder: (context) =>
+          ImagePickerDialog(currentImagePath: currentImagePath),
+    );
+  }
+
   // --- Card/List Tile UI ---
   Widget _buildDormCard(Dorms dorm) {
     final Color adminDeleteColor = Colors.red.shade700;
@@ -152,6 +162,25 @@ class _AdminPageState extends State<AdminPage> {
             vertical: 12.0, horizontal: 16.0), // Increased padding
         child: Row(
           children: [
+            // DORM IMAGE PREVIEW
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                dorm.dormImageAsset,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    width: 60,
+                    height: 60,
+                    color: Colors.grey.shade300,
+                    child: const Icon(Icons.image_not_supported),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -336,17 +365,18 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  // --- ADD DORM DIALOG  ---
+  // --- DORM DIALOGS  ---
   Future<void> _showAddDormDialog(BuildContext context) async {
     final TextEditingController nameController = TextEditingController();
     final TextEditingController numberController = TextEditingController();
     final TextEditingController locationController = TextEditingController();
     final TextEditingController latController = TextEditingController();
     final TextEditingController lngController = TextEditingController();
-    // 🚨 NEW CONTROLLER
     final TextEditingController descriptionController = TextEditingController();
 
-    // local state for validation feedback
+    // Track selected image
+    String selectedImagePath = DormImageOptions.getDefaultImage();
+
     String validationError = '';
     final Color errorRed = Colors.red.shade700;
 
@@ -368,21 +398,68 @@ class _AdminPageState extends State<AdminPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Input Fields
-                    _buildStyledTextField(
-                      controller: nameController,
-                      label: 'Dorm Name',
+                    // SIMPLE IMAGE SELECTOR BUTTON
+                    InkWell(
+                      onTap: () async {
+                        final pickedImage =
+                            await _showImagePickerDialog(selectedImagePath);
+                        if (pickedImage != null) {
+                          stfSetState(() {
+                            selectedImagePath = pickedImage;
+                          });
+                        }
+                      },
+                      child: Container(
+                        height: 100,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                              color: Colors.amber.shade700, width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.grey.shade100,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_photo_alternate,
+                                size: 40, color: Colors.amber.shade700),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tap to Select Dorm Image',
+                              style: TextStyle(
+                                color: Colors.grey.shade700,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              selectedImagePath
+                                  .split('/')
+                                  .last
+                                  .replaceAll('.png', '')
+                                  .replaceAll('_', ' '),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.amber.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
+                    const SizedBox(height: 20),
+
+                    // Input fields
+                    _buildStyledTextField(
+                        controller: nameController, label: 'Dorm Name'),
                     _buildStyledTextField(
                       controller: numberController,
                       label: 'Dorm Number (Optional)',
                       keyboardType: TextInputType.number,
                     ),
                     _buildStyledTextField(
-                      controller: locationController,
-                      label: 'Location/Address Text',
-                    ),
-                    // 🚨 NEW: Dorm Description Field
+                        controller: locationController,
+                        label: 'Location/Address Text'),
                     _buildStyledTextField(
                       controller: descriptionController,
                       label: 'Dorm Description/Details',
@@ -413,10 +490,10 @@ class _AdminPageState extends State<AdminPage> {
                       ),
                       onPressed: () async {
                         final LatLng? pickedLocation = await Navigator.push(
-                          stfContext, // Use the StatefulBuilder context
+                          stfContext,
                           MaterialPageRoute(
-                            builder: (context) => const AdminLocationPicker(),
-                          ),
+                              builder: (context) =>
+                                  const AdminLocationPicker()),
                         );
 
                         if (pickedLocation != null) {
@@ -442,22 +519,15 @@ class _AdminPageState extends State<AdminPage> {
 
                     const SizedBox(height: 15),
 
-                    // Read-only coordinates display
                     Row(
                       children: [
                         Expanded(
-                          child: _buildReadOnlyField(
-                            controller: latController,
-                            label: 'Latitude',
-                          ),
-                        ),
+                            child: _buildReadOnlyField(
+                                controller: latController, label: 'Latitude')),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: _buildReadOnlyField(
-                            controller: lngController,
-                            label: 'Longitude',
-                          ),
-                        ),
+                            child: _buildReadOnlyField(
+                                controller: lngController, label: 'Longitude')),
                       ],
                     ),
                   ],
@@ -468,9 +538,7 @@ class _AdminPageState extends State<AdminPage> {
                 TextButton(
                   onPressed: () => Navigator.pop(stfContext),
                   child: const Text('CANCEL',
-                      style: TextStyle(
-                          color:
-                              Colors.grey)), // Use a neutral color for Cancel
+                      style: TextStyle(color: Colors.grey)),
                 ),
                 ElevatedButton(
                   onPressed: () async {
@@ -493,6 +561,7 @@ class _AdminPageState extends State<AdminPage> {
                         dormDescription: descriptionController.text.isEmpty
                             ? 'No description provided.'
                             : descriptionController.text,
+                        dormImageAsset: selectedImagePath,
                         latitude: double.tryParse(latController.text),
                         longitude: double.tryParse(lngController.text),
                         createdAt: DateTime.now().toIso8601String(),
@@ -510,7 +579,6 @@ class _AdminPageState extends State<AdminPage> {
                         if (mounted) {
                           Navigator.pop(stfContext);
                           _refreshDorms();
-
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                                 content: Text(
@@ -532,18 +600,14 @@ class _AdminPageState extends State<AdminPage> {
                       });
                     }
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber.shade700,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
                   child: const Text('ADD DORM',
                       style: TextStyle(
-                          color: Colors.black,
-                          fontWeight:
-                              FontWeight.bold)), // Black text on Amber button
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Colors.amber.shade700, // Consistent Amber
-                      shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(10)) // Nicer shape
-                      ),
+                          color: Colors.black, fontWeight: FontWeight.bold)),
                 ),
               ],
             );
@@ -556,7 +620,6 @@ class _AdminPageState extends State<AdminPage> {
   // --- EDIT DORM DIALOG  ---
   Future<void> _showEditDormDialog(
       BuildContext context, Dorms dormToEdit) async {
-    // Initialize controllers with existing data
     final TextEditingController nameController =
         TextEditingController(text: dormToEdit.dormName);
     final TextEditingController numberController =
@@ -570,14 +633,14 @@ class _AdminPageState extends State<AdminPage> {
     final TextEditingController lngController = TextEditingController(
         text: dormToEdit.longitude?.toStringAsFixed(6) ?? '');
 
-    // Local state for validation feedback
+    String selectedImagePath = dormToEdit.dormImageAsset;
+
     String validationError = '';
     final Color errorRed = Colors.red.shade700;
 
     await showDialog(
       context: context,
       builder: (dialogContext) {
-        // Use StatefulBuilder to manage local state changes within the dialog
         return StatefulBuilder(
           builder: (stfContext, stfSetState) {
             return AlertDialog(
@@ -592,40 +655,82 @@ class _AdminPageState extends State<AdminPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Input Fields (reusing existing helpers)
-                    _buildStyledTextField(
-                      controller: nameController,
-                      label: 'Dorm Name',
+                    // SIMPLE IMAGE SELECTOR BUTTON
+                    InkWell(
+                      onTap: () async {
+                        final pickedImage =
+                            await _showImagePickerDialog(selectedImagePath);
+                        if (pickedImage != null) {
+                          stfSetState(() {
+                            selectedImagePath = pickedImage;
+                          });
+                        }
+                      },
+                      child: Container(
+                        height: 100,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                              color: Colors.amber.shade700, width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.grey.shade100,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.edit_outlined,
+                                size: 40, color: Colors.amber.shade700),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tap to Change Image',
+                              style: TextStyle(
+                                color: Colors.grey.shade700,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              selectedImagePath
+                                  .split('/')
+                                  .last
+                                  .replaceAll('.png', '')
+                                  .replaceAll('_', ' '),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.amber.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    _buildStyledTextField(
-                      controller: numberController,
-                      label: 'Dorm Number (Optional)',
-                      keyboardType: TextInputType.number,
-                    ),
-                    _buildStyledTextField(
-                      controller: locationController,
-                      label: 'Location/Address Text',
-                    ),
-                    _buildStyledTextField(
-                      controller: descriptionController,
-                      label: 'Dorm Description/Details',
-                      keyboardType: TextInputType.multiline,
-                    ),
+                    const SizedBox(height: 20),
 
-                    // Display validation error below fields
+                    // Rest of the fields
+                    _buildStyledTextField(
+                        controller: nameController, label: 'Dorm Name'),
+                    _buildStyledTextField(
+                        controller: numberController,
+                        label: 'Dorm Number (Optional)',
+                        keyboardType: TextInputType.number),
+                    _buildStyledTextField(
+                        controller: locationController,
+                        label: 'Location/Address Text'),
+                    _buildStyledTextField(
+                        controller: descriptionController,
+                        label: 'Dorm Description/Details',
+                        keyboardType: TextInputType.multiline),
+
                     if (validationError.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 15),
-                        child: Text(
-                          validationError,
-                          style: TextStyle(
-                              color: errorRed, fontWeight: FontWeight.bold),
-                        ),
+                        child: Text(validationError,
+                            style: TextStyle(
+                                color: errorRed, fontWeight: FontWeight.bold)),
                       ),
 
                     const SizedBox(height: 20),
 
-                    // Location Picker Button (Same logic)
                     ElevatedButton.icon(
                       icon: const Icon(Icons.location_on),
                       label: Text(
@@ -636,12 +741,11 @@ class _AdminPageState extends State<AdminPage> {
                       ),
                       onPressed: () async {
                         final LatLng? pickedLocation = await Navigator.push(
-                          stfContext, // Use the StatefulBuilder context
+                          stfContext,
                           MaterialPageRoute(
-                            builder: (context) => const AdminLocationPicker(),
-                          ),
+                              builder: (context) =>
+                                  const AdminLocationPicker()),
                         );
-
                         if (pickedLocation != null) {
                           stfSetState(() {
                             latController.text =
@@ -664,44 +768,34 @@ class _AdminPageState extends State<AdminPage> {
 
                     const SizedBox(height: 15),
 
-                    // Read-only coordinates display (Same logic)
                     Row(
                       children: [
                         Expanded(
-                          child: _buildReadOnlyField(
-                            controller: latController,
-                            label: 'Latitude',
-                          ),
-                        ),
+                            child: _buildReadOnlyField(
+                                controller: latController, label: 'Latitude')),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: _buildReadOnlyField(
-                            controller: lngController,
-                            label: 'Longitude',
-                          ),
-                        ),
+                            child: _buildReadOnlyField(
+                                controller: lngController, label: 'Longitude')),
                       ],
                     ),
                   ],
                 ),
               ),
               actions: [
-                // CANCEL Button
                 TextButton(
                   onPressed: () => Navigator.pop(stfContext),
                   child: const Text('CANCEL',
                       style: TextStyle(color: Colors.grey)),
                 ),
-                // UPDATE Button (Primary action)
                 ElevatedButton(
                   onPressed: () async {
                     if (nameController.text.isNotEmpty &&
                         locationController.text.isNotEmpty &&
                         latController.text.isNotEmpty &&
                         lngController.text.isNotEmpty) {
-                      // 1. Create the updated Dorm object
                       final updatedDorm = Dorms(
-                        dormId: dormToEdit.dormId, // KEEP the original ID!
+                        dormId: dormToEdit.dormId,
                         dormName: nameController.text,
                         dormNumber: numberController.text.isEmpty
                             ? 'N/A'
@@ -709,24 +803,20 @@ class _AdminPageState extends State<AdminPage> {
                         dormDescription: descriptionController.text.isEmpty
                             ? 'No description provided.'
                             : descriptionController.text,
+                        dormImageAsset: selectedImagePath,
                         dormLocation: locationController.text,
                         latitude: double.tryParse(latController.text),
                         longitude: double.tryParse(lngController.text),
-                        createdAt:
-                            dormToEdit.createdAt, // Keep original creation date
+                        createdAt: dormToEdit.createdAt,
                       );
 
                       try {
-                        // 2. Update local SQLite DB (using your existing method)
                         await _dbHelper.updateDorm(updatedDorm);
-
-                        // 3. Update the remote server (Action: 'update')
                         await _syncDormToServer(updatedDorm, 'update');
 
                         if (mounted) {
                           Navigator.pop(stfContext);
                           _refreshDorms();
-
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                                 content: Text(
@@ -735,7 +825,6 @@ class _AdminPageState extends State<AdminPage> {
                         }
                       } catch (e) {
                         if (mounted) {
-                          // Display error in the main app context
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                                 content: Text(
@@ -744,21 +833,20 @@ class _AdminPageState extends State<AdminPage> {
                         }
                       }
                     } else {
-                      // Show inline validation error
                       stfSetState(() {
                         validationError =
                             'Please fill all fields and pick a location.';
                       });
                     }
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade700,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
                   child: const Text('UPDATE DORM',
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold)),
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Colors.blue.shade700, // Distinct color for UPDATE
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10))),
                 ),
               ],
             );

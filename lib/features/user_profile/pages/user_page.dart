@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/pages/selection_page.dart';
-import 'package:findmydorm/core/utils/alert_dialog.dart';
+import 'package:findmydorm/core/widgets/alert_dialog.dart';
 import 'package:findmydorm/services/auth_manager.dart';
 import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/features/user_profile/pages/favorite_dorms_page.dart';
