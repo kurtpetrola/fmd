@@ -132,7 +132,20 @@ class DatabaseHelper {
       'usrRole': 'Admin', // Designated Admin Role
     });
 
-    // --- B. SEED DORMITORY DATA ---
+    // --- B. SEED STANDARD TEST USER ---
+    final String testUserPasswordHash =
+        BCrypt.hashpw('test123', salt); // Default password: test123
+
+    await db.insert('users', {
+      'usrName': 'TestUser',
+      'usrEmail': 'test@fmd.com',
+      'usrPassword': testUserPasswordHash,
+      'usrAddress': '123 Testing Lane, San Fabian',
+      'usrGender': 'Male',
+      'usrRole': 'User', // Standard User Role
+    });
+
+    // --- C. SEED DORMITORY DATA ---
     final now = DateTime.now().toIso8601String();
 
     final List<Dorms> initialDorms = [
