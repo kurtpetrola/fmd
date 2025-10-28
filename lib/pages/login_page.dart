@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/models/users.dart';
-import 'package:findmydorm/components/bottom_navbar.dart';
+import 'package:findmydorm/widgets/navigation/bottom_navbar.dart';
 import 'package:ionicons/ionicons.dart';
 import 'registration_page.dart';
 
