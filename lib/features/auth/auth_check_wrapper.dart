@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:findmydorm/services/auth_manager.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/pages/selection_page.dart';
-import 'package:findmydorm/components/bottom_navbar.dart';
+import 'package:findmydorm/widgets/navigation/bottom_navbar.dart';
 
 class AuthCheckWrapper extends StatefulWidget {
   const AuthCheckWrapper({super.key});

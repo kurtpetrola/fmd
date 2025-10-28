@@ -1,8 +1,8 @@
 // selection_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:findmydorm/components/buttons/login_button.dart';
-import 'package:findmydorm/components/buttons/register_button.dart';
+import 'package:findmydorm/widgets/buttons/login_button.dart';
+import 'package:findmydorm/widgets/buttons/register_button.dart';
 
 class SelectionPage extends StatelessWidget {
   const SelectionPage({Key? key}) : super(key: key);
