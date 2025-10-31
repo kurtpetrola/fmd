@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:findmydorm/models/dorms.dart';
 import 'package:findmydorm/services/sqlite.dart';
+import 'package:findmydorm/core/constants/dorm_categories.dart';
 import 'package:findmydorm/core/constants/dorm_image_options.dart';
 import 'package:findmydorm/features/dorms/pages/image_picker_dialog.dart';
 import 'package:findmydorm/features/maps/tools/admin_location_picker.dart';
@@ -365,6 +366,48 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
+  // --- Helper methods for Category UI ---
+  Widget _buildCategoryDropdown({
+    required String label,
+    required String value,
+    required List<String> options,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15.0),
+      child: DropdownButtonFormField<String>(
+        value: value,
+        decoration: InputDecoration(
+          labelText: label,
+          fillColor: Colors.grey.shade100,
+          filled: true,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          floatingLabelStyle: TextStyle(
+            color: Colors.amber.shade700,
+            fontWeight: FontWeight.bold,
+          ),
+          labelStyle: TextStyle(color: Colors.grey.shade600),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            borderSide: BorderSide(color: Colors.amber.shade700, width: 2.0),
+          ),
+        ),
+        items: options.map((String category) {
+          return DropdownMenuItem<String>(
+            value: category,
+            child: Text(category),
+          );
+        }).toList(),
+        onChanged: onChanged,
+      ),
+    );
+  }
+
   // --- DORM DIALOGS  ---
   Future<void> _showAddDormDialog(BuildContext context) async {
     final TextEditingController nameController = TextEditingController();
@@ -376,6 +419,8 @@ class _AdminPageState extends State<AdminPage> {
 
     // Track selected image
     String selectedImagePath = DormImageOptions.getDefaultImage();
+    String selectedGenderCategory = 'Mixed/General';
+    String selectedPriceCategory = 'Standard';
 
     String validationError = '';
     final Color errorRed = Colors.red.shade700;
@@ -460,6 +505,35 @@ class _AdminPageState extends State<AdminPage> {
                     _buildStyledTextField(
                         controller: locationController,
                         label: 'Location/Address Text'),
+
+                    // NEW: Gender Category Dropdown
+                    _buildCategoryDropdown(
+                      label: 'Gender Category',
+                      value: selectedGenderCategory,
+                      options: DormCategories.genderCategories,
+                      onChanged: (value) {
+                        if (value != null) {
+                          stfSetState(() {
+                            selectedGenderCategory = value;
+                          });
+                        }
+                      },
+                    ),
+
+                    // NEW: Price Category Dropdown
+                    _buildCategoryDropdown(
+                      label: 'Price Category',
+                      value: selectedPriceCategory,
+                      options: DormCategories.priceCategories,
+                      onChanged: (value) {
+                        if (value != null) {
+                          stfSetState(() {
+                            selectedPriceCategory = value;
+                          });
+                        }
+                      },
+                    ),
+
                     _buildStyledTextField(
                       controller: descriptionController,
                       label: 'Dorm Description/Details',
@@ -562,6 +636,8 @@ class _AdminPageState extends State<AdminPage> {
                             ? 'No description provided.'
                             : descriptionController.text,
                         dormImageAsset: selectedImagePath,
+                        genderCategory: selectedGenderCategory,
+                        priceCategory: selectedPriceCategory,
                         latitude: double.tryParse(latController.text),
                         longitude: double.tryParse(lngController.text),
                         createdAt: DateTime.now().toIso8601String(),
@@ -634,6 +710,8 @@ class _AdminPageState extends State<AdminPage> {
         text: dormToEdit.longitude?.toStringAsFixed(6) ?? '');
 
     String selectedImagePath = dormToEdit.dormImageAsset;
+    String selectedGenderCategory = dormToEdit.genderCategory;
+    String selectedPriceCategory = dormToEdit.priceCategory;
 
     String validationError = '';
     final Color errorRed = Colors.red.shade700;
@@ -716,6 +794,35 @@ class _AdminPageState extends State<AdminPage> {
                     _buildStyledTextField(
                         controller: locationController,
                         label: 'Location/Address Text'),
+
+                    // NEW: Gender Category Dropdown
+                    _buildCategoryDropdown(
+                      label: 'Gender Category',
+                      value: selectedGenderCategory,
+                      options: DormCategories.genderCategories,
+                      onChanged: (value) {
+                        if (value != null) {
+                          stfSetState(() {
+                            selectedGenderCategory = value;
+                          });
+                        }
+                      },
+                    ),
+
+                    // NEW: Price Category Dropdown
+                    _buildCategoryDropdown(
+                      label: 'Price Category',
+                      value: selectedPriceCategory,
+                      options: DormCategories.priceCategories,
+                      onChanged: (value) {
+                        if (value != null) {
+                          stfSetState(() {
+                            selectedPriceCategory = value;
+                          });
+                        }
+                      },
+                    ),
+
                     _buildStyledTextField(
                         controller: descriptionController,
                         label: 'Dorm Description/Details',
@@ -804,6 +911,8 @@ class _AdminPageState extends State<AdminPage> {
                             ? 'No description provided.'
                             : descriptionController.text,
                         dormImageAsset: selectedImagePath,
+                        genderCategory: selectedGenderCategory,
+                        priceCategory: selectedPriceCategory,
                         dormLocation: locationController.text,
                         latitude: double.tryParse(latController.text),
                         longitude: double.tryParse(lngController.text),

@@ -5,6 +5,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/services/auth_manager.dart';
 import 'package:findmydorm/models/dorms.dart';
+import 'package:findmydorm/core/constants/dorm_categories.dart';
 import 'package:findmydorm/features/maps/pages/maps_detail_page.dart';
 import 'package:geocoding/geocoding.dart';
 import 'dart:async';
@@ -205,6 +206,32 @@ class _DormDetailPageState extends State<DormDetailPage> {
     }
   }
 
+  Widget _buildCategoryChip(String category, Color color, String icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.5), width: 1.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 16)),
+          const SizedBox(width: 6),
+          Text(
+            category,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -362,7 +389,53 @@ class _DormDetailPageState extends State<DormDetailPage> {
                       ),
                     ),
 
-                    // --- 2. Description CARD (Dynamic Text) ---
+                    // --- 2. Categories CARD ---
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      margin: const EdgeInsets.only(bottom: 20),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Categories",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Lato',
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                            const Divider(height: 25, thickness: 1),
+                            Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              children: [
+                                _buildCategoryChip(
+                                  widget.dorm.genderCategory,
+                                  DormCategories.getGenderColor(
+                                      widget.dorm.genderCategory),
+                                  DormCategories.getGenderIcon(
+                                      widget.dorm.genderCategory),
+                                ),
+                                _buildCategoryChip(
+                                  widget.dorm.priceCategory,
+                                  DormCategories.getPriceColor(
+                                      widget.dorm.priceCategory),
+                                  DormCategories.getPriceIcon(
+                                      widget.dorm.priceCategory),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // --- 3. Description CARD (Dynamic Text) ---
                     Card(
                       elevation: 4,
                       shape: RoundedRectangleBorder(

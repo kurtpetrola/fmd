@@ -82,7 +82,9 @@ class DatabaseHelper {
         dormName TEXT UNIQUE, 
         dormLocation TEXT, 
         dormDescription TEXT,
-        dormImageAsset TEXT DEFAULT 'assets/images/dorm_default.png', 
+        dormImageAsset TEXT DEFAULT 'assets/images/dorm_default.png',
+        genderCategory TEXT DEFAULT 'Mixed/General',
+        priceCategory TEXT DEFAULT 'Standard', 
         latitude REAL, 
         longitude REAL, 
         createdAt TEXT
