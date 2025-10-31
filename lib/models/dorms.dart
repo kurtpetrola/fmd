@@ -12,9 +12,11 @@ class Dorms {
   final String dormNumber;
   final String dormLocation;
   final String dormDescription;
-  final String dormImageAsset; // NEW: Store asset path
-  final double? latitude; // New Field
-  final double? longitude; // New Field
+  final String dormImageAsset;
+  final String genderCategory;
+  final String priceCategory;
+  final double? latitude;
+  final double? longitude;
   final String createdAt;
 
   Dorms({
@@ -22,9 +24,12 @@ class Dorms {
     required this.dormName,
     required this.dormNumber,
     required this.dormLocation,
-    this.dormDescription = '', // ADDED default value for safety
+    this.dormDescription = '', // Default value for safety
 
     this.dormImageAsset = 'assets/images/dorm_default.jpeg', // Default image
+
+    this.genderCategory = 'Mixed/General', // Default value
+    this.priceCategory = 'Standard', // Default value
 
     // Default to null if not provided
     this.latitude,
@@ -43,6 +48,8 @@ class Dorms {
     String? dormLocation,
     String? dormDescription,
     String? dormImageAsset,
+    String? genderCategory,
+    String? priceCategory,
     double? latitude,
     double? longitude,
     String? createdAt,
@@ -54,6 +61,8 @@ class Dorms {
       dormLocation: dormLocation ?? this.dormLocation,
       dormDescription: dormDescription ?? this.dormDescription,
       dormImageAsset: dormImageAsset ?? this.dormImageAsset,
+      genderCategory: genderCategory ?? this.genderCategory,
+      priceCategory: priceCategory ?? this.priceCategory,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       createdAt: createdAt ?? this.createdAt,
@@ -73,6 +82,8 @@ class Dorms {
             as String, // ADDED default empty string
         dormImageAsset: (json["dormImageAsset"] ??
             'assets/images/dorm_default.jpeg') as String,
+        genderCategory: (json["genderCategory"] ?? 'Mixed/General') as String,
+        priceCategory: (json["priceCategory"] ?? 'Standard') as String,
         createdAt: json["createdAt"] as String,
       );
 
@@ -84,6 +95,8 @@ class Dorms {
         "dormDescription": dormDescription,
         // When sending to server, include coordinates if they are set
         "dormImageAsset": dormImageAsset,
+        "genderCategory": genderCategory,
+        "priceCategory": priceCategory,
         "latitude": latitude,
         "longitude": longitude,
         "createdAt": createdAt,
@@ -100,9 +113,11 @@ class Dorms {
         dormLocation: map["dormLocation"] as String,
         // Handle null/missing description for old entries
         dormDescription: (map["dormDescription"] ?? '') as String,
-        // NEW: Safely read coordinates (SQLite stores REAL which Dart reads as double)
+        // Safely read coordinates (SQLite stores REAL which Dart reads as double)
         dormImageAsset: (map["dormImageAsset"] ??
             'assets/images/dorm_default.jpeg') as String,
+        genderCategory: (map["genderCategory"] ?? 'Mixed/General') as String,
+        priceCategory: (map["priceCategory"] ?? 'Standard') as String,
         latitude: map['latitude'] as double?,
         longitude: map['longitude'] as double?,
         createdAt: map["createdAt"] as String,
@@ -115,7 +130,8 @@ class Dorms {
         "dormLocation": dormLocation,
         "dormDescription": dormDescription,
         "dormImageAsset": dormImageAsset,
-        // NEW: Include coordinates
+        "genderCategory": genderCategory,
+        "priceCategory": priceCategory,
         'latitude': latitude,
         'longitude': longitude,
         "createdAt": createdAt,

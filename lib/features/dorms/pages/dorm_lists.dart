@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/models/dorms.dart';
 import 'package:findmydorm/services/sqlite.dart';
+import 'package:findmydorm/core/constants/dorm_categories.dart';
 import 'package:findmydorm/features/dorms/pages/dorm_detail_page.dart';
 
 class DormList extends StatefulWidget {
@@ -27,6 +28,9 @@ class _DormListState extends State<DormList> {
   bool _isLoading = true;
   // Controller for the search field to set initial value
   final TextEditingController _searchController = TextEditingController();
+
+  String? _selectedGenderFilter;
+  String? _selectedPriceFilter;
 
   @override
   void initState() {
@@ -66,11 +70,11 @@ class _DormListState extends State<DormList> {
   }
 
   void _runFilter(String enteredKeyword) {
-    List<Dorms> results;
-    if (enteredKeyword.isEmpty) {
-      results = _allDorms;
-    } else {
-      results = _allDorms
+    List<Dorms> results = _allDorms;
+
+    // Text search filter
+    if (enteredKeyword.isNotEmpty) {
+      results = results
           .where((dorm) =>
               dorm.dormName
                   .toLowerCase()
@@ -78,6 +82,20 @@ class _DormListState extends State<DormList> {
               dorm.dormLocation
                   .toLowerCase()
                   .contains(enteredKeyword.toLowerCase()))
+          .toList();
+    }
+
+    // Gender category filter
+    if (_selectedGenderFilter != null) {
+      results = results
+          .where((dorm) => dorm.genderCategory == _selectedGenderFilter)
+          .toList();
+    }
+
+    // Price category filter
+    if (_selectedPriceFilter != null) {
+      results = results
+          .where((dorm) => dorm.priceCategory == _selectedPriceFilter)
           .toList();
     }
 
@@ -95,21 +113,85 @@ class _DormListState extends State<DormList> {
     );
   }
 
+  Widget _buildFilterChips() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          // Gender Filter Chips
+          ...DormCategories.genderCategories.map((category) {
+            final isSelected = _selectedGenderFilter == category;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: FilterChip(
+                label: Text(
+                  '${DormCategories.getGenderIcon(category)} $category',
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : Colors.black87,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+                selected: isSelected,
+                onSelected: (selected) {
+                  setState(() {
+                    _selectedGenderFilter = selected ? category : null;
+                    _runFilter(_searchController.text);
+                  });
+                },
+                selectedColor: Colors.deepPurple,
+                backgroundColor: DormCategories.getGenderColor(category),
+                checkmarkColor: Colors.white,
+              ),
+            );
+          }).toList(),
+
+          const SizedBox(width: 8),
+          Container(width: 1, height: 30, color: Colors.grey.shade300),
+          const SizedBox(width: 8),
+
+          // Price Filter Chips
+          ...DormCategories.priceCategories.map((category) {
+            final isSelected = _selectedPriceFilter == category;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: FilterChip(
+                label: Text(
+                  '${DormCategories.getPriceIcon(category)} $category',
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : Colors.black87,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+                selected: isSelected,
+                onSelected: (selected) {
+                  setState(() {
+                    _selectedPriceFilter = selected ? category : null;
+                    _runFilter(_searchController.text);
+                  });
+                },
+                selectedColor: Colors.amber.shade700,
+                backgroundColor: DormCategories.getPriceColor(category),
+                checkmarkColor: Colors.white,
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDormCard(Dorms dorm) {
-    // Helper function to truncate the description
     String getSnippet(String description) {
-      const int maxLength = 100; // Max characters for the snippet
-      if (description.length <= maxLength) {
-        return description;
-      }
+      const int maxLength = 100;
+      if (description.length <= maxLength) return description;
       return '${description.substring(0, maxLength).trim()}...';
     }
 
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: InkWell(
         onTap: () => _navigateToDormPage(dorm),
@@ -117,7 +199,7 @@ class _DormListState extends State<DormList> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. IMAGE/HEADER SECTION - FIXED TO DISPLAY ACTUAL IMAGES
+            // Image Header
             ClipRRect(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(15),
@@ -125,28 +207,21 @@ class _DormListState extends State<DormList> {
               ),
               child: Image.asset(
                 dorm.dormImageAsset,
-                height: 180, // Fixed height for consistency
+                height: 180,
                 width: double.infinity,
-                fit: BoxFit
-                    .cover, // This ensures the image fills the space properly
+                fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  // Fallback if image fails to load
                   return Container(
                     height: 180,
                     color: Colors.grey.shade300,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
-                          Ionicons.image_outline,
-                          size: 40,
-                          color: Colors.grey,
-                        ),
+                        const Icon(Ionicons.image_outline,
+                            size: 40, color: Colors.grey),
                         const SizedBox(height: 8),
-                        Text(
-                          'Image not found',
-                          style: TextStyle(color: Colors.grey.shade600),
-                        ),
+                        Text('Image not found',
+                            style: TextStyle(color: Colors.grey.shade600)),
                       ],
                     ),
                   );
@@ -154,13 +229,13 @@ class _DormListState extends State<DormList> {
               ),
             ),
 
-            // 2. DETAILS SECTION
+            // Details Section
             Padding(
               padding: const EdgeInsets.all(15.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // --- Row 1: Dorm Name and Number ---
+                  // Row 1: Dorm Name and Number
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -175,14 +250,11 @@ class _DormListState extends State<DormList> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-
-                      // Highlight Dorm Number
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.amber
-                              .withOpacity(0.2), // Light amber background
+                          color: Colors.amber.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -198,7 +270,7 @@ class _DormListState extends State<DormList> {
                   ),
                   const SizedBox(height: 8),
 
-                  // --- Row 2: Location ---
+                  // Row 2: Location
                   Row(
                     children: [
                       const Icon(Ionicons.location_outline,
@@ -208,23 +280,37 @@ class _DormListState extends State<DormList> {
                         child: Text(
                           dorm.dormLocation,
                           style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade700,
-                          ),
+                              fontSize: 14, color: Colors.grey.shade700),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10), // Added spacing
+                  const SizedBox(height: 10),
+
+                  // NEW: Category Badges Row
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _buildSmallCategoryChip(
+                        dorm.genderCategory,
+                        DormCategories.getGenderColor(dorm.genderCategory),
+                        DormCategories.getGenderIcon(dorm.genderCategory),
+                      ),
+                      _buildSmallCategoryChip(
+                        dorm.priceCategory,
+                        DormCategories.getPriceColor(dorm.priceCategory),
+                        DormCategories.getPriceIcon(dorm.priceCategory),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
 
                   // Row 3: Description Snippet
                   Text(
                     getSnippet(dorm.dormDescription),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
+                    style: const TextStyle(fontSize: 14, color: Colors.black54),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -237,6 +323,33 @@ class _DormListState extends State<DormList> {
     );
   }
 
+// Category chip widget
+
+  Widget _buildSmallCategoryChip(String category, Color color, String icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 12)),
+          const SizedBox(width: 4),
+          Text(
+            category,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -245,10 +358,8 @@ class _DormListState extends State<DormList> {
           widget.initialSearchQuery != null
               ? 'Results for "${widget.initialSearchQuery}"'
               : 'All Dormitories List',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Lato',
-          ),
+          style:
+              const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Lato'),
         ),
         backgroundColor: Colors.amber.shade700,
         foregroundColor: Colors.white,
@@ -259,7 +370,7 @@ class _DormListState extends State<DormList> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
         child: Column(
           children: [
-            // 1. IMPROVED SEARCH BAR STYLE
+            // Search Bar
             TextField(
               controller: _searchController,
               onChanged: _runFilter,
@@ -277,9 +388,37 @@ class _DormListState extends State<DormList> {
                     vertical: 15.0, horizontal: 20.0),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 15),
 
-            // 2. LIST VIEW
+            // Filter Chips Row
+            _buildFilterChips(),
+
+            // Clear Filters Button (if any filter is active)
+            if (_selectedGenderFilter != null || _selectedPriceFilter != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    icon: const Icon(Icons.clear, size: 16),
+                    label: const Text('Clear Filters'),
+                    onPressed: () {
+                      setState(() {
+                        _selectedGenderFilter = null;
+                        _selectedPriceFilter = null;
+                        _runFilter(_searchController.text);
+                      });
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.red.shade600,
+                    ),
+                  ),
+                ),
+              ),
+
+            const SizedBox(height: 10),
+
+            // List View
             Expanded(
               child: _isLoading
                   ? const Center(
@@ -287,9 +426,11 @@ class _DormListState extends State<DormList> {
                   : _foundDorms.isEmpty
                       ? Center(
                           child: Text(
-                            _searchController.text.isEmpty
+                            _searchController.text.isEmpty &&
+                                    _selectedGenderFilter == null &&
+                                    _selectedPriceFilter == null
                                 ? 'No dormitories available.'
-                                : 'No dormitories found for this search.',
+                                : 'No dormitories match your filters.',
                             style: const TextStyle(
                                 fontSize: 20, color: Colors.grey),
                           ),
