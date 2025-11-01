@@ -15,6 +15,7 @@ class Dorms {
   final String dormImageAsset;
   final String genderCategory;
   final String priceCategory;
+  final bool isFeatured;
   final double? latitude;
   final double? longitude;
   final String createdAt;
@@ -30,6 +31,7 @@ class Dorms {
 
     this.genderCategory = 'Mixed/General', // Default value
     this.priceCategory = 'Standard', // Default value
+    this.isFeatured = false, // Default to false
 
     // Default to null if not provided
     this.latitude,
@@ -50,6 +52,7 @@ class Dorms {
     String? dormImageAsset,
     String? genderCategory,
     String? priceCategory,
+    bool? isFeatured,
     double? latitude,
     double? longitude,
     String? createdAt,
@@ -63,6 +66,7 @@ class Dorms {
       dormImageAsset: dormImageAsset ?? this.dormImageAsset,
       genderCategory: genderCategory ?? this.genderCategory,
       priceCategory: priceCategory ?? this.priceCategory,
+      isFeatured: isFeatured ?? this.isFeatured,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       createdAt: createdAt ?? this.createdAt,
@@ -84,6 +88,7 @@ class Dorms {
             'assets/images/dorm_default.jpeg') as String,
         genderCategory: (json["genderCategory"] ?? 'Mixed/General') as String,
         priceCategory: (json["priceCategory"] ?? 'Standard') as String,
+        isFeatured: (json["isFeatured"] ?? 0) == 1, // SQLite stores as 0/1
         createdAt: json["createdAt"] as String,
       );
 
@@ -97,6 +102,7 @@ class Dorms {
         "dormImageAsset": dormImageAsset,
         "genderCategory": genderCategory,
         "priceCategory": priceCategory,
+        "isFeatured": isFeatured ? 1 : 0, // Convert to 0/1
         "latitude": latitude,
         "longitude": longitude,
         "createdAt": createdAt,
@@ -118,6 +124,7 @@ class Dorms {
             'assets/images/dorm_default.jpeg') as String,
         genderCategory: (map["genderCategory"] ?? 'Mixed/General') as String,
         priceCategory: (map["priceCategory"] ?? 'Standard') as String,
+        isFeatured: (map["isFeatured"] ?? 0) == 1,
         latitude: map['latitude'] as double?,
         longitude: map['longitude'] as double?,
         createdAt: map["createdAt"] as String,
@@ -132,6 +139,7 @@ class Dorms {
         "dormImageAsset": dormImageAsset,
         "genderCategory": genderCategory,
         "priceCategory": priceCategory,
+        "isFeatured": isFeatured ? 1 : 0,
         'latitude': latitude,
         'longitude': longitude,
         "createdAt": createdAt,

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:findmydorm/models/dorms.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/services/sqlite.dart';
+import 'package:findmydorm/core/constants/dorm_categories.dart';
 import 'package:findmydorm/features/dorms/pages/dorm_detail_page.dart';
 import 'package:findmydorm/features/dorms/pages/dorm_lists.dart';
 import 'package:collection/collection.dart';
@@ -37,7 +38,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   List<Dorms> _allDorms = [];
   List<Dorms> _femaleDorms = [];
   List<Dorms> _maleDorms = [];
-  List<Dorms> _otherDorms = [];
+  List<Dorms> _mixedDorms = [];
 
   // Helper getter for the Autocomplete search feature (list of names only)
   List<String> get _dormNames => _allDorms.map((d) => d.dormName).toList();
@@ -45,36 +46,54 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    // Length is now 3 for Female, Male, and Other
     _tabController = TabController(length: 3, vsync: this);
     _loadDorms();
   }
 
-  void _loadDorms() async {
-    final fetchedDorms = await _dbHelper.getDorms();
-
-    // Filtering logic to split into 3 categories
-    // This uses the modulo operator (%) to roughly distribute dorms across the three lists
-    // based on their dormId (1, 2, 3, 4, 5, 6, ... -> Group 1, 2, 0, 1, 2, 0, ...)
-    final femaleDorms =
-        fetchedDorms.where((d) => (d.dormId ?? 0) % 3 == 1).toList();
-    final maleDorms =
-        fetchedDorms.where((d) => (d.dormId ?? 1) % 3 == 2).toList();
-    final otherDorms =
-        fetchedDorms.where((d) => (d.dormId ?? 2) % 3 == 0).toList();
-
-    setState(() {
-      _allDorms = fetchedDorms;
-      _femaleDorms = femaleDorms;
-      _maleDorms = maleDorms;
-      _otherDorms = otherDorms;
-    });
+  // Auto-refresh when page becomes visible
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadDorms();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  // loading with error handling
+  void _loadDorms() async {
+    try {
+      final fetchedDorms = await _dbHelper.getDorms();
+
+      final femaleDorms = fetchedDorms
+          .where((d) => d.genderCategory == DormCategories.genderCategories[0])
+          .where((d) => d.isFeatured)
+          .toList();
+
+      final maleDorms = fetchedDorms
+          .where((d) => d.genderCategory == DormCategories.genderCategories[1])
+          .where((d) => d.isFeatured)
+          .toList();
+
+      final mixedDorms = fetchedDorms
+          .where((d) => d.genderCategory == DormCategories.genderCategories[2])
+          .where((d) => d.isFeatured)
+          .toList();
+
+      if (mounted) {
+        setState(() {
+          _allDorms = fetchedDorms;
+          _femaleDorms = femaleDorms;
+          _maleDorms = maleDorms;
+          _mixedDorms = mixedDorms;
+        });
+      }
+    } catch (e) {
+      print('Error loading dorms: $e');
+    }
   }
 
   Widget _buildHeaderSection() {
@@ -237,27 +256,20 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                 // TabBar
                 TabBar(
                   controller: _tabController,
-                  labelColor: Colors.amber.shade400, // Bright Amber
-                  unselectedLabelColor: Colors.white, // White for unselected
+                  labelColor: Colors.amber.shade400,
+                  unselectedLabelColor: Colors.white,
                   labelStyle: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Lato',
                   ),
-                  // *** REPLACED CircleTabIndicator with UnderlineTabIndicator ***
                   indicator: const UnderlineTabIndicator(
-                    borderSide: BorderSide(
-                      width: 4.0, // Thickness of the rectangle/underline
-                      color: Colors.amber, // Color of the indicator
-                    ),
-                    insets: EdgeInsets.symmetric(
-                        horizontal: 16.0), // Padding on sides
+                    borderSide: BorderSide(width: 4.0, color: Colors.amber),
+                    insets: EdgeInsets.symmetric(horizontal: 16.0),
                   ),
-                  tabs: const [
-                    Tab(text: "Female Dorms"),
-                    Tab(text: "Male Dorms"),
-                    Tab(text: "Other Dorms"),
-                  ],
+                  tabs: DormCategories.genderCategories.map((category) {
+                    return Tab(text: category);
+                  }).toList(),
                 ),
               ],
             ),
@@ -267,16 +279,15 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  // UPDATED: Now wrapped in Flexible to take up remaining screen space
+  // Now wrapped in Flexible to take up remaining screen space
   Widget _buildDormContent() {
     return Flexible(
       child: TabBarView(
         controller: _tabController,
         children: [
-          // ADDED maxItems: 3
           DormListView(dorms: _femaleDorms, maxItems: 3),
           DormListView(dorms: _maleDorms, maxItems: 3),
-          DormListView(dorms: _otherDorms, maxItems: 3), // TabView Content
+          DormListView(dorms: _mixedDorms, maxItems: 3),
         ],
       ),
     );

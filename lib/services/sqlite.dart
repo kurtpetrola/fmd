@@ -85,6 +85,7 @@ class DatabaseHelper {
         dormImageAsset TEXT DEFAULT 'assets/images/dorm_default.png',
         genderCategory TEXT DEFAULT 'Mixed/General',
         priceCategory TEXT DEFAULT 'Standard', 
+        isFeatured INTEGER DEFAULT 0,
         latitude REAL, 
         longitude REAL, 
         createdAt TEXT
