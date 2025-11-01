@@ -40,8 +40,25 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   List<Dorms> _maleDorms = [];
   List<Dorms> _mixedDorms = [];
 
-  // Helper getter for the Autocomplete search feature (list of names only)
-  List<String> get _dormNames => _allDorms.map((d) => d.dormName).toList();
+  // HELPER GETTER: Combines unique dorm names and unique dorm locations
+  // Each entry is prefixed to differentiate between a dorm and a location.
+  List<String> get _searchOptions {
+    final Set<String> options = {};
+
+    // Add dorm names with a house emoji prefix (🏠)
+    for (var dorm in _allDorms) {
+      options.add('🏠 ${dorm.dormName}');
+    }
+
+    // Add unique dorm locations with a pin emoji prefix (📍)
+    final uniqueLocations =
+        _allDorms.map((d) => d.dormLocation).toSet().toList();
+    for (var location in uniqueLocations) {
+      options.add('📍 $location');
+    }
+
+    return options.toList();
+  }
 
   @override
   void initState() {
@@ -120,7 +137,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                 const SizedBox(
                     height: 30), // Adjust this value to move title up/down
 
-                // Title Section (Moved up, now more centrally aligned vertically)
+                // Title Section
                 const Text(
                   "Discover Dorms Near You",
                   style: TextStyle(
@@ -134,11 +151,15 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
 
                 // === AUTOSUGGEST SEARCH BAR ===
                 Autocomplete<String>(
+                  // optionsBuilder to use the combined list
                   optionsBuilder: (TextEditingValue textEditingValue) {
                     if (textEditingValue.text.isEmpty) {
                       return const Iterable<String>.empty();
                     }
-                    return _dormNames.where((String option) {
+                    return _searchOptions.where((String option) {
+                      // Note: We check against the option that INCLUDES the emoji prefix,
+                      // but the comparison is done case-insensitively on both the input text
+                      // and the option text.
                       return option
                           .toLowerCase()
                           .contains(textEditingValue.text.toLowerCase());
@@ -170,7 +191,8 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                               vertical: 14,
                               horizontal:
                                   8), // Vertical padding for center alignment
-                          hintText: "Search for a dorm...",
+                          hintText:
+                              "Search for a dorm or location...", // UPDATED HINT
                           hintStyle: TextStyle(
                             color: Colors.grey.shade500,
                             fontSize: 16,
@@ -212,7 +234,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                     );
                   },
-                  // onSelected logic
+                  // onSelected logic - REMAINS THE SAME as it correctly handles the prefixes
                   onSelected: (String selectionWithPrefix) {
                     // 1. Clean the selection string (remove prefix)
                     final String selection = selectionWithPrefix.replaceAll(
@@ -230,7 +252,6 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                       ));
                     } else {
                       // Case B: DORM NAME SEARCH (Navigate to Detail Page)
-                      // This uses your original simple logic.
 
                       // Find the exact dorm object corresponding to the name
                       final Dorms? selectedDorm = _allDorms
@@ -325,8 +346,6 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                     color: Colors.black87,
                   ),
                 ),
-
-                // *** UPDATED: TextButton with Subtle Shade/Background Color ***
                 TextButton(
                   style: TextButton.styleFrom(
                     // Added a very light amber shade for the background
