@@ -146,21 +146,85 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
+// Helper widget for small category badges
+  Widget _buildSmallBadge(String icon, String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 10)),
+          const SizedBox(width: 4),
+          Text(
+            label.length > 10 ? label.substring(0, 10) : label,
+            style: const TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+// Toggle featured status method
+  Future<void> _toggleFeatured(Dorms dorm) async {
+    if (dorm.dormId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: Dormitory ID is missing.')),
+      );
+      return;
+    }
+
+    try {
+      // Toggle the featured status
+      final updatedDorm = dorm.copyWith(isFeatured: !dorm.isFeatured);
+
+      // Update in database
+      await _dbHelper.updateDorm(updatedDorm);
+
+      // Sync to server
+      await _syncDormToServer(updatedDorm, 'update');
+
+      // Refresh UI
+      _refreshDorms();
+
+      // Show feedback
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            updatedDorm.isFeatured
+                ? '${dorm.dormName} marked as FEATURED!'
+                : '${dorm.dormName} removed from featured.',
+          ),
+          backgroundColor:
+              updatedDorm.isFeatured ? Colors.green : Colors.orange,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update featured status: $e')),
+      );
+    }
+  }
+
   // --- Card/List Tile UI ---
   Widget _buildDormCard(Dorms dorm) {
     final Color adminDeleteColor = Colors.red.shade700;
     final Color primaryAmber = Colors.amber.shade700;
 
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      elevation: 5, // Slightly deeper shadow
-      margin: const EdgeInsets.symmetric(
-          horizontal: 16, vertical: 8), // Increased horizontal margin
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      elevation: 5,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-            vertical: 12.0, horizontal: 16.0), // Increased padding
+        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
         child: Row(
           children: [
             // DORM IMAGE PREVIEW
@@ -182,57 +246,124 @@ class _AdminPageState extends State<AdminPage> {
               ),
             ),
             const SizedBox(width: 12),
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Dorm Name (Primary Title)
-                  Text(
-                    dorm.dormName,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87, // Stronger text color
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                  // Dorm Name with Featured Badge
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          dorm.dormName,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      // NEW: Featured Badge
+                      if (dorm.isFeatured)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade600,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.star, size: 12, color: Colors.white),
+                              SizedBox(width: 4),
+                              Text(
+                                'FEATURED',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
-                  const SizedBox(height: 6), // Increased spacing
+                  const SizedBox(height: 6),
 
                   // Location Details
-                  _buildDetailRow(
-                    Icons.location_on_outlined,
-                    dorm.dormLocation,
-                    primaryAmber, // Highlight location
-                  ),
-                  const SizedBox(height: 2),
+                  _buildDetailRow(Icons.location_on_outlined, dorm.dormLocation,
+                      primaryAmber),
+                  const SizedBox(height: 4),
 
-                  // Coordinates (Tertiary information - helpful for Admin)
-                  Text(
-                    'Coords: ${dorm.latitude?.toStringAsFixed(6)}, ${dorm.longitude?.toStringAsFixed(6)}',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey, // Subtle grey for coordinates
-                    ),
+                  // Category Badges
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: [
+                      _buildSmallBadge(
+                        DormCategories.getGenderIcon(dorm.genderCategory),
+                        dorm.genderCategory,
+                        DormCategories.getGenderColor(dorm.genderCategory),
+                      ),
+                      _buildSmallBadge(
+                        DormCategories.getPriceIcon(dorm.priceCategory),
+                        dorm.priceCategory,
+                        DormCategories.getPriceColor(dorm.priceCategory),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
 
-            // Action Buttons (Keep current functionality but with consistent icon colors)
-            IconButton(
-              icon: Icon(Icons.edit,
-                  color: primaryAmber), // Use primary color for edit
-              onPressed: () {
-                // EDIT DIALOG
-                _showEditDormDialog(context, dorm);
-              },
-              tooltip: 'Edit Dorm',
-            ),
-            IconButton(
-              icon:
-                  Icon(Icons.delete_forever, color: adminDeleteColor, size: 28),
-              onPressed: () => _deleteDorm(dorm),
-              tooltip: 'Delete Dorm',
+            // Action Buttons Column
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // NEW: Featured Toggle Button
+                IconButton(
+                  icon: Icon(
+                    dorm.isFeatured ? Icons.star : Icons.star_border,
+                    color: dorm.isFeatured
+                        ? Colors.amber.shade700
+                        : Colors.grey.shade400,
+                    size: 28,
+                  ),
+                  onPressed: () => _toggleFeatured(dorm),
+                  tooltip: dorm.isFeatured
+                      ? 'Remove from Featured'
+                      : 'Add to Featured',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+                const SizedBox(height: 4),
+                // Edit and Delete buttons in a row
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit, color: primaryAmber, size: 22),
+                      onPressed: () => _showEditDormDialog(context, dorm),
+                      tooltip: 'Edit Dorm',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                    const SizedBox(width: 4),
+                    IconButton(
+                      icon: Icon(Icons.delete_forever,
+                          color: adminDeleteColor, size: 24),
+                      onPressed: () => _deleteDorm(dorm),
+                      tooltip: 'Delete Dorm',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
@@ -421,6 +552,7 @@ class _AdminPageState extends State<AdminPage> {
     String selectedImagePath = DormImageOptions.getDefaultImage();
     String selectedGenderCategory = 'Mixed/General';
     String selectedPriceCategory = 'Standard';
+    bool isFeatured = false;
 
     String validationError = '';
     final Color errorRed = Colors.red.shade700;
@@ -506,7 +638,7 @@ class _AdminPageState extends State<AdminPage> {
                         controller: locationController,
                         label: 'Location/Address Text'),
 
-                    // NEW: Gender Category Dropdown
+                    // Gender Category Dropdown
                     _buildCategoryDropdown(
                       label: 'Gender Category',
                       value: selectedGenderCategory,
@@ -520,7 +652,7 @@ class _AdminPageState extends State<AdminPage> {
                       },
                     ),
 
-                    // NEW: Price Category Dropdown
+                    // Price Category Dropdown
                     _buildCategoryDropdown(
                       label: 'Price Category',
                       value: selectedPriceCategory,
@@ -532,6 +664,36 @@ class _AdminPageState extends State<AdminPage> {
                           });
                         }
                       },
+                    ),
+
+                    //  Featured Checkbox
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 15),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade50,
+                        borderRadius: BorderRadius.circular(15),
+                        border:
+                            Border.all(color: Colors.amber.shade200, width: 1),
+                      ),
+                      child: CheckboxListTile(
+                        title: const Text(
+                          'Mark as Featured',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 15),
+                        ),
+                        subtitle: const Text(
+                          'Featured dorms appear on the home page',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                        value: isFeatured,
+                        activeColor: Colors.amber.shade700,
+                        onChanged: (value) {
+                          stfSetState(() {
+                            isFeatured = value ?? false;
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity.leading,
+                      ),
                     ),
 
                     _buildStyledTextField(
@@ -638,6 +800,7 @@ class _AdminPageState extends State<AdminPage> {
                         dormImageAsset: selectedImagePath,
                         genderCategory: selectedGenderCategory,
                         priceCategory: selectedPriceCategory,
+                        isFeatured: isFeatured,
                         latitude: double.tryParse(latController.text),
                         longitude: double.tryParse(lngController.text),
                         createdAt: DateTime.now().toIso8601String(),
@@ -712,6 +875,7 @@ class _AdminPageState extends State<AdminPage> {
     String selectedImagePath = dormToEdit.dormImageAsset;
     String selectedGenderCategory = dormToEdit.genderCategory;
     String selectedPriceCategory = dormToEdit.priceCategory;
+    bool isFeatured = dormToEdit.isFeatured;
 
     String validationError = '';
     final Color errorRed = Colors.red.shade700;
@@ -795,7 +959,7 @@ class _AdminPageState extends State<AdminPage> {
                         controller: locationController,
                         label: 'Location/Address Text'),
 
-                    // NEW: Gender Category Dropdown
+                    // Gender Category Dropdown
                     _buildCategoryDropdown(
                       label: 'Gender Category',
                       value: selectedGenderCategory,
@@ -809,7 +973,7 @@ class _AdminPageState extends State<AdminPage> {
                       },
                     ),
 
-                    // NEW: Price Category Dropdown
+                    // Price Category Dropdown
                     _buildCategoryDropdown(
                       label: 'Price Category',
                       value: selectedPriceCategory,
@@ -821,6 +985,36 @@ class _AdminPageState extends State<AdminPage> {
                           });
                         }
                       },
+                    ),
+
+                    // Featured Checkbox
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 15),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade50,
+                        borderRadius: BorderRadius.circular(15),
+                        border:
+                            Border.all(color: Colors.amber.shade200, width: 1),
+                      ),
+                      child: CheckboxListTile(
+                        title: const Text(
+                          'Mark as Featured',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 15),
+                        ),
+                        subtitle: const Text(
+                          'Featured dorms appear on the home page',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                        value: isFeatured,
+                        activeColor: Colors.amber.shade700,
+                        onChanged: (value) {
+                          stfSetState(() {
+                            isFeatured = value ?? false;
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity.leading,
+                      ),
                     ),
 
                     _buildStyledTextField(
@@ -913,6 +1107,7 @@ class _AdminPageState extends State<AdminPage> {
                         dormImageAsset: selectedImagePath,
                         genderCategory: selectedGenderCategory,
                         priceCategory: selectedPriceCategory,
+                        isFeatured: isFeatured,
                         dormLocation: locationController.text,
                         latitude: double.tryParse(latController.text),
                         longitude: double.tryParse(lngController.text),

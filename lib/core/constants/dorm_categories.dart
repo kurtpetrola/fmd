@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 class DormCategories {
   // Available category options
   static const List<String> genderCategories = [
-    'Mixed/General',
     'Female Only',
     'Male Only',
+    'Mixed/General',
   ];
 
   static const List<String> priceCategories = [
