@@ -189,7 +189,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       appBar: AppBar(
         title: Text(
           _isEditing ? 'Edit Profile' : 'Account Settings',
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontFamily: 'Lato',
           ),
@@ -243,11 +243,32 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
         if (_errorMessage != null)
           Padding(
-            padding: const EdgeInsets.only(bottom: 15.0),
-            child: Text(
-              _errorMessage!,
-              style: const TextStyle(
-                  color: Colors.red, fontWeight: FontWeight.bold),
+            padding: const EdgeInsets.only(bottom: 20.0),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50, // Very light red background
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red.shade300, width: 1),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Ionicons.alert_circle_outline,
+                      color: Colors.red, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _errorMessage!,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
@@ -258,12 +279,13 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             style: ElevatedButton.styleFrom(
               // Use the strong primary color for the button
               backgroundColor: Colors.amber.shade700,
-              padding: const EdgeInsets.symmetric(
-                  vertical: 18), // Slightly taller button
+              foregroundColor:
+                  Colors.deepPurple.shade900, // Deep Purple text/icon
+              padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12), // Match field radius
+                borderRadius: BorderRadius.circular(12),
               ),
-              elevation: 6, // Make it pop more
+              elevation: 6,
             ),
             child: _isLoading
                 ? const SizedBox(
@@ -271,7 +293,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                     width: 20,
                     child: CircularProgressIndicator(
                         color: Colors.white, // White spinner for contrast
-                        strokeWidth: 2.5), // Slightly thicker spinner
+                        strokeWidth: 2.5),
                   )
                 : const Text(
                     'SAVE CHANGES',
@@ -289,14 +311,13 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
   // --- Compact Title for Edit Mode ---
   Widget _buildEditModeTitle() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
+    return const Padding(
+      padding: EdgeInsets.only(top: 10.0, bottom: 25.0),
       child: Text(
-        'Update Your Profile Information',
+        'Edit Your Personal Details',
         style: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.bold,
-          // Use a neutral or primary color, not deepPurple
           color: Colors.black87,
         ),
         textAlign: TextAlign.center,
@@ -361,7 +382,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // 🟢 IMPROVEMENT: Themed Icon Color
+          // Themed Icon Color
           Icon(icon, color: Colors.amber.shade700, size: 24),
           const SizedBox(width: 20),
           Expanded(
@@ -373,7 +394,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
-                    // 🟢 IMPROVEMENT: Lighter text for the label/key
+                    // Lighter text for the label/key
                     color: Colors.grey.shade500,
                   ),
                 ),
@@ -398,11 +419,11 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   Widget _buildInfoCard(
       {required String title, required List<Widget> children}) {
     return Card(
-      // 🟢 IMPROVEMENT: Subtle increase in elevation for a modern 'floating' feel
+      // Subtle increase in elevation for a modern 'floating' feel
       elevation: 6,
-      // 🟢 IMPROVEMENT: Match the radius (12) used in the Edit Mode fields
+      // Match the radius (12) used in the Edit Mode fields
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      // 🟢 IMPROVEMENT: Add a subtle border color for definition
+      //  Add a subtle border color for definition
       margin: const EdgeInsets.only(bottom: 25),
       child: Padding(
         padding: const EdgeInsets.all(18.0), // Slightly more padding
@@ -414,11 +435,11 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
               style: const TextStyle(
                 fontSize: 17, // Slightly smaller
                 fontWeight: FontWeight.w700, // Slightly bolder
-                // 🟢 IMPROVEMENT: Use a dark neutral color for card titles
+                // Use a dark neutral color for card titles
                 color: Colors.black87,
               ),
             ),
-            // 🟢 IMPROVEMENT: Use a thinner divider for a lighter look
+            // Use a thinner divider for a lighter look
             const Divider(height: 20, thickness: 0.8, color: Colors.grey),
             ...children,
           ],
@@ -436,7 +457,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(
             vertical: 4, horizontal: 16), // Taller touch target
-        // 🟢 IMPROVEMENT: Use a prominent, but professional, security color
+        // Use a prominent, but professional, security color
         leading: const Icon(Ionicons.key_outline,
             color: Colors.deepOrangeAccent, size: 28),
         title: const Text(
@@ -493,7 +514,8 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
         // Themed icon color
         prefixIcon: Icon(icon, color: amberColor),
-        contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
       ),
       validator: validator,
     );
@@ -525,7 +547,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   Widget _buildEditModeCard() {
     // Returns a single card containing all editable fields
     return _buildInfoCard(
-      title: 'Edit Account Details',
+      title: 'Basic Account Details',
       children: [
         // ... (TextFormFields and Dropdown remain the same, bound to controllers)
         // Editable Username Field
@@ -595,7 +617,8 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
               borderSide: BorderSide(color: Colors.amber.shade700, width: 2.0),
             ),
             prefixIcon: Icon(Ionicons.people, color: Colors.amber.shade700),
-            contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
           ),
           items: _genderOptions.map((String value) {
             return DropdownMenuItem<String>(
