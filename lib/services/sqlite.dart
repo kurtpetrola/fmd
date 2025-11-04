@@ -617,6 +617,24 @@ class DatabaseHelper {
 
   // NOTE: These methods require the current logged-in user's ID (usrId).
 
+// Get the total count of favorited dorms
+  /// Retrieves the total count of dorms marked as favorite by a specific user.
+  Future<int> getFavoriteDormsCount(int usrId) async {
+    final db = await database;
+
+    // Perform a simple COUNT query on the favorites table filtered by the user ID
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      'SELECT COUNT(dormId) FROM favorites WHERE usrId = ?',
+      [usrId],
+    );
+
+    // Sqflite.firstIntValue is the safest way to extract a single COUNT result
+    final count = Sqflite.firstIntValue(result) ?? 0;
+
+    print("🔍 [DEBUG] User $usrId has $count favorite dorms.");
+    return count;
+  }
+
   /// Adds a dorm to the user's favorites list.
   ///
   /// Uses `ConflictAlgorithm.ignore` to prevent inserting duplicates.
