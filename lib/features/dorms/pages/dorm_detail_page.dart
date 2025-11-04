@@ -28,11 +28,20 @@ class _DetailItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      padding: const EdgeInsets.symmetric(vertical: 12.0), // Increased padding
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.deepPurple, size: 24),
+          // Aesthetic Icon Container
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: Colors.deepPurple.shade50, // Light background for the icon
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child:
+                Icon(icon, color: Colors.deepPurple, size: 26), // Larger icon
+          ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -40,19 +49,20 @@ class _DetailItem extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey,
+                    // Slightly more distinct label color
+                    color: Colors.blueGrey.shade400,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    fontSize: 18, // Increased size for dynamic value
+                    fontWeight: FontWeight.bold, // Bolder for high hierarchy
+                    color: Colors.black, // Stark color for readability
                     fontFamily: 'Lato',
                   ),
                 ),
@@ -80,6 +90,8 @@ class DormDetailPage extends StatefulWidget {
 
 class _DormDetailPageState extends State<DormDetailPage> {
   bool _isFavorite = false;
+  // State for expanding the description
+  bool _isDescriptionExpanded = false;
   final dbHelper = DatabaseHelper.instance;
 
   @override
@@ -136,6 +148,13 @@ class _DormDetailPageState extends State<DormDetailPage> {
         ),
       );
     }
+  }
+
+  // Toggle method
+  void _toggleDescriptionExpansion() {
+    setState(() {
+      _isDescriptionExpanded = !_isDescriptionExpanded;
+    });
   }
 
   // Handles Geocoding and Navigation
@@ -268,9 +287,14 @@ class _DormDetailPageState extends State<DormDetailPage> {
             expandedHeight: MediaQuery.of(context).size.height * 0.35,
             pinned: true,
             elevation: 0,
-            backgroundColor: Colors.amber.shade700, // Consistent color
+            backgroundColor: Colors.amber.shade700,
 
-            // Favorite Button moved to AppBar actions
+            // Add leading property to control back button
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+
             actions: [
               IconButton(
                 icon: Icon(
@@ -284,9 +308,10 @@ class _DormDetailPageState extends State<DormDetailPage> {
             ],
 
             flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+              // Adjust padding to account for back button
+              titlePadding:
+                  const EdgeInsets.only(left: 48, bottom: 16, right: 16),
               centerTitle: false,
-              // Dorm Name as the actual title (appears on scroll)
               title: Text(
                 widget.dorm.dormName,
                 style: const TextStyle(
@@ -302,7 +327,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
                 fit: StackFit.expand,
                 children: [
                   Image.asset(
-                    widget.dorm.dormImageAsset, // NEW: Dynamic image
+                    widget.dorm.dormImageAsset,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
@@ -317,7 +342,6 @@ class _DormDetailPageState extends State<DormDetailPage> {
                       );
                     },
                   ),
-                  // Gradient Overlay for text contrast
                   const DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -437,9 +461,14 @@ class _DormDetailPageState extends State<DormDetailPage> {
 
                     // --- 3. Description CARD (Dynamic Text) ---
                     Card(
-                      elevation: 4,
+                      elevation:
+                          2, // Reduced elevation for a modern, lighter look
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                            color: Colors.grey.shade200,
+                            width: 1), // Crisp border
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
@@ -457,15 +486,41 @@ class _DormDetailPageState extends State<DormDetailPage> {
                             const Divider(height: 25, thickness: 1),
                             // DYNAMIC DESCRIPTION IMPLEMENTATION
                             Text(
-                              // Use the dynamic description from the Dorms model
                               widget.dorm.dormDescription,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontFamily: 'Lato',
-                                height: 1.5,
-                                color: Colors.black87,
+                                height:
+                                    1.6, // Increased line height for better readability
+                                color: Colors
+                                    .black87, // Slightly softer than pure black
                               ),
+                              // Limit lines based on expansion state
+                              maxLines: _isDescriptionExpanded ? null : 6,
+                              overflow: _isDescriptionExpanded
+                                  ? TextOverflow.visible
+                                  : TextOverflow.ellipsis,
                             ),
+                            // Read More / Read Less button
+                            if (widget.dorm.dormDescription.length >
+                                250) // Only show if long enough
+                              GestureDetector(
+                                onTap: _toggleDescriptionExpansion,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    _isDescriptionExpanded
+                                        ? 'Read Less'
+                                        : 'Read More',
+                                    style: const TextStyle(
+                                      color: Colors
+                                          .deepPurple, // Use a primary accent color
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
                       ),
