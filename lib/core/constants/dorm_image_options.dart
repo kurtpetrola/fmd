@@ -8,14 +8,49 @@ class DormImageOptions {
       'category': 'Gender-Specific'
     },
     {
+      'path': 'assets/images/dorm_male_budget.png',
+      'label': 'Male Dormitory Budget',
+      'category': 'Gender-Specific Budget'
+    },
+    {
+      'path': 'assets/images/dorm_male_luxury.png',
+      'label': 'Male Dormitory Luxury',
+      'category': 'Gender-Specific Luxury'
+    },
+    {
       'path': 'assets/images/dorm_female.png',
       'label': 'Female Dormitory',
       'category': 'Gender-Specific'
     },
     {
+      'path': 'assets/images/dorm_female_budget.png',
+      'label': 'Female Dormitory Budget',
+      'category': 'Gender-Specific Budget'
+    },
+    {
+      'path': 'assets/images/dorm_female_luxury.png',
+      'label': 'Female Dormitory Luxury Option 1',
+      'category': 'Gender-Specific Luxury'
+    },
+    {
+      'path': 'assets/images/dorm_female_luxury1.png',
+      'label': 'Female Dormitory Luxury Option 2',
+      'category': 'Gender-Specific Luxury'
+    },
+    {
       'path': 'assets/images/dorm_general.png',
       'label': 'General/Mixed Dormitory',
       'category': 'General'
+    },
+    {
+      'path': 'assets/images/dorm_general_budget.png',
+      'label': 'General/Mixed Dormitory Budget',
+      'category': 'General Budget'
+    },
+    {
+      'path': 'assets/images/dorm_general_luxury.png',
+      'label': 'General/Mixed Dormitory Luxury',
+      'category': 'General Luxury'
     },
     {
       'path': 'assets/images/dorm_luxury.jpg',
@@ -28,13 +63,13 @@ class DormImageOptions {
       'category': 'Economy'
     },
     {
-      'path': 'assets/images/dorm_default.jpeg',
+      'path': 'assets/images/dorm_default.png',
       'label': 'Default/Standard',
       'category': 'General'
     },
   ];
 
   static String getDefaultImage() {
-    return 'assets/images/dorm_default.jpeg';
+    return 'assets/images/dorm_default.png';
   }
 }

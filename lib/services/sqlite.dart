@@ -152,52 +152,105 @@ class DatabaseHelper {
     final now = DateTime.now().toIso8601String();
 
     final List<Dorms> initialDorms = [
-      // DORM 1 (Dagupan City)
+      // --- MIXED/GENERAL CATEGORY (2) ---
+
+      // DORM 1 (Dagupan City) - Mixed/General (Luxury)
       Dorms(
         dormName: 'Anderson Hall',
         dormNumber: '101',
         dormLocation: 'Dagupan City',
-        dormImageAsset: 'assets/images/dorm_default.jpeg',
+        dormImageAsset: 'assets/images/dorm_general_luxury.png',
+        genderCategory: 'Mixed/General',
+        priceCategory: 'Luxury',
+        isFeatured: true,
         latitude: 16.0354,
         longitude: 120.3346,
         dormDescription:
             'A modern dormitory located near the Dagupan City business district. Features fast Wi-Fi, 24/7 security, air-conditioned rooms, and a communal study lounge. Ideal for students prioritizing convenience and contemporary living.',
         createdAt: now,
       ),
-      // DORM 2 (San Fabian)
+
+      // DORM 2 (San Fabian) - Mixed/General (Budget-Friendly)
       Dorms(
         dormName: 'Blakely House',
         dormNumber: '202',
         dormLocation: 'San Fabian',
-        dormImageAsset: 'assets/images/dorm_general.png',
+        dormImageAsset: 'assets/images/dorm_general_budget.png',
+        genderCategory: 'Mixed/General',
+        priceCategory: 'Budget-Friendly',
+        isFeatured: true,
         latitude: 16.1260,
         longitude: 120.4490,
         dormDescription:
             'Blakely House offers affordable and peaceful living in San Fabian. Perfect for students seeking a quiet environment for study. Rooms are spacious with basic furnishings. Includes shared kitchen facilities and laundry area.',
         createdAt: now,
       ),
-      // DORM 3 (Mangaldan)
-      Dorms(
-        dormName: 'Curtis Dormitory',
-        dormNumber: '303',
-        dormLocation: 'Mangaldan',
-        dormImageAsset: 'assets/images/dorm_default.jpeg',
-        latitude: 16.0594,
-        longitude: 120.4144,
-        dormDescription:
-            'A popular choice in Mangaldan known for its strong community atmosphere. Offers private rooms and 4-bed shared units. Amenities include a dedicated fitness corner and weekly cleaning services. Close proximity to local markets.',
-        createdAt: now,
-      ),
-      // DORM 4 (Urdaneta City)
+
+      // --- MALE DORM CATEGORY (2) ---
+
+      // DORM 3 (Urdaneta City) - Male Dorm (Luxury)
       Dorms(
         dormName: 'Davis Hall',
         dormNumber: '404',
         dormLocation: 'Urdaneta City',
-        dormImageAsset: 'assets/images/dorm_female.png',
+        dormImageAsset: 'assets/images/dorm_male_luxury.png',
+        genderCategory: 'Male Dorm',
+        priceCategory: 'Luxury',
+        isFeatured: true,
         latitude: 15.9734,
         longitude: 120.5739,
         dormDescription:
             'Situated in the heart of Urdaneta City, Davis Hall provides excellent access to major transport links. High security measures, including CCTV and keycard access. All rooms feature private bathrooms and individual metering for utilities.',
+        createdAt: now,
+      ),
+
+      // DORM 4 (Lingayen) - Male Dorm (Standard)
+      Dorms(
+        dormName: 'Edison Residence',
+        dormNumber: '505',
+        dormLocation: 'Lingayen',
+        dormImageAsset: 'assets/images/dorm_male_budget.png',
+        genderCategory: 'Male Dorm',
+        priceCategory: 'Standard',
+        isFeatured: true,
+        latitude: 16.0220,
+        longitude: 120.2320,
+        dormDescription:
+            'Edison Residence is conveniently located near the Provincial Capitol in Lingayen. Offers standard, well-maintained rooms with common areas for group study and recreation. Features a reliable security guard and biometric entry.',
+        createdAt: now,
+      ),
+
+      // --- FEMALE DORM CATEGORY (2) ---
+
+      // DORM 5 (Dagupan City) - Female Dorm (Luxury)
+      Dorms(
+        dormName: 'Grace Tower',
+        dormNumber: '707',
+        dormLocation: 'Dagupan City',
+        dormImageAsset: 'assets/images/dorm_female_luxury.png',
+        genderCategory: 'Female Dorm',
+        priceCategory: 'Luxury',
+        isFeatured: true,
+        latitude: 16.0380,
+        longitude: 120.3400,
+        dormDescription:
+            'An exclusive, high-end residence for female students in Dagupan. Features fully air-conditioned suites, a private pantry on each floor, and keycard-only access to enhance safety and privacy. Amenities include a roof deck garden.',
+        createdAt: now,
+      ),
+
+      // DORM 6 (Alaminos City) - Female Dorm (Budget-Friendly)
+      Dorms(
+        dormName: 'Hana Residence',
+        dormNumber: '606',
+        dormLocation: 'Alaminos City',
+        dormImageAsset: 'assets/images/dorm_female_budget.png',
+        genderCategory: 'Female Dorm',
+        priceCategory: 'Budget-Friendly',
+        isFeatured: true,
+        latitude: 16.1500,
+        longitude: 119.9850,
+        dormDescription:
+            'A secure and affordable female-only dorm in Alaminos City, offering clean shared rooms with basic amenities. Excellent location near local schools and public transit, perfect for the budget-conscious student.',
         createdAt: now,
       ),
     ];

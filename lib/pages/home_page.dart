@@ -121,7 +121,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
         children: [
           // Background Image
           Image.asset(
-            "assets/images/dorm_default.jpeg",
+            "assets/images/dorm_default.png",
             fit: BoxFit.cover,
             color: Colors.black54,
             colorBlendMode: BlendMode.darken,

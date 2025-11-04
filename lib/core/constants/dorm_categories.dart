@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 class DormCategories {
   // Available category options
   static const List<String> genderCategories = [
-    'Female Only',
-    'Male Only',
+    'Female Dorm',
+    'Male Dorm',
     'Mixed/General',
   ];
 
@@ -19,9 +19,9 @@ class DormCategories {
   // Get display info for categories
   static String getGenderIcon(String category) {
     switch (category) {
-      case 'Female Only':
+      case 'Female Dorm':
         return '♀️';
-      case 'Male Only':
+      case 'Male Dorm':
         return '♂️';
       default:
         return '👥';
@@ -42,9 +42,9 @@ class DormCategories {
   // Get colors for chips/badges
   static Color getGenderColor(String category) {
     switch (category) {
-      case 'Female Only':
+      case 'Female Dorm':
         return Colors.pink.shade100;
-      case 'Male Only':
+      case 'Male Dorm':
         return Colors.blue.shade100;
       default:
         return Colors.grey.shade200;
