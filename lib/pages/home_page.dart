@@ -337,20 +337,81 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  "Featured Dorms",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Lato',
-                    color: Colors.black87,
-                  ),
+                // Featured Dorms Title with Refresh Badge (Admin Only)
+                Row(
+                  children: [
+                    const Text(
+                      "Featured Dorms",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Lato',
+                        color: Colors.black87,
+                      ),
+                    ),
+                    // Subtle refresh badge for Admin
+                    if (widget.currentUser.usrRole == 'Admin') ...[
+                      const SizedBox(width: 10),
+                      InkWell(
+                        onTap: () {
+                          _loadDorms();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.refresh,
+                                      color: Colors.white, size: 18),
+                                  SizedBox(width: 8),
+                                  Text('Refreshed!'),
+                                ],
+                              ),
+                              duration: const Duration(seconds: 1),
+                              backgroundColor: Colors.green.shade600,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              width: 150,
+                            ),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade100,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                                color: Colors.amber.shade300, width: 1),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.refresh,
+                                  size: 14, color: Colors.amber.shade700),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Refresh',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.amber.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
+
+                // View All Button
                 TextButton(
                   style: TextButton.styleFrom(
-                    // Added a very light amber shade for the background
-                    backgroundColor: Colors.amber.shade50, // Lightest amber
-
+                    backgroundColor: Colors.amber.shade50,
                     foregroundColor: Colors.amber.shade700,
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
