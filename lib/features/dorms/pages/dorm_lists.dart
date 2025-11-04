@@ -3,35 +3,45 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/models/dorms.dart';
-import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
+import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/features/dorms/pages/dorm_detail_page.dart';
 
+// -------------------------------------------------------------------
+// ## DORM LIST WIDGET
+// -------------------------------------------------------------------
+
 class DormList extends StatefulWidget {
-  // Only keep initialSearchQuery, as the filtering is done inside this page.
   final String? initialSearchQuery;
 
   const DormList({
-    Key? key,
+    super.key,
     this.initialSearchQuery,
-  }) : super(key: key);
+  });
 
   @override
-  _DormListState createState() => _DormListState();
+  State<DormList> createState() => _DormListState();
 }
 
 class _DormListState extends State<DormList> {
+  // -------------------------------------------------------------------
+  // ## FIELDS & STATE
+  // -------------------------------------------------------------------
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
-  List<Dorms> _allDorms = [];
-  List<Dorms> _foundDorms = [];
+  List<Dorms> _allDorms = []; // Holds all dorms fetched from the DB
+  List<Dorms> _foundDorms = []; // Holds the filtered/searched results
   bool _isLoading = true;
-  // Controller for the search field to set initial value
+
   final TextEditingController _searchController = TextEditingController();
 
+  // Filter state
   String? _selectedGenderFilter;
   String? _selectedPriceFilter;
 
+  // -------------------------------------------------------------------
+  // ## LIFECYCLE METHODS
+  // -------------------------------------------------------------------
   @override
   void initState() {
     super.initState();
@@ -44,6 +54,12 @@ class _DormListState extends State<DormList> {
     super.dispose();
   }
 
+  // -------------------------------------------------------------------
+  // ## DATA & FILTER LOGIC (Business Logic)
+  // -------------------------------------------------------------------
+
+  /// Fetches all dorms from the database and initializes the list.
+  /// Applies the initial search query if provided.
   void _loadDormsAndFilter() async {
     setState(() {
       _isLoading = true;
@@ -61,38 +77,39 @@ class _DormListState extends State<DormList> {
         _foundDorms = fetchedDorms;
       }
     } catch (e) {
+      // In a real app, you would show an error message to the user here.
       print("Error loading dorms: $e");
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
+  /// Filters the dorm list based on the search keyword, gender, and price categories.
   void _runFilter(String enteredKeyword) {
     List<Dorms> results = _allDorms;
 
-    // Text search filter
+    // 1. Text search filter
     if (enteredKeyword.isNotEmpty) {
+      final keywordLower = enteredKeyword.toLowerCase();
       results = results
           .where((dorm) =>
-              dorm.dormName
-                  .toLowerCase()
-                  .contains(enteredKeyword.toLowerCase()) ||
-              dorm.dormLocation
-                  .toLowerCase()
-                  .contains(enteredKeyword.toLowerCase()))
+              dorm.dormName.toLowerCase().contains(keywordLower) ||
+              dorm.dormLocation.toLowerCase().contains(keywordLower))
           .toList();
     }
 
-    // Gender category filter
+    // 2. Gender category filter
     if (_selectedGenderFilter != null) {
       results = results
           .where((dorm) => dorm.genderCategory == _selectedGenderFilter)
           .toList();
     }
 
-    // Price category filter
+    // 3. Price category filter
     if (_selectedPriceFilter != null) {
       results = results
           .where((dorm) => dorm.priceCategory == _selectedPriceFilter)
@@ -104,15 +121,64 @@ class _DormListState extends State<DormList> {
     });
   }
 
-  void _navigateToDormPage(Dorms dorm) {
-    Navigator.push(
+  /// Navigates to the Dorm Detail Page and refreshes the list if favorites changed.
+  void _navigateToDormPage(Dorms dorm) async {
+    // Navigate and await the result (true if favorite status changed)
+    final bool? favoriteChanged = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => DormDetailPage(dorm),
       ),
     );
+
+    // If a favorite was toggled, re-run the filter to ensure the list is up-to-date
+    if (favoriteChanged == true && mounted) {
+      // Re-load to refresh favorited status in case it was displayed
+      // A lighter approach is just to run the filter again
+      _runFilter(_searchController.text);
+    }
   }
 
+  /// Clears all active filters and re-runs the main filter function.
+  void _clearFilters() {
+    setState(() {
+      _selectedGenderFilter = null;
+      _selectedPriceFilter = null;
+      _runFilter(_searchController.text);
+    });
+  }
+
+  // -------------------------------------------------------------------
+  // ## WIDGET BUILDERS
+  // -------------------------------------------------------------------
+
+  /// Builds the small, colored chip for display inside a dorm card.
+  Widget _buildSmallCategoryChip(String category, Color color, String icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 12)),
+          const SizedBox(width: 4),
+          Text(
+            category,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Builds the horizontal scrollable row of filter chips (Gender and Price).
   Widget _buildFilterChips() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -182,6 +248,7 @@ class _DormListState extends State<DormList> {
     );
   }
 
+  /// Builds an individual stylized dorm card for the list view.
   Widget _buildDormCard(Dorms dorm) {
     String getSnippet(String description) {
       const int maxLength = 100;
@@ -288,7 +355,7 @@ class _DormListState extends State<DormList> {
                   ),
                   const SizedBox(height: 10),
 
-                  // NEW: Category Badges Row
+                  // Category Badges Row
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -323,35 +390,16 @@ class _DormListState extends State<DormList> {
     );
   }
 
-// Category chip widget
-
-  Widget _buildSmallCategoryChip(String category, Color color, String icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(icon, style: const TextStyle(fontSize: 12)),
-          const SizedBox(width: 4),
-          Text(
-            category,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // -------------------------------------------------------------------
+  // ## MAIN BUILD METHOD
+  // -------------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
+    // Determine if the 'Clear Filters' button should be shown
+    final bool filtersActive =
+        _selectedGenderFilter != null || _selectedPriceFilter != null;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -394,7 +442,7 @@ class _DormListState extends State<DormList> {
             _buildFilterChips(),
 
             // Clear Filters Button (if any filter is active)
-            if (_selectedGenderFilter != null || _selectedPriceFilter != null)
+            if (filtersActive)
               Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: Align(
@@ -402,13 +450,7 @@ class _DormListState extends State<DormList> {
                   child: TextButton.icon(
                     icon: const Icon(Icons.clear, size: 16),
                     label: const Text('Clear Filters'),
-                    onPressed: () {
-                      setState(() {
-                        _selectedGenderFilter = null;
-                        _selectedPriceFilter = null;
-                        _runFilter(_searchController.text);
-                      });
-                    },
+                    onPressed: _clearFilters,
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.red.shade600,
                     ),
@@ -426,11 +468,9 @@ class _DormListState extends State<DormList> {
                   : _foundDorms.isEmpty
                       ? Center(
                           child: Text(
-                            _searchController.text.isEmpty &&
-                                    _selectedGenderFilter == null &&
-                                    _selectedPriceFilter == null
+                            (_searchController.text.isEmpty && !filtersActive)
                                 ? 'No dormitories available.'
-                                : 'No dormitories match your filters.',
+                                : 'No dormitories match your criteria.',
                             style: const TextStyle(
                                 fontSize: 20, color: Colors.grey),
                           ),

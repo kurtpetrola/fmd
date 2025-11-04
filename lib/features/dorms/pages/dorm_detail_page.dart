@@ -1,17 +1,17 @@
 // dorm_detail_page.dart
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:findmydorm/services/sqlite.dart';
-import 'package:findmydorm/services/auth_manager.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:findmydorm/models/dorms.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
+import 'package:findmydorm/services/sqlite.dart';
+import 'package:findmydorm/services/auth_manager.dart';
 import 'package:findmydorm/features/maps/pages/maps_detail_page.dart';
-import 'package:geocoding/geocoding.dart';
-import 'dart:async';
 
 // -------------------------------------------------------------------
-// 1. Reusable Widget for Detail Rows
+// ## REUSABLE WIDGET: _DetailItem
 // -------------------------------------------------------------------
 
 class _DetailItem extends StatelessWidget {
@@ -28,7 +28,7 @@ class _DetailItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0), // Increased padding
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -36,11 +36,10 @@ class _DetailItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
-              color: Colors.deepPurple.shade50, // Light background for the icon
+              color: Colors.deepPurple.shade50,
               borderRadius: BorderRadius.circular(10),
             ),
-            child:
-                Icon(icon, color: Colors.deepPurple, size: 26), // Larger icon
+            child: Icon(icon, color: Colors.deepPurple, size: 26),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -52,7 +51,6 @@ class _DetailItem extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    // Slightly more distinct label color
                     color: Colors.blueGrey.shade400,
                   ),
                 ),
@@ -60,9 +58,9 @@ class _DetailItem extends StatelessWidget {
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: 18, // Increased size for dynamic value
-                    fontWeight: FontWeight.bold, // Bolder for high hierarchy
-                    color: Colors.black, // Stark color for readability
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                     fontFamily: 'Lato',
                   ),
                 ),
@@ -76,30 +74,47 @@ class _DetailItem extends StatelessWidget {
 }
 
 // -------------------------------------------------------------------
-// 2. DormDetailPage (The Main Widget)
+// ## MAIN WIDGET: DormDetailPage
 // -------------------------------------------------------------------
 
 class DormDetailPage extends StatefulWidget {
   final Dorms dorm;
 
-  const DormDetailPage(this.dorm, {super.key});
+  // Callback property to notify the parent list a change occurred (e.g., in favorites)
+  final VoidCallback? onFavoriteToggled;
+
+  const DormDetailPage(this.dorm, {super.key, this.onFavoriteToggled});
 
   @override
   State<DormDetailPage> createState() => _DormDetailPageState();
 }
 
 class _DormDetailPageState extends State<DormDetailPage> {
-  bool _isFavorite = false;
-  // State for expanding the description
-  bool _isDescriptionExpanded = false;
+  // --- FIELDS & DB HELPER ---
   final dbHelper = DatabaseHelper.instance;
+  bool _isFavorite = false;
+  bool _favoriteStatusChanged = false; // Flag to track if the status changed
+  bool _isDescriptionExpanded = false; // State for expanding the description
 
+  // -------------------------------------------------------------------
+  // ## LIFECYCLE METHODS
+  // -------------------------------------------------------------------
   @override
   void initState() {
     super.initState();
     _checkFavoriteStatus();
   }
 
+  // Custom back button handler to pass the status change back to the parent.
+  void _onBackPressed() {
+    Navigator.pop(context, _favoriteStatusChanged);
+  }
+
+  // -------------------------------------------------------------------
+  // ## DATA/STATE LOGIC
+  // -------------------------------------------------------------------
+
+  /// Checks the initial favorite status of the dorm for the current user.
   Future<void> _checkFavoriteStatus() async {
     final currentUser = AuthManager.currentUser;
     if (currentUser != null && currentUser.usrId != null) {
@@ -107,12 +122,15 @@ class _DormDetailPageState extends State<DormDetailPage> {
         currentUser.usrId!,
         widget.dorm.dormId!,
       );
-      setState(() {
-        _isFavorite = isFav;
-      });
+      if (mounted) {
+        setState(() {
+          _isFavorite = isFav;
+        });
+      }
     }
   }
 
+  /// Adds or removes the dorm from the user's favorites.
   Future<void> _toggleFavorite() async {
     final currentUser = AuthManager.currentUser;
     if (currentUser == null || currentUser.usrId == null) {
@@ -130,34 +148,30 @@ class _DormDetailPageState extends State<DormDetailPage> {
         _showSnackbar(
             'Added ${widget.dorm.dormName} to favorites!', Colors.green);
       }
-      setState(() {
-        _isFavorite = !_isFavorite;
-      });
+
+      if (mounted) {
+        setState(() {
+          _isFavorite = !_isFavorite;
+          _favoriteStatusChanged = true;
+        });
+      }
     } catch (e) {
       _showSnackbar('Failed to update favorite status: $e', Colors.red);
     }
   }
 
-  void _showSnackbar(String message, Color color) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: color,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
-  // Toggle method
+  /// Toggles the expansion state of the description text.
   void _toggleDescriptionExpansion() {
     setState(() {
       _isDescriptionExpanded = !_isDescriptionExpanded;
     });
   }
 
-  // Handles Geocoding and Navigation
+  // -------------------------------------------------------------------
+  // ## NAVIGATION HANDLERS
+  // -------------------------------------------------------------------
+
+  /// Handles Geocoding for the user's address and navigates to the map route.
   Future<void> _navigateToMapRoute() async {
     final currentUser = AuthManager.currentUser;
     final dormLat = widget.dorm.latitude;
@@ -176,7 +190,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
 
     _showSnackbar('Calculating shortest route...', Colors.blue);
 
-    // Default values if geocoding fails (we still need them for the MapsDetailPage)
+    // Default values if geocoding fails (dorm location)
     double userLat = dormLat;
     double userLng = dormLng;
 
@@ -188,26 +202,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
       if (locations.isNotEmpty) {
         userLat = locations.first.latitude;
         userLng = locations.first.longitude;
-
-        // Print for debug. Check your console!
         print('User Geocoded Location: Lat $userLat, Lng $userLng');
-
-        // 3. Navigate to MapsDetailPage, passing the Directions URL
-        if (mounted) {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MapsDetailPage(
-                latitude: dormLat,
-                longitude: dormLng,
-                dormName: widget.dorm.dormName,
-                userLatitude: userLat,
-                userLongitude: userLng,
-              ),
-            ),
-          );
-        }
       } else {
         // Fallback: Show dorm location only if user address is invalid
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -215,8 +210,24 @@ class _DormDetailPageState extends State<DormDetailPage> {
             'Could not accurately locate your address. Showing dorm location only.',
             Colors.orange);
       }
+
+      // 2. Navigate to MapsDetailPage
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MapsDetailPage(
+              latitude: dormLat,
+              longitude: dormLng,
+              dormName: widget.dorm.dormName,
+              userLatitude: userLat,
+              userLongitude: userLng,
+            ),
+          ),
+        );
+      }
     } catch (e) {
-      // Handle network or permission errors for geocoding
       print("Geocoding error: $e");
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       _showSnackbar(
@@ -225,6 +236,28 @@ class _DormDetailPageState extends State<DormDetailPage> {
     }
   }
 
+  // -------------------------------------------------------------------
+  // ## UTILITY METHODS
+  // -------------------------------------------------------------------
+
+  /// Displays a SnackBar with a custom message and color.
+  void _showSnackbar(String message, Color color) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: color,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  // -------------------------------------------------------------------
+  // ## WIDGET BUILDER METHODS
+  // -------------------------------------------------------------------
+
+  /// Builds the stylized category chip (e.g., 'Male', 'Affordable').
   Widget _buildCategoryChip(String category, Color color, String icon) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -260,11 +293,10 @@ class _DormDetailPageState extends State<DormDetailPage> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         child: ElevatedButton.icon(
-          // Call the new asynchronous method
           onPressed: _navigateToMapRoute,
           icon: const Icon(Ionicons.map, size: 28),
           label: const Text(
-            'View Route to Dorm', // Updated button text for clarity
+            'View Route to Dorm',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           style: ElevatedButton.styleFrom(
@@ -289,10 +321,10 @@ class _DormDetailPageState extends State<DormDetailPage> {
             elevation: 0,
             backgroundColor: Colors.amber.shade700,
 
-            // Add leading property to control back button
+            // Leading: Custom back button to pass the status change
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => Navigator.pop(context),
+              onPressed: _onBackPressed, // Use the dedicated handler
             ),
 
             actions: [
@@ -308,7 +340,6 @@ class _DormDetailPageState extends State<DormDetailPage> {
             ],
 
             flexibleSpace: FlexibleSpaceBar(
-              // Adjust padding to account for back button
               titlePadding:
                   const EdgeInsets.only(left: 48, bottom: 16, right: 16),
               centerTitle: false,
@@ -326,6 +357,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
+                  // Dorm Image Asset
                   Image.asset(
                     widget.dorm.dormImageAsset,
                     fit: BoxFit.cover,
@@ -342,6 +374,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
                       );
                     },
                   ),
+                  // Gradient Overlay
                   const DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -361,12 +394,11 @@ class _DormDetailPageState extends State<DormDetailPage> {
           ),
 
           // ----------------------------------------------------------
-          // 3. Scrollable Details Section (Card Design)
+          // Scrollable Details Section (Body)
           // ----------------------------------------------------------
           SliverToBoxAdapter(
             child: Container(
-              color: Colors
-                  .grey.shade50, // Slight off-white background for the body
+              color: Colors.grey.shade50,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -461,13 +493,10 @@ class _DormDetailPageState extends State<DormDetailPage> {
 
                     // --- 3. Description CARD (Dynamic Text) ---
                     Card(
-                      elevation:
-                          2, // Reduced elevation for a modern, lighter look
+                      elevation: 2,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                            color: Colors.grey.shade200,
-                            width: 1), // Crisp border
+                        side: BorderSide(color: Colors.grey.shade200, width: 1),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -484,16 +513,13 @@ class _DormDetailPageState extends State<DormDetailPage> {
                               ),
                             ),
                             const Divider(height: 25, thickness: 1),
-                            // DYNAMIC DESCRIPTION IMPLEMENTATION
                             Text(
                               widget.dorm.dormDescription,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontFamily: 'Lato',
-                                height:
-                                    1.6, // Increased line height for better readability
-                                color: Colors
-                                    .black87, // Slightly softer than pure black
+                                height: 1.6,
+                                color: Colors.black87,
                               ),
                               // Limit lines based on expansion state
                               maxLines: _isDescriptionExpanded ? null : 6,
@@ -502,8 +528,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
                                   : TextOverflow.ellipsis,
                             ),
                             // Read More / Read Less button
-                            if (widget.dorm.dormDescription.length >
-                                250) // Only show if long enough
+                            if (widget.dorm.dormDescription.length > 250)
                               GestureDetector(
                                 onTap: _toggleDescriptionExpansion,
                                 child: Padding(
@@ -513,8 +538,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
                                         ? 'Read Less'
                                         : 'Read More',
                                     style: const TextStyle(
-                                      color: Colors
-                                          .deepPurple, // Use a primary accent color
+                                      color: Colors.deepPurple,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15,
                                     ),
@@ -526,8 +550,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
                       ),
                     ),
 
-                    const SizedBox(
-                        height: 40), // Spacing above the bottom nav bar/button
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),
