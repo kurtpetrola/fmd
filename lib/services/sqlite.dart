@@ -459,6 +459,20 @@ class DatabaseHelper {
     return result.isNotEmpty ? Users.fromJson(result.first) : null;
   }
 
+  /// Verifies if a user exists by matching their email and address.
+  /// Used for security checks like password recovery.
+  Future<Users?> verifyUserByEmailAndAddress(
+      String email, String address) async {
+    final Database db = await database;
+    var result = await db.query(
+      'users',
+      where: 'usrEmail = ? AND usrAddress = ?',
+      whereArgs: [email, address],
+      limit: 1,
+    );
+    return result.isNotEmpty ? Users.fromJson(result.first) : null;
+  }
+
   /// Checks if a username or email is already in use by a DIFFERENT user.
   Future<bool> isUsernameOrEmailTaken(
       int currentUserId, String username, String email) async {
@@ -498,7 +512,7 @@ class DatabaseHelper {
     return result;
   }
 
-  /// Updates only the user's password field.
+  /// Updates only the user's password field using the User ID.
   Future<int> updatePassword(int userId, String newHashedPassword) async {
     final Database db = await database;
     final Map<String, dynamic> updateMap = {
@@ -512,6 +526,32 @@ class DatabaseHelper {
     );
     // DEBUG: Print updated table after user update (comment out in production)
     print("🛠️ [DEBUG] Updated password for userId: $userId ");
+    await debugPrintTableData('users');
+
+    return result;
+  }
+
+  /// Updates a user's password using their email for identification.
+  /// The new password is automatically hashed before storage.
+  Future<int> updatePasswordByEmail(String email, String newPassword) async {
+    final Database db = await database;
+    final String salt = BCrypt.gensalt();
+    final String newHashedPassword = BCrypt.hashpw(newPassword, salt);
+
+    final Map<String, dynamic> updateMap = {
+      'usrPassword': newHashedPassword,
+    };
+
+    final result = await db.update(
+      'users',
+      updateMap,
+      where: 'usrEmail = ?',
+      whereArgs: [email],
+    );
+
+    // DEBUG: Print updated table after password change
+    print(
+        "🛠️ [DEBUG] Updated password for user with email: $email. Rows affected: $result");
     await debugPrintTableData('users');
 
     return result;
