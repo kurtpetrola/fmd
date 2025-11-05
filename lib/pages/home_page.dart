@@ -1,13 +1,17 @@
 // home_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import 'package:findmydorm/models/dorms.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
 import 'package:findmydorm/features/dorms/pages/dorm_detail_page.dart';
 import 'package:findmydorm/features/dorms/pages/dorm_lists.dart';
-import 'package:collection/collection.dart';
+
+// ===================================
+// HOME PAGE WIDGET
+// ===================================
 
 class HomePage extends StatefulWidget {
   // 1. Required parameter for the currently logged-in user
@@ -31,6 +35,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
+  // ===================================
+  // STATE AND CONTROLLERS
+  // ===================================
+
   late TabController _tabController;
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
@@ -40,8 +48,36 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   List<Dorms> _maleDorms = [];
   List<Dorms> _mixedDorms = [];
 
+  // ===================================
+  // LIFECYCLE METHODS
+  // ===================================
+
+  @override
+  void initState() {
+    super.initState();
+    // TabController length corresponds to DormCategories.genderCategories.length (3)
+    _tabController = TabController(length: 3, vsync: this);
+    _loadDorms();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Ensure data is fresh when the page becomes visible
+    _loadDorms();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  // ===================================
+  // HELPER LOGIC (Getters/Functions)
+  // ===================================
+
   // HELPER GETTER: Combines unique dorm names and unique dorm locations
-  // Each entry is prefixed to differentiate between a dorm and a location.
   List<String> get _searchOptions {
     final Set<String> options = {};
 
@@ -60,27 +96,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
     return options.toList();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    _loadDorms();
-  }
-
-  // Auto-refresh when page becomes visible
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadDorms();
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  // loading with error handling
+  // Data loading with error handling
   void _loadDorms() async {
     try {
       final fetchedDorms = await _dbHelper.getDorms();
@@ -109,9 +125,14 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
         });
       }
     } catch (e) {
+      // In a production app, use a logging library here
       print('Error loading dorms: $e');
     }
   }
+
+  // ===================================
+  // BUILD METHODS (UI Segments)
+  // ===================================
 
   Widget _buildHeaderSection() {
     return SizedBox(
@@ -151,15 +172,11 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
 
                 // === AUTOSUGGEST SEARCH BAR ===
                 Autocomplete<String>(
-                  // optionsBuilder to use the combined list
                   optionsBuilder: (TextEditingValue textEditingValue) {
                     if (textEditingValue.text.isEmpty) {
                       return const Iterable<String>.empty();
                     }
                     return _searchOptions.where((String option) {
-                      // Note: We check against the option that INCLUDES the emoji prefix,
-                      // but the comparison is done case-insensitively on both the input text
-                      // and the option text.
                       return option
                           .toLowerCase()
                           .contains(textEditingValue.text.toLowerCase());
@@ -188,11 +205,8 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                             color: Colors.black, fontFamily: 'Lato'),
                         decoration: InputDecoration(
                           contentPadding: const EdgeInsets.symmetric(
-                              vertical: 14,
-                              horizontal:
-                                  8), // Vertical padding for center alignment
-                          hintText:
-                              "Search for a dorm or location...", // UPDATED HINT
+                              vertical: 14, horizontal: 8),
+                          hintText: "Search for a dorm or location...",
                           hintStyle: TextStyle(
                             color: Colors.grey.shade500,
                             fontSize: 16,
@@ -234,26 +248,19 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                     );
                   },
-                  // onSelected logic - REMAINS THE SAME as it correctly handles the prefixes
                   onSelected: (String selectionWithPrefix) {
-                    // 1. Clean the selection string (remove prefix)
                     final String selection = selectionWithPrefix.replaceAll(
                         RegExp(r'^(🏠 |📍 )'), '');
                     final bool isLocation =
                         selectionWithPrefix.startsWith('📍 ');
 
-                    // 2. Decide the action based on the prefix/type
                     if (isLocation) {
-                      // Case A: LOCATION SEARCH (Navigate to DormList and pass the query)
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => DormList(
                           initialSearchQuery: selection,
                         ),
                       ));
                     } else {
-                      // Case B: DORM NAME SEARCH (Navigate to Detail Page)
-
-                      // Find the exact dorm object corresponding to the name
                       final Dorms? selectedDorm = _allDorms
                           .firstWhereOrNull((d) => d.dormName == selection);
 
@@ -274,16 +281,19 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
 
                 const Spacer(), // Pushes tabs to the bottom
 
-                // TabBar
+                // TabBar (with responsiveness fixes)
                 TabBar(
                   controller: _tabController,
+                  isScrollable: true, // FIX 1: Allows horizontal scrolling
                   labelColor: Colors.amber.shade400,
                   unselectedLabelColor: Colors.white,
                   labelStyle: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 16, // FIX 2: Reduced font size for better fit
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Lato',
                   ),
+                  // FIX 3: Added horizontal padding to separate tabs from edges
+                  labelPadding: const EdgeInsets.symmetric(horizontal: 15.0),
                   indicator: const UnderlineTabIndicator(
                     borderSide: BorderSide(width: 4.0, color: Colors.amber),
                     insets: EdgeInsets.symmetric(horizontal: 16.0),
@@ -300,7 +310,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  // Now wrapped in Flexible to take up remaining screen space
+  // Wraps TabBarView in Flexible to take up remaining screen space
   Widget _buildDormContent() {
     return Flexible(
       child: TabBarView(
@@ -314,7 +324,10 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  // --- Main Build Method ---
+  // ===================================
+  // MAIN BUILD METHOD
+  // ===================================
+
   @override
   Widget build(BuildContext context) {
     if (_allDorms.isEmpty && mounted) {
@@ -441,6 +454,10 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 }
+
+// ===================================
+// REUSABLE LIST WIDGETS
+// ===================================
 
 // Reusable Dorm List View
 class DormListView extends StatelessWidget {
