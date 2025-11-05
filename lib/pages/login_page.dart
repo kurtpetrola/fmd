@@ -7,6 +7,10 @@ import 'package:findmydorm/widgets/navigation/bottom_navbar.dart';
 import 'package:ionicons/ionicons.dart';
 import 'registration_page.dart';
 
+// ===================================
+// LOGIN PAGE WIDGET
+// ===================================
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -15,22 +19,49 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginPage> {
+  // ===================================
+  // STATE & CONTROLLERS
+  // ===================================
+
+  // Text Controllers
   final identifierController = TextEditingController();
   final passwordController = TextEditingController();
 
+  // State Variables
   bool isVisible = false;
-  bool isLoginTrue = false;
+  bool showErrorMessage = false;
   String errorMessage = "Username or password is incorrect";
 
+  // Database and Form Key
   final db = DatabaseHelper.instance;
   final formKey = GlobalKey<FormState>();
 
-  // --- THEME COLOR CONSTANTS ---
+  // Theme Constants
   final Color primaryAmber = Colors.amber.shade700;
   final Color inputFillColor = Colors.grey.shade100;
 
-  // --- Core Login Logic ---
+  // ===================================
+  // LIFECYCLE METHODS
+  // ===================================
+
+  @override
+  void dispose() {
+    identifierController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  // ===================================
+  // CORE LOGIC
+  // ===================================
+
+  // Handles the main login process and navigation
   login() async {
+    // 1. Reset error state at the start of login attempt
+    setState(() {
+      showErrorMessage = false;
+    });
+
     final enteredIdentifier = identifierController.text.trim();
     final enteredPassword = passwordController.text.trim();
 
@@ -45,32 +76,25 @@ class _LoginScreenState extends State<LoginPage> {
       ));
 
       if (isAuthenticated == true) {
-        // If login is successful, retrieve the full Users object (needed for role and details)
+        // Successful authentication
         Users? loggedInUser =
             await db.getUserByUsernameOrEmail(enteredIdentifier);
 
-        // Crucial check before using context or setState
         if (!mounted) return;
 
         if (loggedInUser != null) {
-          // Successful Login
-          setState(() {
-            isLoginTrue = false; // Clear any previous error messages
-          });
-
-          // Navigate and pass the full, correct Users object to HomeHolder
-          // Change to pushAndRemoveUntil
-          // Navigate to HomeHolder and clear ALL previous routes (LoginPage and SelectionPage)
+          // Navigate to HomeHolder and clear ALL previous routes
           Navigator.of(context).pushAndRemoveUntil(
-            // <-- CHANGED METHOD
             MaterialPageRoute(
               builder: (context) => HomeHolder(currentUser: loggedInUser),
             ),
-            (Route<dynamic> route) => false, // Removes all routes
+            (Route<dynamic> route) => false,
           );
         } else {
-          // Fallback error if authentication passed but user data couldn't be fetched
-          _showError(message: "User data not found after successful login.");
+          // Fallback error if user data couldn't be fetched
+          _showError(
+              message:
+                  "User data not found after successful login. Please contact support.");
         }
       } else {
         // Failed Login (Incorrect credentials)
@@ -79,30 +103,31 @@ class _LoginScreenState extends State<LoginPage> {
     } catch (e) {
       // Catch any unexpected exceptions during database access
       if (mounted) {
-        _showError(message: "An unexpected error occurred: ${e.toString()}");
+        _showError(message: "An unexpected error occurred. Please try again.");
       }
-      // Print to console for debugging purposes
       print("Login Exception: ${e.toString()}");
     }
   }
 
+  // Consolidated error display logic (updates state and shows SnackBar)
   void _showError({String message = "Username or password is incorrect"}) {
     setState(() {
-      isLoginTrue = true;
+      showErrorMessage = true;
       errorMessage = message;
     });
-    // Also display a SnackBar for quick user feedback
+    // Display a SnackBar for quick user feedback
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red.shade700,
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 
-  @override
-  void dispose() {
-    identifierController.dispose();
-    passwordController.dispose();
-    super.dispose();
-  }
+  // ===================================
+  // UI BUILD METHOD
+  // ===================================
 
   @override
   Widget build(BuildContext context) {
@@ -134,12 +159,12 @@ class _LoginScreenState extends State<LoginPage> {
                     color: Colors.black,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w900,
-                    fontSize: 24, // Slightly larger font for prominence
+                    fontSize: 24,
                   ),
                 ),
-                const SizedBox(height: 40), // More space before input fields
+                const SizedBox(height: 40),
 
-                // Username/Email field (Styled)
+                // Username/Email field
                 TextFormField(
                   controller: identifierController,
                   validator: (value) {
@@ -155,7 +180,7 @@ class _LoginScreenState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // Password field (Styled)
+                // Password field
                 TextFormField(
                   controller: passwordController,
                   validator: (value) {
@@ -186,6 +211,42 @@ class _LoginScreenState extends State<LoginPage> {
 
                 const SizedBox(height: 30),
 
+                // STYLED ERROR BANNER
+                if (showErrorMessage)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade100,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.red.shade400),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Ionicons.warning_outline,
+                            color: Colors.red.shade700,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              errorMessage,
+                              style: TextStyle(
+                                color: Colors.red.shade700,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Lato',
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
                 // Login button (Styled)
                 SizedBox(
                   height: 55,
@@ -200,9 +261,7 @@ class _LoginScreenState extends State<LoginPage> {
                     ),
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
-                        setState(() {
-                          isLoginTrue = false;
-                        });
+                        // Form fields are valid, attempt login
                         login();
                       }
                     },
@@ -244,16 +303,6 @@ class _LoginScreenState extends State<LoginPage> {
                 ),
 
                 const SizedBox(height: 20),
-
-                // Error message display
-                if (isLoginTrue)
-                  Text(
-                    errorMessage,
-                    style: const TextStyle(
-                        color: Colors.red, fontWeight: FontWeight.bold),
-                  )
-                else
-                  const SizedBox.shrink(),
               ],
             ),
           ),
@@ -262,9 +311,11 @@ class _LoginScreenState extends State<LoginPage> {
     );
   }
 
-  // --- UI HELPER FUNCTIONS ---
+  // ===================================
+  // UI HELPER FUNCTIONS
+  // ===================================
 
-  // Helper function for consistent decoration style (Copied from registration_page)
+  // Helper function for consistent decoration style
   InputDecoration _buildInputDecoration({
     required String hintText,
     required IconData icon,
