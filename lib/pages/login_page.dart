@@ -6,6 +6,7 @@ import 'package:findmydorm/models/users.dart';
 import 'package:findmydorm/widgets/navigation/bottom_navbar.dart';
 import 'package:ionicons/ionicons.dart';
 import 'registration_page.dart';
+import 'package:findmydorm/features/auth/forgot_password_page.dart';
 
 // ===================================
 // LOGIN PAGE WIDGET
@@ -209,7 +210,30 @@ class _LoginScreenState extends State<LoginPage> {
                   ),
                 ),
 
-                const SizedBox(height: 30),
+                // <--- FORGOT PASSWORD LINK (NEW) --->
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const ForgotPasswordScreen(), // Navigate to new screen
+                        ),
+                      );
+                    },
+                    child: Text(
+                      "Forgot Password?",
+                      style: TextStyle(
+                        color: primaryAmber,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // <--- END FORGOT PASSWORD LINK --->
 
                 // STYLED ERROR BANNER
                 if (showErrorMessage)
