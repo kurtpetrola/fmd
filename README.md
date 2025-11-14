@@ -2,6 +2,7 @@
 
 > [!NOTE]
 > This application is currently not production-ready. It is developed and maintained solely for **educational, portfolio, and demonstration purposes**. Please do not use it for real-world, critical accommodation searches or rely on the data for decision-making.
+
 ---
 
 **Find My Dorm is a dedicated location-based application designed to help individuals find suitable long-term accommodation and dormitories near Pangasinan.** By simplifying the search process, the app provides a user-friendly platform for anyone—whether a student, professional, or long-term visitor—to explore, compare, and locate safe and comfortable lodging options based on their specific needs and location preferences in the area.
@@ -18,13 +19,13 @@ We aim to simplify your dormitory search with these core functionalities:
 
 ## 💻 Tech Stack
 
-| Component            | Technology        | Purpose                                                                        |
-| :------------------- | :---------------- | :----------------------------------------------------------------------------- |
-| **Mobile Framework** | **Flutter**       | Cross-platform UI development for iOS and Android.                             |
-| **Database**         | **SQLite**        | Local, lightweight, and fast data persistence for dorm listings and user data. |
-| **Security**         | **`bcrypt`**      | Used for secure one-way hashing of user passwords.                             |
-| **Mapping**          | **`flutter_map`** | Provides interactive map views and location tracking.                          |
-| **Routing API**      | **OpenRouteService API** | Enables dynamic route generation and location-based mapping features.                          |
+| Component            | Technology               | Purpose                                                                        |
+| :------------------- | :----------------------- | :----------------------------------------------------------------------------- |
+| **Mobile Framework** | **Flutter**              | Cross-platform UI development for iOS and Android.                             |
+| **Database**         | **SQLite**               | Local, lightweight, and fast data persistence for dorm listings and user data. |
+| **Security**         | **`bcrypt`**             | Used for secure one-way hashing of user passwords.                             |
+| **Mapping**          | **`flutter_map`**        | Provides interactive map views and location tracking.                          |
+| **Routing API**      | **OpenRouteService API** | Enables dynamic route generation and location-based mapping features.          |
 
 ## 🚀 Getting Started
 
@@ -53,6 +54,17 @@ Follow these steps to get a copy of the project running on your local machine fo
     flutter run
     ```
     _(Ensure you have a device or emulator running.)_
+
+## 🔑 Demo Accounts
+
+Use the following accounts to quickly explore the application's different user roles (User and Admin) without needing to register:
+
+- **User Account**
+  - **Email:** `test@fmd.com`
+  - **Password:** `test123`
+- **Admin Account**
+  - **Email:** `admin@fmd.com`
+  - **Password:** `admin123`
 
 ## 🛠 To Do & Future Enhancements
 
