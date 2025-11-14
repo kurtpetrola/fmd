@@ -42,8 +42,12 @@ class _MapsDetailState extends State<MapsDetailPage> {
   // Tracks if the distance calculation was skipped due to missing user address
   bool _distanceCalculationSkipped = false;
 
-  // Define this GlobalKey outside the build method, within the _MapsDetailState class
+  // Define GlobalKeys for Tooltips
   final GlobalKey<TooltipState> _timeTooltipKey = GlobalKey<TooltipState>();
+  // 1. New GlobalKey for the Dorm Marker Tooltip
+  final GlobalKey<TooltipState> _dormTooltipKey = GlobalKey<TooltipState>();
+  // 2. New GlobalKey for the User Marker Tooltip
+  final GlobalKey<TooltipState> _userTooltipKey = GlobalKey<TooltipState>();
 
   @override
   void initState() {
@@ -368,20 +372,57 @@ class _MapsDetailState extends State<MapsDetailPage> {
                   // Dorm Marker (Red)
                   Marker(
                     point: dormLocation,
-                    child: const Icon(
-                      Ionicons.home,
-                      size: 35.0,
-                      color: Colors.red,
+                    width: 50.0, // Give space for the pop-up
+                    height: 50.0, // Give space for the pop-up
+                    // 3. Implement the Pop-up for the Dorm Marker
+                    child: GestureDetector(
+                      onTap: () {
+                        // Show the tooltip on tap
+                        _dormTooltipKey.currentState?.ensureTooltipVisible();
+                      },
+                      child: Tooltip(
+                        key: _dormTooltipKey, // Assign the key
+                        message: 'Dorm Address', // The pop-up text
+                        verticalOffset: -30, // Position pop-up above icon
+                        waitDuration:
+                            const Duration(seconds: 0), // Show immediately
+                        showDuration: const Duration(
+                            seconds: 3), // Fade out after 3 seconds
+                        child: const Icon(
+                          Ionicons.home,
+                          size: 35.0,
+                          color: Colors.red,
+                        ),
+                      ),
                     ),
                   ),
+
                   // User Marker (Green) - Only show if not at the dorm
                   if (widget.userLatitude != null && !userIsAtDorm)
                     Marker(
                       point: userLocation,
-                      child: const Icon(
-                        Icons.person_pin_circle,
-                        size: 48.0,
-                        color: Colors.green,
+                      width: 50.0, // Give space for the pop-up
+                      height: 50.0, // Give space for the pop-up
+                      // 4. Implement the Pop-up for the User Marker
+                      child: GestureDetector(
+                        onTap: () {
+                          // Show the tooltip on tap
+                          _userTooltipKey.currentState?.ensureTooltipVisible();
+                        },
+                        child: Tooltip(
+                          key: _userTooltipKey, // Assign the key
+                          message: 'Your Address', // The pop-up text
+                          verticalOffset: -30, // Position pop-up above icon
+                          waitDuration:
+                              const Duration(seconds: 0), // Show immediately
+                          showDuration: const Duration(
+                              seconds: 3), // Fade out after 3 seconds
+                          child: const Icon(
+                            Icons.person_pin_circle,
+                            size: 48.0,
+                            color: Colors.green,
+                          ),
+                        ),
                       ),
                     ),
                 ],
