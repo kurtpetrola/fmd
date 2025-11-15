@@ -5,6 +5,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 
@@ -189,6 +190,66 @@ class _MapsDetailState extends State<MapsDetailPage> {
     }
   }
 
+  // External Map Launcher Logic
+
+  Future<void> _launchMapUrl(String url) async {
+    final uri = Uri.parse(url); // Parse the URL into a Uri object
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      // Optionally show a snackbar or alert if the app can't open the URL
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open map application.')),
+        );
+      }
+    }
+  }
+
+  void _launchGoogleMaps() {
+    final userLat = widget.userLatitude;
+    final userLng = widget.userLongitude;
+    final dormLat = widget.latitude;
+    final dormLng = widget.longitude;
+
+    if (userLat == null || userLng == null) {
+      // Should be handled by _buildDirectionsButton, but good practice to double check
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text('Your address is missing. Cannot open directions.')),
+        );
+      }
+      return;
+    }
+
+    final modeParam =
+        _selectedMode == TravelMode.driving ? 'driving' : 'walking';
+
+    // Standard, universal Google Maps directions URL
+    final url = 'https://www.google.com/maps/dir/'
+        '?api=1'
+        '&origin=$userLat,$userLng' // Your current location
+        '&destination=$dormLat,$dormLng' // The dorm location
+        '&travelmode=$modeParam'; // driving or walking mode
+
+    _launchMapUrl(url);
+  }
+
+  void _launchWaze() {
+    final dormLat = widget.latitude;
+    final dormLng = widget.longitude;
+
+    // Most reliable Waze URL format: waze://?ll=lat,lng&navigate=yes
+    // This tells Waze to navigate from the user's current location to the lat/lng.
+    final url = 'waze://?ll=$dormLat,$dormLng&navigate=yes';
+
+    _launchMapUrl(url);
+  }
+  // =======================================================================
+
   // =======================================================================
   // ## HELPER WIDGETS
   // =======================================================================
@@ -312,6 +373,79 @@ class _MapsDetailState extends State<MapsDetailPage> {
           ),
         ),
       ),
+    );
+  }
+
+  // Directions Button and Modal Options
+
+  Widget _buildDirectionsButton() {
+    if (_distanceCalculationSkipped || widget.userLatitude == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned(
+      top: 75,
+      right: 15,
+      child: FloatingActionButton(
+        heroTag: 'directionsFAB',
+        mini: true,
+        backgroundColor: Colors.blue.shade700,
+        foregroundColor: Colors.white,
+        onPressed: () {
+          _showDirectionsOptions(context);
+        },
+        child: const Icon(Ionicons.share_outline),
+      ),
+    );
+  }
+
+  void _showDirectionsOptions(BuildContext context) {
+    final String modeText =
+        _selectedMode == TravelMode.driving ? 'Driving' : 'Walking';
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Open $modeText Directions in:',
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Ionicons.map_outline, color: Colors.green),
+                title: const Text('Google Maps'),
+                subtitle: Text('Opens the $modeText route in Google Maps.'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _launchGoogleMaps();
+                },
+              ),
+              // Note: Waze typically forces driving mode regardless of what we pass
+              ListTile(
+                leading:
+                    const Icon(Ionicons.compass_outline, color: Colors.orange),
+                title: const Text('Waze'),
+                subtitle: const Text(
+                    'Opens the fastest route in Waze (Driving recommended).'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _launchWaze();
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -540,21 +674,24 @@ class _MapsDetailState extends State<MapsDetailPage> {
                 userAgentPackageName: 'dev.fleaflet.flutter_map.example',
               ),
 
-              // PolylineLayer
+              // PolylineLayer with enhanced styling
               if (_routePoints.isNotEmpty)
                 PolylineLayer(
                   polylines: [
                     Polyline(
                       points: _routePoints,
-                      strokeWidth: 5.0,
+                      strokeWidth:
+                          (_selectedMode == TravelMode.driving) ? 6.0 : 4.0,
                       color: (_selectedMode == TravelMode.driving)
                           ? Colors.blue.shade700
                           : Colors.green.shade700,
+                      borderStrokeWidth: 1.5,
+                      borderColor: Colors.white,
                     ),
                   ],
                 ),
 
-              // MarkerLayer (Cleaned up by calling the helper function)
+              // MarkerLayer
               _buildMapMarkers(dormLocation, userLocation, userIsAtDorm),
             ],
           ),
@@ -562,7 +699,10 @@ class _MapsDetailState extends State<MapsDetailPage> {
           // 2. Mode Selector (Floating Widget)
           _buildModeSelector(),
 
-          // 3. Floating Info Card (Positioned Widget)
+          // 3. Directions Button (Floating Widget)
+          _buildDirectionsButton(),
+
+          // 4. Floating Info Card (Positioned Widget)
           _buildFloatingInfoCard(),
         ],
       ),
