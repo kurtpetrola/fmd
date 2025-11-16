@@ -5,6 +5,8 @@ import 'package:bcrypt/bcrypt.dart';
 import 'package:findmydorm/services/sqlite.dart';
 import 'package:findmydorm/models/users.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:findmydorm/services/auth_manager.dart';
+import 'package:findmydorm/pages/login_page.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   final Users user;
@@ -76,9 +78,19 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Password updated successfully!')),
           );
-          // 4. Important: Log the user out after a password change for security
-          // Navigate to the root (login page)
-          Navigator.of(context).popUntil((route) => route.isFirst);
+
+          // Call logout function to clear session state
+          await AuthManager.logout();
+
+          // 4. Navigate to the LoginPage and clear the entire navigation stack
+          if (!mounted) return;
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              // Replace `const LoginPage()` with the correct constructor if needed
+              builder: (BuildContext context) => const LoginPage(),
+            ),
+            (Route<dynamic> route) => false, // Clears all previous routes
+          );
         }
       } else {
         setState(() {
