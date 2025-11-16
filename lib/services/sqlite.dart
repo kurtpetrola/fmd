@@ -163,8 +163,8 @@ class DatabaseHelper {
         genderCategory: 'Mixed/General',
         priceCategory: 'Luxury',
         isFeatured: true,
-        latitude: 16.0354,
-        longitude: 120.3346,
+        latitude: 16.0371, // Dagupan City (near city proper)
+        longitude: 120.3340,
         dormDescription:
             'A modern dormitory located near the Dagupan City business district. Features fast Wi-Fi, 24/7 security, air-conditioned rooms, and a communal study lounge. Ideal for students prioritizing convenience and contemporary living.',
         createdAt: now,
@@ -179,8 +179,8 @@ class DatabaseHelper {
         genderCategory: 'Mixed/General',
         priceCategory: 'Budget-Friendly',
         isFeatured: true,
-        latitude: 16.1260,
-        longitude: 120.4490,
+        latitude: 16.1085, // San Fabian (center area)
+        longitude: 120.4079,
         dormDescription:
             'Blakely House offers affordable and peaceful living in San Fabian. Perfect for students seeking a quiet environment for study. Rooms are spacious with basic furnishings. Includes shared kitchen facilities and laundry area.',
         createdAt: now,
@@ -197,8 +197,8 @@ class DatabaseHelper {
         genderCategory: 'Male Dorm',
         priceCategory: 'Luxury',
         isFeatured: true,
-        latitude: 15.9734,
-        longitude: 120.5739,
+        latitude: 15.9754, // Urdaneta City (along Urdaneta-Binalonan Rd)
+        longitude: 120.5750,
         dormDescription:
             'Situated in the heart of Urdaneta City, Davis Hall provides excellent access to major transport links. High security measures, including CCTV and keycard access. All rooms feature private bathrooms and individual metering for utilities.',
         createdAt: now,
@@ -213,8 +213,8 @@ class DatabaseHelper {
         genderCategory: 'Male Dorm',
         priceCategory: 'Standard',
         isFeatured: true,
-        latitude: 16.0220,
-        longitude: 120.2320,
+        latitude: 16.0224, // Lingayen (near Provincial Capitol)
+        longitude: 120.2307,
         dormDescription:
             'Edison Residence is conveniently located near the Provincial Capitol in Lingayen. Offers standard, well-maintained rooms with common areas for group study and recreation. Features a reliable security guard and biometric entry.',
         createdAt: now,
@@ -231,8 +231,8 @@ class DatabaseHelper {
         genderCategory: 'Female Dorm',
         priceCategory: 'Luxury',
         isFeatured: true,
-        latitude: 16.0380,
-        longitude: 120.3400,
+        latitude: 16.0401, // Dagupan City (commercial area)
+        longitude: 120.3395,
         dormDescription:
             'An exclusive, high-end residence for female students in Dagupan. Features fully air-conditioned suites, a private pantry on each floor, and keycard-only access to enhance safety and privacy. Amenities include a roof deck garden.',
         createdAt: now,
@@ -247,8 +247,8 @@ class DatabaseHelper {
         genderCategory: 'Female Dorm',
         priceCategory: 'Budget-Friendly',
         isFeatured: true,
-        latitude: 16.1500,
-        longitude: 119.9850,
+        latitude: 16.1558, // Alaminos City (city proper)
+        longitude: 119.9774,
         dormDescription:
             'A secure and affordable female-only dorm in Alaminos City, offering clean shared rooms with basic amenities. Excellent location near local schools and public transit, perfect for the budget-conscious student.',
         createdAt: now,
