@@ -19,12 +19,15 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
+  // ==========================================================
+  // ## STATE & INITIALIZATION
+  // ==========================================================
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
   late Future<List<Dorms>> _dormsFuture;
 
   // PRIMARY STYLING REFERENCE
   final Color _appBarColor = Colors.amber.shade700;
-  //final Color _backgroundColor = Colors.white;
+  final Color _errorRed = Colors.red.shade700;
 
   @override
   void initState() {
@@ -32,15 +35,18 @@ class _AdminPageState extends State<AdminPage> {
     _refreshDorms();
   }
 
+  // ==========================================================
+  // ## CORE DATA & BUSINESS LOGIC (CRUD + Sync)
+  // ==========================================================
+
+  /// Fetches the latest list of dorms from the local database.
   void _refreshDorms() {
     setState(() {
       _dormsFuture = _dbHelper.getDorms();
     });
   }
 
-  // ==========================================================
-  // Server Synchronization Method (Used 'endpoint' in print)
-  // ==========================================================
+  /// Simulates/Performs API calls to synchronize local changes with a server.
   Future<void> _syncDormToServer(Dorms dorm, String action) async {
     if (dorm.dormId == null && action != 'create') {
       print('Warning: Cannot sync dorm without an ID for action: $action');
@@ -51,8 +57,6 @@ class _AdminPageState extends State<AdminPage> {
     await Future.delayed(const Duration(milliseconds: 500));
 
     // TODO: IMPLEMENT YOUR ACTUAL SERVER API CALLS HERE
-    // The endpoint variable is intentionally defined here for your future use.
-    // It will now be used in the print statement to clear the warning.
     final endpoint = 'YOUR_SERVER_API_ENDPOINT/dorms/${dorm.dormId}';
 
     switch (action) {
@@ -74,10 +78,85 @@ class _AdminPageState extends State<AdminPage> {
       default:
         throw Exception('Invalid sync action: $action');
     }
-
     // NOTE: You should check the HTTP response status code (e.g., 200 or 204)
     // and throw an exception if the sync fails.
   }
+
+  /// Toggles the featured status of a dorm and updates DB/Server.
+  Future<void> _toggleFeatured(Dorms dorm) async {
+    if (dorm.dormId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: Dormitory ID is missing.')),
+      );
+      return;
+    }
+
+    try {
+      // Toggle the featured status
+      final updatedDorm = dorm.copyWith(isFeatured: !dorm.isFeatured);
+
+      // Update in database and sync to server
+      await _dbHelper.updateDorm(updatedDorm);
+      await _syncDormToServer(updatedDorm, 'update');
+
+      // Refresh UI and show feedback
+      _refreshDorms();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            updatedDorm.isFeatured
+                ? '${dorm.dormName} marked as FEATURED!'
+                : '${dorm.dormName} removed from featured.',
+          ),
+          backgroundColor:
+              updatedDorm.isFeatured ? Colors.green : Colors.orange,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update featured status: $e')),
+      );
+    }
+  }
+
+  /// Deletes a dorm locally and remotely.
+  void _deleteDorm(Dorms dorm) async {
+    if (dorm.dormId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: Dormitory ID is missing.')),
+      );
+      return;
+    }
+
+    try {
+      // 1. Delete from local SQLite DB
+      await _dbHelper.deleteDorm(dorm.dormId!);
+
+      // 2. Delete from server
+      await _syncDormToServer(dorm, 'delete');
+
+      // 3. Refresh UI and show success message
+      _refreshDorms();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text('${dorm.dormName} deleted locally and synced to server!')),
+      );
+    } catch (e) {
+      // Handle potential sync errors
+      _refreshDorms(); // Try to refresh even on error to see current local state
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text('Failed to delete or sync ${dorm.dormName}. Error: $e')),
+      );
+    }
+  }
+
+  // ==========================================================
+  // ## WIDGET BUILD METHODS (UI Layout)
+  // ==========================================================
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +169,7 @@ class _AdminPageState extends State<AdminPage> {
             fontFamily: 'Lato',
           ),
         ),
-        backgroundColor: Colors.amber.shade700,
+        backgroundColor: _appBarColor,
         foregroundColor: Colors.white,
         centerTitle: true,
         automaticallyImplyLeading: false,
@@ -138,86 +217,14 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  Future<String?> _showImagePickerDialog(String currentImagePath) async {
-    return await showDialog<String>(
-      context: context,
-      builder: (context) =>
-          ImagePickerDialog(currentImagePath: currentImagePath),
-    );
-  }
+  // ==========================================================
+  // ## CARD AND DIALOG UI HELPERS
+  // ==========================================================
 
-// Helper widget for small category badges
-  Widget _buildSmallBadge(String icon, String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(icon, style: const TextStyle(fontSize: 10)),
-          const SizedBox(width: 4),
-          Text(
-            label.length > 10 ? label.substring(0, 10) : label,
-            style: const TextStyle(
-              fontSize: 9,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-// Toggle featured status method
-  Future<void> _toggleFeatured(Dorms dorm) async {
-    if (dorm.dormId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error: Dormitory ID is missing.')),
-      );
-      return;
-    }
-
-    try {
-      // Toggle the featured status
-      final updatedDorm = dorm.copyWith(isFeatured: !dorm.isFeatured);
-
-      // Update in database
-      await _dbHelper.updateDorm(updatedDorm);
-
-      // Sync to server
-      await _syncDormToServer(updatedDorm, 'update');
-
-      // Refresh UI
-      _refreshDorms();
-
-      // Show feedback
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            updatedDorm.isFeatured
-                ? '${dorm.dormName} marked as FEATURED!'
-                : '${dorm.dormName} removed from featured.',
-          ),
-          backgroundColor:
-              updatedDorm.isFeatured ? Colors.green : Colors.orange,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update featured status: $e')),
-      );
-    }
-  }
-
-  // --- Card/List Tile UI ---
+  /// Builds a single Card UI for a Dormitory item in the list.
   Widget _buildDormCard(Dorms dorm) {
-    final Color adminDeleteColor = Colors.red.shade700;
-    final Color primaryAmber = Colors.amber.shade700;
+    final Color adminDeleteColor = _errorRed;
+    final Color primaryAmber = _appBarColor;
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -371,7 +378,18 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  // NEW HELPER WIDGET for cleaner data presentation
+  /// Shows the image selection dialog and returns the selected path.
+  Future<String?> _showImagePickerDialog(String currentImagePath) async {
+    return await showDialog<String>(
+      context: context,
+      builder: (context) =>
+          ImagePickerDialog(currentImagePath: currentImagePath),
+    );
+  }
+
+  // --- Common UI Helper Widgets ---
+
+  /// Helper widget for cleaner data presentation.
   Widget _buildDetailRow(IconData icon, String text, Color color) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,51 +407,42 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  // ==========================================================
-  // Delete Method with Server Sync
-  // ==========================================================
-  void _deleteDorm(Dorms dorm) async {
-    if (dorm.dormId == null) {
-      // Safety check for dorms without an ID (shouldn't happen for displayed dorms)
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error: Dormitory ID is missing.')),
-      );
-      return;
-    }
-
-    try {
-      // 1. Delete from local SQLite DB
-      await _dbHelper.deleteDorm(dorm.dormId!);
-
-      // 2. Delete from server
-      await _syncDormToServer(dorm, 'delete'); // 🚨 Action: 'delete'
-
-      // 3. Refresh UI and show success message
-      _refreshDorms();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text('${dorm.dormName} deleted locally and synced to server!')),
-      );
-    } catch (e) {
-      // Handle potential sync errors
-      _refreshDorms(); // Try to refresh even on error to see current local state
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text('Failed to delete or sync ${dorm.dormName}. Error: $e')),
-      );
-    }
+  /// Helper widget for small category badges in the card.
+  Widget _buildSmallBadge(String icon, String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 10)),
+          const SizedBox(width: 4),
+          Text(
+            label.length > 10 ? label.substring(0, 10) : label,
+            style: const TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  // --- Helper methods for Dialog UI ---
+  /// Helper method for styled text form fields in dialogs.
   Widget _buildStyledTextField({
     required TextEditingController controller,
     required String label,
     TextInputType keyboardType = TextInputType.text,
     bool isRequired = false,
+    int maxLines = 1, // Add maxLines parameter
+    int? minLines, // Add minLines parameter for expandable fields
   }) {
-    final Color primaryAmber = Colors.amber.shade700;
+    final Color primaryAmber = _appBarColor;
     const borderRadius = BorderRadius.all(Radius.circular(15.0));
 
     return Padding(
@@ -441,7 +450,9 @@ class _AdminPageState extends State<AdminPage> {
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
-        style: const TextStyle(color: Colors.black),
+        maxLines: maxLines,
+        minLines: minLines,
+        style: const TextStyle(color: Colors.black, fontSize: 15),
         decoration: InputDecoration(
           labelText: label,
           hintText: isRequired ? '(Required)' : '',
@@ -449,16 +460,15 @@ class _AdminPageState extends State<AdminPage> {
           fillColor: Colors.grey.shade100,
           filled: true,
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              const EdgeInsets.symmetric(horizontal: 15, vertical: 18),
+          alignLabelWithHint: true, // Keeps label at top for multiline fields
 
-          // Set the color of the label when it floats up
           floatingLabelStyle: TextStyle(
-            color: primaryAmber, // Use your primary amber color
+            color: primaryAmber,
             fontWeight: FontWeight.bold,
           ),
-          // Set the color of the label when it is inside the field
           labelStyle: TextStyle(
-            color: Colors.grey.shade600, // Use a neutral color
+            color: Colors.grey.shade600,
           ),
 
           border: const OutlineInputBorder(
@@ -474,6 +484,7 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
+  /// Helper method for read-only fields (e.g., Latitude/Longitude).
   Widget _buildReadOnlyField({
     required TextEditingController controller,
     required String label,
@@ -497,7 +508,7 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  // --- Helper methods for Category UI ---
+  /// Helper method for category dropdown menus in dialogs.
   Widget _buildCategoryDropdown({
     required String label,
     required String value,
@@ -515,7 +526,7 @@ class _AdminPageState extends State<AdminPage> {
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
           floatingLabelStyle: TextStyle(
-            color: Colors.amber.shade700,
+            color: _appBarColor,
             fontWeight: FontWeight.bold,
           ),
           labelStyle: TextStyle(color: Colors.grey.shade600),
@@ -525,7 +536,7 @@ class _AdminPageState extends State<AdminPage> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15.0),
-            borderSide: BorderSide(color: Colors.amber.shade700, width: 2.0),
+            borderSide: BorderSide(color: _appBarColor, width: 2.0),
           ),
         ),
         items: options.map((String category) {
@@ -539,7 +550,11 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  // --- DORM DIALOGS  ---
+  // ==========================================================
+  // ## DIALOGS
+  // ==========================================================
+
+  /// Shows the dialog for creating a new dorm entry.
   Future<void> _showAddDormDialog(BuildContext context) async {
     final TextEditingController nameController = TextEditingController();
     final TextEditingController numberController = TextEditingController();
@@ -548,14 +563,14 @@ class _AdminPageState extends State<AdminPage> {
     final TextEditingController lngController = TextEditingController();
     final TextEditingController descriptionController = TextEditingController();
 
-    // Track selected image
+    // Track selected state
     String selectedImagePath = DormImageOptions.getDefaultImage();
     String selectedGenderCategory = 'Mixed/General';
     String selectedPriceCategory = 'Standard';
     bool isFeatured = false;
 
     String validationError = '';
-    final Color errorRed = Colors.red.shade700;
+    final Color errorRed = _errorRed; // Use the class variable
 
     await showDialog(
       context: context,
@@ -628,15 +643,22 @@ class _AdminPageState extends State<AdminPage> {
 
                     // Input fields
                     _buildStyledTextField(
-                        controller: nameController, label: 'Dorm Name'),
+                      controller: nameController,
+                      label: 'Dorm Name',
+                      isRequired: true,
+                    ),
                     _buildStyledTextField(
                       controller: numberController,
                       label: 'Dorm Number (Optional)',
                       keyboardType: TextInputType.number,
                     ),
                     _buildStyledTextField(
-                        controller: locationController,
-                        label: 'Location/Address Text'),
+                      controller: locationController,
+                      label: 'Location/Address Text',
+                      isRequired: true,
+                      minLines: 2,
+                      maxLines: 3,
+                    ),
 
                     // Gender Category Dropdown
                     _buildCategoryDropdown(
@@ -666,7 +688,7 @@ class _AdminPageState extends State<AdminPage> {
                       },
                     ),
 
-                    //  Featured Checkbox
+                    // Featured Checkbox
                     Container(
                       margin: const EdgeInsets.only(bottom: 15),
                       decoration: BoxDecoration(
@@ -700,6 +722,8 @@ class _AdminPageState extends State<AdminPage> {
                       controller: descriptionController,
                       label: 'Dorm Description/Details',
                       keyboardType: TextInputType.multiline,
+                      minLines: 4,
+                      maxLines: 8,
                     ),
 
                     // Display validation error below fields
@@ -832,21 +856,20 @@ class _AdminPageState extends State<AdminPage> {
                         }
                       }
                     } else {
-                      // Show inline validation error
                       stfSetState(() {
                         validationError =
-                            'Please fill all fields and pick a location.';
+                            'Please fill all required text fields and pick a location.';
                       });
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber.shade700,
+                    backgroundColor: Colors.blue.shade700,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
                   ),
                   child: const Text('ADD DORM',
                       style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold)),
+                          color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               ],
             );
@@ -856,7 +879,7 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  // --- EDIT DORM DIALOG  ---
+  /// Shows the dialog for editing an existing dorm entry.
   Future<void> _showEditDormDialog(
       BuildContext context, Dorms dormToEdit) async {
     final TextEditingController nameController =
@@ -878,7 +901,7 @@ class _AdminPageState extends State<AdminPage> {
     bool isFeatured = dormToEdit.isFeatured;
 
     String validationError = '';
-    final Color errorRed = Colors.red.shade700;
+    final Color errorRed = _errorRed;
 
     await showDialog(
       context: context,
@@ -1018,9 +1041,12 @@ class _AdminPageState extends State<AdminPage> {
                     ),
 
                     _buildStyledTextField(
-                        controller: descriptionController,
-                        label: 'Dorm Description/Details',
-                        keyboardType: TextInputType.multiline),
+                      controller: descriptionController,
+                      label: 'Dorm Description/Details',
+                      keyboardType: TextInputType.multiline,
+                      minLines: 4,
+                      maxLines: 8,
+                    ),
 
                     if (validationError.isNotEmpty)
                       Padding(
@@ -1139,7 +1165,7 @@ class _AdminPageState extends State<AdminPage> {
                     } else {
                       stfSetState(() {
                         validationError =
-                            'Please fill all fields and pick a location.';
+                            'Please fill all required text fields and pick a location.';
                       });
                     }
                   },
