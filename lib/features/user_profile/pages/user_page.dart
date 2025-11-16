@@ -176,41 +176,50 @@ class _UserState extends State<UserPage> {
 
   /// Builds the badge showing the count of favorite dorms.
   Widget _buildFavoritesBadge() {
-    // If count is zero, just return the forward chevron icon.
     if (_favoriteCount == 0) {
       return const Icon(Ionicons.chevron_forward, color: Colors.grey);
     }
 
-    // If count > 0, return a Stack with the chevron and the badge.
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        const Icon(Ionicons.chevron_forward, color: Colors.grey),
-        Positioned(
-          right: 1,
-          top: 2,
-          child: Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: Colors.red, // Standard badge color
-              borderRadius: BorderRadius.circular(10),
-            ),
-            constraints: const BoxConstraints(
-              minWidth: 18,
-              minHeight: 18,
-            ),
-            child: Text(
-              '$_favoriteCount',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
+    // Use a SizedBox to contain the Stack and define the trailing area width.
+    return SizedBox(
+      width: 45, // Slightly reduced width for better fit
+      child: Stack(
+        // Vertically aligns all children in the Stack to the center by default.
+        alignment: Alignment.centerRight,
+        children: [
+          // 1. Forward Chevron Icon (The arrow)
+          const Icon(Ionicons.chevron_forward, color: Colors.grey),
+
+          // 2. Positioned Badge (Moved left of the chevron)
+          Positioned(
+            // Adjust 'right' to position the badge left of the chevron.
+            // A value around 20-25 should clear the arrow icon.
+            right: 22,
+            // We remove the 'top' property to let the Stack's center alignment
+            // handle the vertical placement.
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(10),
               ),
-              textAlign: TextAlign.center,
+              constraints: const BoxConstraints(
+                minWidth: 18,
+                minHeight: 18,
+              ),
+              child: Text(
+                '$_favoriteCount',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
