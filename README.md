@@ -17,6 +17,10 @@ We aim to simplify your dormitory search with these core functionalities:
 - **Smart Filtering & Sorting:** Quickly narrow down search results using **advanced filters** (e.g., gender-specific, location) to find the perfect match.
 - **Favorites & Comparison:** Save preferred dormitories to a **Favorites List** for easy re-access and side-by-side comparison.
 
+## 📥 Installation
+
+You can download the latest **Android APK** file and install the application manually from the **[releases page](https://github.com/kurtpetrola/fmd/releases)**.
+
 ## 💻 Tech Stack
 
 | Component            | Technology               | Purpose                                                                        |
@@ -85,11 +89,11 @@ We welcome contributions! If you have suggestions or find bugs, please open an i
 4.  Push to the Branch (`git push origin feature/AmazingFeature`)
 5.  Open a Pull Request
 
-## Find this repository useful? ❤️
+## 💖 Support & Connect
 
-Support it by joining **[stargazers](https://github.com/kurtpetrola/fmd/stargazers)** for this repository. ⭐ <br>
-Also, **[follow me](https://github.com/kurtpetrola)** on GitHub for my next creations! 🤩
+If you found this repository helpful, consider leaving a ⭐ on **[fmd](https://github.com/kurtpetrola/fmd/stargazers)**.  
+You can also **[follow me](https://github.com/kurtpetrola)** on GitHub to stay updated with my latest projects.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/kurtpetrola/fmd/blob/main/LICENSE) file for details.
+This project is licensed under the **MIT License** - see the **[LICENSE](https://github.com/kurtpetrola/fmd/blob/main/LICENSE)** file for details.
