@@ -1,7 +1,7 @@
 // main.dart
 
-import 'package:findmydorm/pages/splash_screen.dart';
-import 'package:findmydorm/services/sqlite.dart';
+import 'package:findmydorm/presentation/pages/splash/splash_screen.dart';
+import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
