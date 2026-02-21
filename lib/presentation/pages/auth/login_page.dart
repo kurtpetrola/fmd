@@ -106,7 +106,7 @@ class _LoginScreenState extends State<LoginPage> {
       if (mounted) {
         _showError(message: "An unexpected error occurred. Please try again.");
       }
-      print("Login Exception: ${e.toString()}");
+      debugPrint("Login Exception: ${e.toString()}");
     }
   }
 

@@ -5,7 +5,7 @@ import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart
 import 'package:findmydorm/presentation/pages/auth/auth_check_wrapper.dart';
 
 class SplashScreen extends StatelessWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

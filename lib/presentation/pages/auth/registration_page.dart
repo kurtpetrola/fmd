@@ -11,7 +11,7 @@ import 'package:ionicons/ionicons.dart';
 // ===================================
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
+  const SignUpScreen({super.key});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -94,7 +94,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   // Handles the main registration attempt
-  Future<void> _attemptRegistration(BuildContext context) async {
+  Future<void> _attemptRegistration() async {
     _hideError(); // Clear previous error
 
     if (!_formKey.currentState!.validate()) {
@@ -141,7 +141,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         _showError(
             "Registration failed. That Username or Email may already exist. Please try different credentials.");
       }
-      print("Registration error: $e");
+      debugPrint("Registration error: $e");
     }
   }
 
@@ -215,7 +215,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   icon: Ionicons.location_outline,
                   validator: (value) {
                     // Keeping validation simple to accommodate international addresses
-                    if (value!.isEmpty) return "Please enter your address.";
+                    if (value!.isEmpty) {
+                      return "Please enter your address.";
+                    }
                     return null;
                   },
                 ),
@@ -228,9 +230,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   icon: Ionicons.mail_outline,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    if (value!.isEmpty) return "Email address is required.";
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
+                    if (value!.isEmpty) {
+                      return "Email address is required.";
+                    }
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                       return 'Enter a valid email.';
+                    }
                     return null;
                   },
                 ),
@@ -241,21 +246,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   controller: _passwordController,
                   hintText: 'Password',
                   validator: (value) {
-                    if (value!.isEmpty) return "Password is required";
-                    if (value.length < 8)
+                    if (value!.isEmpty) {
+                      return "Password is required";
+                    }
+                    if (value.length < 8) {
                       return "Password must be at least 8 characters long";
+                    }
 
                     // Check for complexity: At least one uppercase letter
-                    if (!RegExp(r'(?=.*[A-Z])').hasMatch(value))
+                    if (!RegExp(r'(?=.*[A-Z])').hasMatch(value)) {
                       return "Must contain at least one uppercase letter";
+                    }
 
                     // Check for complexity: At least one lowercase letter
-                    if (!RegExp(r'(?=.*[a-z])').hasMatch(value))
+                    if (!RegExp(r'(?=.*[a-z])').hasMatch(value)) {
                       return "Must contain at least one lowercase letter";
+                    }
 
                     // Check for complexity: At least one digit
-                    if (!RegExp(r'(?=.*\d)').hasMatch(value))
+                    if (!RegExp(r'(?=.*\d)').hasMatch(value)) {
                       return "Must contain at least one digit (0-9)";
+                    }
 
                     return null;
                   },
@@ -267,10 +278,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   controller: _confirmPasswordController,
                   hintText: 'Confirm Password',
                   validator: (value) {
-                    if (value!.isEmpty)
+                    if (value!.isEmpty) {
                       return "Password confirmation is required";
-                    else if (_passwordController.text != value)
+                    } else if (_passwordController.text != value) {
                       return "Passwords don't match";
+                    }
                     return null;
                   },
                 ),
@@ -411,7 +423,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         hintText: 'Select Gender',
         icon: Ionicons.people_outline,
       ),
-      value: _selectedGender,
+      initialValue: _selectedGender,
       items: _genders.map((String gender) {
         return DropdownMenuItem<String>(
           value: gender,
@@ -447,7 +459,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           elevation: 5, // Added subtle elevation
         ),
-        onPressed: () => _attemptRegistration(context), // Use the new handler
+        onPressed: () => _attemptRegistration(), // Use the new handler
         child: const Text(
           "REGISTER ACCOUNT", // More explicit text
           style: TextStyle(

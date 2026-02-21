@@ -5,7 +5,7 @@ import 'package:findmydorm/presentation/widgets/shared/login_button.dart';
 import 'package:findmydorm/presentation/widgets/shared/register_button.dart';
 
 class SelectionPage extends StatelessWidget {
-  const SelectionPage({Key? key}) : super(key: key);
+  const SelectionPage({super.key});
 
   // Define the primary color for consistent styling
   final Color primaryAmber = const Color(0xFFFFC107);

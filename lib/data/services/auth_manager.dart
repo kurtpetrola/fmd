@@ -3,6 +3,7 @@
 import 'package:findmydorm/domain/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
+import 'dart:developer';
 
 class AuthManager {
   static Users? _currentUser;
@@ -16,10 +17,9 @@ class AuthManager {
   static void updateCurrentUser(Users updatedUser) {
     if (_currentUser?.usrId == updatedUser.usrId) {
       _currentUser = updatedUser;
-      print("AuthManager: Current user data updated in memory.");
+      log("AuthManager: Current user data updated in memory.");
     } else {
-      print(
-          "AuthManager: Failed to update user - ID mismatch or no user logged in.");
+      log("AuthManager: Failed to update user - ID mismatch or no user logged in.");
     }
   }
 
@@ -31,8 +31,7 @@ class AuthManager {
     if (user.usrId != null) {
       await prefs.setInt(_userIdKey, user.usrId!);
     }
-    print(
-        "User ${user.usrName} (${user.usrId}) is now logged in. Status saved.");
+    log("User ${user.usrName} (${user.usrId}) is now logged in. Status saved.");
   }
 
   // Logout: Clears the user from memory and removes the ID from local storage
@@ -43,7 +42,7 @@ class AuthManager {
     // Remove the persisted user ID from SharedPreferences
     await prefs.remove(_userIdKey);
 
-    print("User logged out. Status cleared.");
+    log("User logged out. Status cleared.");
   }
 
   // Load the persisted user status on app startup
@@ -57,7 +56,7 @@ class AuthManager {
 
       if (user != null) {
         _currentUser = user; // Set the static in-memory session
-        print("Persisted user ${user.usrName} loaded.");
+        log("Persisted user ${user.usrName} loaded.");
         return true;
       }
     }

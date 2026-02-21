@@ -47,7 +47,7 @@ class _FavoriteDormsPageState extends State<FavoriteDormsPage> {
         });
       }
     } catch (e) {
-      print("Error fetching favorite dorms: $e");
+      debugPrint("Error fetching favorite dorms: $e");
       if (mounted) {
         setState(() {
           _isLoading = false;

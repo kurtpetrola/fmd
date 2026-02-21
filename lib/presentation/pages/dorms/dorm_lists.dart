@@ -78,7 +78,7 @@ class _DormListState extends State<DormList> {
       }
     } catch (e) {
       // In a real app, you would show an error message to the user here.
-      print("Error loading dorms: $e");
+      debugPrint("Error loading dorms: $e");
     } finally {
       if (mounted) {
         setState(() {
@@ -210,7 +210,7 @@ class _DormListState extends State<DormList> {
                 checkmarkColor: Colors.white,
               ),
             );
-          }).toList(),
+          }),
 
           const SizedBox(width: 8),
           Container(width: 1, height: 30, color: Colors.grey.shade300),
@@ -242,7 +242,7 @@ class _DormListState extends State<DormList> {
                 checkmarkColor: Colors.white,
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -321,7 +321,7 @@ class _DormListState extends State<DormList> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.amber.withOpacity(0.2),
+                          color: Colors.amber.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(

@@ -176,7 +176,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
         // Themed icon color for consistency
         prefixIcon: Icon(Ionicons.lock_closed_outline, color: amberColor),
-        contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
 
         suffixIcon: IconButton(
           icon: Icon(

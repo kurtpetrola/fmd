@@ -202,9 +202,10 @@ class _DormDetailPageState extends State<DormDetailPage> {
       if (locations.isNotEmpty) {
         userLat = locations.first.latitude;
         userLng = locations.first.longitude;
-        print('User Geocoded Location: Lat $userLat, Lng $userLng');
+        debugPrint('User Geocoded Location: Lat $userLat, Lng $userLng');
       } else {
         // Fallback: Show dorm location only if user address is invalid
+        if (!mounted) return;
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         _showSnackbar(
             'Could not accurately locate your address. Showing dorm location only.',
@@ -228,7 +229,8 @@ class _DormDetailPageState extends State<DormDetailPage> {
         );
       }
     } catch (e) {
-      print("Geocoding error: $e");
+      debugPrint("Geocoding error: $e");
+      if (!mounted) return;
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       _showSnackbar(
           'Failed to get your location for routing. Showing dorm location only.',
@@ -264,7 +266,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.5), width: 1.5),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

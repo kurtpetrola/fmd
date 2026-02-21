@@ -340,7 +340,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       padding: const EdgeInsets.all(20),
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: Colors.amber.withOpacity(0.1),
+        color: Colors.amber.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -599,7 +599,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
         // Editable Gender Dropdown
         DropdownButtonFormField<String>(
-          value: _selectedGender.isNotEmpty &&
+          initialValue: _selectedGender.isNotEmpty &&
                   _genderOptions.contains(_selectedGender)
               ? _selectedGender
               : null,

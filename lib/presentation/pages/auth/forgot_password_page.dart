@@ -81,7 +81,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     } catch (e) {
       _showSnackBar("An error occurred during verification. Try again.",
           isError: true);
-      print("Verification error: $e");
+      debugPrint("Verification error: $e");
     }
   }
 
@@ -115,7 +115,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       }
     } catch (e) {
       _showSnackBar("Failed to reset password. Try again.", isError: true);
-      print("Password reset error: $e");
+      debugPrint("Password reset error: $e");
     }
   }
 
@@ -139,7 +139,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       appBar: AppBar(
         title: Text(
           _currentStep == 'VERIFY' ? 'Verify Account' : 'Reset Password',
-          style: TextStyle(
+          style: const TextStyle(
               color: Colors.black,
               fontFamily: 'Lato',
               fontWeight: FontWeight.bold),
@@ -174,9 +174,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     icon: Ionicons.mail_outline,
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
-                      if (value!.isEmpty) return "Email is required.";
-                      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
+                      if (value!.isEmpty) {
+                        return "Email is required.";
+                      }
+                      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                         return 'Enter a valid email.';
+                      }
                       return null;
                     },
                   ),
@@ -188,8 +191,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     hintText: 'Registered Address (Security Check)',
                     icon: Ionicons.location_outline,
                     validator: (value) {
-                      if (value!.isEmpty)
+                      if (value!.isEmpty) {
                         return "Your registered address is required for verification.";
+                      }
                       return null;
                     },
                   ),
@@ -209,15 +213,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     controller: _newPasswordController,
                     hintText: 'New Password',
                     validator: (value) {
-                      if (value!.isEmpty) return "New Password is required";
-                      if (value.length < 8)
+                      if (value!.isEmpty) {
+                        return "New Password is required";
+                      }
+                      if (value.length < 8) {
                         return "Password must be at least 8 characters long";
-                      if (!RegExp(r'(?=.*[A-Z])').hasMatch(value))
+                      }
+                      if (!RegExp(r'(?=.*[A-Z])').hasMatch(value)) {
                         return "Must contain at least one uppercase letter";
-                      if (!RegExp(r'(?=.*[a-z])').hasMatch(value))
+                      }
+                      if (!RegExp(r'(?=.*[a-z])').hasMatch(value)) {
                         return "Must contain at least one lowercase letter";
-                      if (!RegExp(r'(?=.*\d)').hasMatch(value))
+                      }
+                      if (!RegExp(r'(?=.*\d)').hasMatch(value)) {
                         return "Must contain at least one digit (0-9)";
+                      }
                       return null;
                     },
                   ),
@@ -228,9 +238,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     controller: _confirmPasswordController,
                     hintText: 'Confirm New Password',
                     validator: (value) {
-                      if (value!.isEmpty) return "Confirmation is required";
-                      if (_newPasswordController.text != value)
+                      if (value!.isEmpty) {
+                        return "Confirmation is required";
+                      }
+                      if (_newPasswordController.text != value) {
                         return "Passwords don't match";
+                      }
                       return null;
                     },
                   ),

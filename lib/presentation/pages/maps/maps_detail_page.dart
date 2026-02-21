@@ -79,11 +79,11 @@ class _MapsDetailState extends State<MapsDetailPage> {
   String _formatDuration(double seconds) {
     final minutes = (seconds / 60).ceil();
     if (minutes < 60) {
-      return '${minutes} min';
+      return '$minutes min';
     } else {
       final hours = (minutes / 60).floor();
       final remainingMinutes = minutes % 60;
-      return '${hours} hr ${remainingMinutes} min';
+      return '$hours hr $remainingMinutes min';
     }
   }
 
@@ -144,7 +144,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
         final double durationSeconds = summary['duration'];
 
         final String formattedDistance =
-            (distanceMeters / 1000.0).toStringAsFixed(1) + ' km';
+            '${(distanceMeters / 1000.0).toStringAsFixed(1)} km';
         final String formattedDuration = _formatDuration(durationSeconds);
 
         final List<LatLng> newPoints = coordinates.map((coord) {
@@ -324,7 +324,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: 6,
                 offset: const Offset(0, 3),
               ),

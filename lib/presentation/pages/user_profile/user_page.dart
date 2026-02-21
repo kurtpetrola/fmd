@@ -230,7 +230,7 @@ class _UserState extends State<UserPage> {
       padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 20.0),
       margin: const EdgeInsets.only(bottom: 5),
       decoration: BoxDecoration(
-        color: Colors.amber.withOpacity(0.1),
+        color: Colors.amber.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(

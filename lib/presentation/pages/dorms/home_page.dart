@@ -126,7 +126,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
       }
     } catch (e) {
       // In a production app, use a logging library here
-      print('Error loading dorms: $e');
+      debugPrint('Error loading dorms: $e');
     }
   }
 
@@ -191,7 +191,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                         color: Colors.white,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -524,7 +524,7 @@ class _DormCard extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             spreadRadius: 1,
             blurRadius: 7,
             offset: const Offset(0, 3),
@@ -564,7 +564,10 @@ class _DormCard extends StatelessWidget {
                 borderRadius:
                     const BorderRadius.vertical(bottom: Radius.circular(15)),
                 gradient: LinearGradient(
-                  colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+                  colors: [
+                    Colors.black.withValues(alpha: 0.7),
+                    Colors.transparent
+                  ],
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                 ),

@@ -6,6 +6,7 @@ import 'package:findmydorm/data/services/auth_manager.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:bcrypt/bcrypt.dart';
+import 'dart:developer';
 
 // ==========================================================
 // DatabaseHelper - Singleton Class for SQLite Operations
@@ -48,7 +49,7 @@ class DatabaseHelper {
   Future<Database> _initDB() async {
     final databasePath = await getDatabasesPath();
     final path = join(databasePath, databaseName);
-    print("Database Path: $path");
+    log("Database Path: $path");
 
     // Open the database, specifying the version and the onCreate callback
     return openDatabase(
@@ -119,7 +120,7 @@ class DatabaseHelper {
 
   /// Inserts the initial required data (Admin User and default Dorms).
   Future<void> _seedInitialData(Database db) async {
-    print("Database is empty. Inserting initial seed data...");
+    log("Database is empty. Inserting initial seed data...");
 
     // --- A. SEED ADMIN USER ---
     final String salt = BCrypt.gensalt();
@@ -259,8 +260,7 @@ class DatabaseHelper {
       await db.insert('dorms', dorm.toSqlite());
     }
 
-    print(
-        "Initial Seeding Complete: Admin user and ${initialDorms.length} dorms inserted.");
+    log("Initial Seeding Complete: Admin user and ${initialDorms.length} dorms inserted.");
   }
 
   // ==========================================================
@@ -271,17 +271,17 @@ class DatabaseHelper {
   Future<void> printDatabasePath() async {
     final databasePath = await getDatabasesPath();
     final path = join(databasePath, databaseName);
-    print("\n═══════════════════════════════════════");
-    print("DATABASE LOCATION: $path");
-    print("═══════════════════════════════════════\n");
+    log("\n═══════════════════════════════════════");
+    log("DATABASE LOCATION: $path");
+    log("═══════════════════════════════════════\n");
   }
 
   /// Prints all tables and their row counts
   Future<void> debugPrintTables() async {
     final db = await database;
-    print("\n╔════════════════════════════════════════╗");
-    print("║        DATABASE TABLE OVERVIEW         ║");
-    print("╚════════════════════════════════════════╝");
+    log("\n╔════════════════════════════════════════╗");
+    log("║        DATABASE TABLE OVERVIEW         ║");
+    log("╚════════════════════════════════════════╝");
 
     final tables = await db.rawQuery(
         "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
@@ -290,68 +290,68 @@ class DatabaseHelper {
       final tableName = table['name'] as String;
       final count = Sqflite.firstIntValue(
           await db.rawQuery('SELECT COUNT(*) FROM $tableName'));
-      print("📊 $tableName: $count rows");
+      log("📊 $tableName: $count rows");
     }
-    print("════════════════════════════════════════\n");
+    log("════════════════════════════════════════\n");
   }
 
   /// Prints all data from a specific table
   Future<void> debugPrintTableData(String tableName) async {
     final db = await database;
-    print("\n╔════════════════════════════════════════╗");
-    print("║  TABLE: $tableName");
-    print("╚════════════════════════════════════════╝");
+    log("\n╔════════════════════════════════════════╗");
+    log("║  TABLE: $tableName");
+    log("╚════════════════════════════════════════╝");
 
     try {
       final data = await db.query(tableName);
       if (data.isEmpty) {
-        print("   (No data found)");
+        log("   (No data found)");
       } else {
         for (int i = 0; i < data.length; i++) {
-          print("\n--- Row ${i + 1} ---");
+          log("\n--- Row ${i + 1} ---");
           data[i].forEach((key, value) {
-            print("  $key: $value");
+            log("  $key: $value");
           });
         }
       }
     } catch (e) {
-      print("❌ Error reading table: $e");
+      log("❌ Error reading table: $e");
     }
-    print("════════════════════════════════════════\n");
+    log("════════════════════════════════════════\n");
   }
 
   /// Prints table schema (column definitions)
   Future<void> debugPrintTableSchema(String tableName) async {
     final db = await database;
-    print("\n╔════════════════════════════════════════╗");
-    print("║  SCHEMA: $tableName");
-    print("╚════════════════════════════════════════╝");
+    log("\n╔════════════════════════════════════════╗");
+    log("║  SCHEMA: $tableName");
+    log("╚════════════════════════════════════════╝");
 
     try {
       final schema = await db.rawQuery('PRAGMA table_info($tableName)');
       if (schema.isEmpty) {
-        print("   (Table not found)");
+        log("   (Table not found)");
       } else {
         for (var column in schema) {
           final name = column['name'];
           final type = column['type'];
           final notNull = column['notnull'] == 1 ? 'NOT NULL' : '';
           final pk = column['pk'] == 1 ? 'PRIMARY KEY' : '';
-          print("  📌 $name: $type $notNull $pk".trim());
+          log("  📌 $name: $type $notNull $pk".trim());
         }
       }
     } catch (e) {
-      print("❌ Error reading schema: $e");
+      log("❌ Error reading schema: $e");
     }
-    print("════════════════════════════════════════\n");
+    log("════════════════════════════════════════\n");
   }
 
   /// Prints everything - all tables, schemas, and data (full database dump)
   Future<void> debugPrintAllData() async {
-    print("\n");
-    print("═══════════════════════════════════════════════════════");
-    print("           FULL DATABASE DEBUG DUMP");
-    print("═══════════════════════════════════════════════════════");
+    log("\n");
+    log("═══════════════════════════════════════════════════════");
+    log("           FULL DATABASE DEBUG DUMP");
+    log("═══════════════════════════════════════════════════════");
 
     await printDatabasePath();
     await debugPrintTables();
@@ -367,9 +367,9 @@ class DatabaseHelper {
       await debugPrintTableData(tableName);
     }
 
-    print("═══════════════════════════════════════════════════════");
-    print("           END OF DATABASE DUMP");
-    print("═══════════════════════════════════════════════════════\n");
+    log("═══════════════════════════════════════════════════════");
+    log("           END OF DATABASE DUMP");
+    log("═══════════════════════════════════════════════════════\n");
   }
 
   // ==========================================================
@@ -429,7 +429,7 @@ class DatabaseHelper {
     final result = await db.insert('users', userMap);
 
     // DEBUG: Print updated table after user signup (comment out in production)
-    print("\n✅ USER REGISTERED - Updated Users Table:");
+    log("\n✅ USER REGISTERED - Updated Users Table:");
     await debugPrintTableData('users');
 
     return result;
@@ -506,7 +506,7 @@ class DatabaseHelper {
     );
 
     // DEBUG: Print updated table after user update (comment out in production)
-    print("\n✏️ USER UPDATED - Updated Users Table:");
+    log("\n✏️ USER UPDATED - Updated Users Table:");
     await debugPrintTableData('users');
 
     return result;
@@ -525,7 +525,7 @@ class DatabaseHelper {
       whereArgs: [userId],
     );
     // DEBUG: Print updated table after user update (comment out in production)
-    print("🛠️ [DEBUG] Updated password for userId: $userId ");
+    log("🛠️ [DEBUG] Updated password for userId: $userId ");
     await debugPrintTableData('users');
 
     return result;
@@ -550,8 +550,7 @@ class DatabaseHelper {
     );
 
     // DEBUG: Print updated table after password change
-    print(
-        "🛠️ [DEBUG] Updated password for user with email: $email. Rows affected: $result");
+    log("🛠️ [DEBUG] Updated password for user with email: $email. Rows affected: $result");
     await debugPrintTableData('users');
 
     return result;
@@ -580,7 +579,7 @@ class DatabaseHelper {
     );
 
     // DEBUG: Print updated table after insertion (comment out in production)
-    print("\n✅ DORM INSERTED - Updated Table:");
+    log("\n✅ DORM INSERTED - Updated Table:");
     await debugPrintTableData('dorms');
 
     return result;
@@ -589,17 +588,17 @@ class DatabaseHelper {
   /// Fetches all dorms from the database, ordered by name.
   Future<List<Dorms>> getDorms() async {
     final db = await database;
-    print("Attempting to query 'dorms' table...");
+    log("Attempting to query 'dorms' table...");
     final List<Map<String, dynamic>> maps =
         await db.query('dorms', orderBy: 'dormName ASC');
-    print("Query successful. Found ${maps.length} dorms.");
+    log("Query successful. Found ${maps.length} dorms.");
 
     return List.generate(maps.length, (i) {
       try {
         return Dorms.fromSqlite(maps[i]);
       } catch (e) {
-        print("Error converting map to Dorms object: $e");
-        print("Problematic Map: ${maps[i]}");
+        log("Error converting map to Dorms object: $e");
+        log("Problematic Map: ${maps[i]}");
         rethrow;
       }
     });
@@ -629,7 +628,7 @@ class DatabaseHelper {
     );
 
     // DEBUG: Print updated table after dorm update (comment out in production)
-    print("\n✏️ DORM UPDATED - Updated Dorms Table:");
+    log("\n✏️ DORM UPDATED - Updated Dorms Table:");
     await debugPrintTableData('dorms');
 
     return result;
@@ -645,7 +644,7 @@ class DatabaseHelper {
     );
 
     // DEBUG: Print updated table after dorm deletion (comment out in production)
-    print("\n🗑️ DORM DELETED - Updated Dorms Table:");
+    log("\n🗑️ DORM DELETED - Updated Dorms Table:");
     await debugPrintTableData('dorms');
 
     return result;
@@ -671,7 +670,7 @@ class DatabaseHelper {
     // Sqflite.firstIntValue is the safest way to extract a single COUNT result
     final count = Sqflite.firstIntValue(result) ?? 0;
 
-    print("🔍 [DEBUG] User $usrId has $count favorite dorms.");
+    log("🔍 [DEBUG] User $usrId has $count favorite dorms.");
     return count;
   }
 
@@ -691,12 +690,12 @@ class DatabaseHelper {
       );
 
       // DEBUG: Print updated favorites table (comment out in production)
-      print("\n❤️ FAVORITE ADDED - Updated Favorites Table:");
+      log("\n❤️ FAVORITE ADDED - Updated Favorites Table:");
       await debugPrintTableData('favorites');
 
       return result;
     } catch (e) {
-      print("Error adding favorite: $e");
+      log("Error adding favorite: $e");
       return -1; // Indicate failure
     }
   }
@@ -711,7 +710,7 @@ class DatabaseHelper {
     );
 
     // DEBUG: Print updated favorites table (comment out in production)
-    print("\n💔 FAVORITE REMOVED - Updated Favorites Table:");
+    log("\n💔 FAVORITE REMOVED - Updated Favorites Table:");
     await debugPrintTableData('favorites');
 
     return result;

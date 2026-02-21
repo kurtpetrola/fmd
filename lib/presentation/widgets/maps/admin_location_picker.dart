@@ -38,7 +38,7 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
       }
       return null;
     } catch (e) {
-      print("Geocoding Error: $e");
+      debugPrint("Geocoding Error: $e");
       return null;
     }
   }
@@ -54,18 +54,22 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
         coordinates,
         16.0,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Found and selected: $placeName'),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Found and selected: $placeName'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Could not find location for: "$placeName"'),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not find location for: "$placeName"'),
+          ),
+        );
+      }
     }
   }
 
@@ -197,7 +201,7 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
               child: Container(
                 padding: const EdgeInsets.all(12.0),
                 decoration: BoxDecoration(
-                  color: primaryAmber.withOpacity(0.95),
+                  color: primaryAmber.withValues(alpha: 0.95),
                   borderRadius: BorderRadius.circular(10.0),
                   boxShadow: const [
                     BoxShadow(

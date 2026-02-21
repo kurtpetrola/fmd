@@ -4,6 +4,7 @@ import 'package:findmydorm/presentation/pages/splash/splash_screen.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:developer';
 
 // 1. Change main to async and add WidgetsFlutterBinding
 Future<void> main() async {
@@ -15,7 +16,7 @@ Future<void> main() async {
     await dotenv.load(fileName: ".env");
   } catch (e) {
     // Handle the error if the file is missing or corrupted (optional, but good practice)
-    print("Error loading .env file: $e");
+    log("Error loading .env file: $e");
   }
 
   // 3. Initialize the database (this triggers onCreate if it's the first run)
@@ -23,7 +24,7 @@ Future<void> main() async {
 
   // 4. DEBUG: Selective debugging - shows only table overview and specific tables
   // Comment out these lines in production
-  print("\n🔍 DEBUGGING DATABASE ON APP START 🔍");
+  log("\n🔍 DEBUGGING DATABASE ON APP START 🔍");
   await DatabaseHelper.instance.debugPrintTables();
   await DatabaseHelper.instance.debugPrintTableData('users');
   await DatabaseHelper.instance.debugPrintTableData('dorms');
@@ -35,7 +36,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {

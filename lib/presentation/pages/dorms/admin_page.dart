@@ -49,30 +49,30 @@ class _AdminPageState extends State<AdminPage> {
   /// Simulates/Performs API calls to synchronize local changes with a server.
   Future<void> _syncDormToServer(Dorms dorm, String action) async {
     if (dorm.dormId == null && action != 'create') {
-      print('Warning: Cannot sync dorm without an ID for action: $action');
+      debugPrint('Warning: Cannot sync dorm without an ID for action: $action');
       return;
     }
 
     // Simulate a network delay
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // TODO: IMPLEMENT YOUR ACTUAL SERVER API CALLS HERE
+    // TO DO: IMPLEMENT YOUR ACTUAL SERVER API CALLS HERE
     final endpoint = 'YOUR_SERVER_API_ENDPOINT/dorms/${dorm.dormId}';
 
     switch (action) {
       case 'create':
         // http.post(Uri.parse('YOUR_SERVER_API_ENDPOINT/dorms'), body: dormsToJson(dorm), ...);
-        print(
+        debugPrint(
             'Dorm ID NEW added. Target endpoint (POST): YOUR_SERVER_API_ENDPOINT/dorms');
         break;
       case 'update':
         // http.put(Uri.parse(endpoint), body: dormsToJson(dorm), ...);
-        print(
+        debugPrint(
             'Dorm ID ${dorm.dormId} updated. Target endpoint (PUT/PATCH): $endpoint');
         break;
       case 'delete':
         // http.delete(Uri.parse(endpoint), ...);
-        print(
+        debugPrint(
             'Dorm ID ${dorm.dormId} deleted. Target endpoint (DELETE): $endpoint');
         break;
       default:
@@ -98,6 +98,8 @@ class _AdminPageState extends State<AdminPage> {
       // Update in database and sync to server
       await _dbHelper.updateDorm(updatedDorm);
       await _syncDormToServer(updatedDorm, 'update');
+
+      if (!mounted) return;
 
       // Refresh UI and show feedback
       _refreshDorms();
@@ -136,6 +138,8 @@ class _AdminPageState extends State<AdminPage> {
       // 2. Delete from server
       await _syncDormToServer(dorm, 'delete');
 
+      if (!mounted) return;
+
       // 3. Refresh UI and show success message
       _refreshDorms();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -144,6 +148,7 @@ class _AdminPageState extends State<AdminPage> {
                 Text('${dorm.dormName} deleted locally and synced to server!')),
       );
     } catch (e) {
+      if (!mounted) return;
       // Handle potential sync errors
       _refreshDorms(); // Try to refresh even on error to see current local state
       ScaffoldMessenger.of(context).showSnackBar(
@@ -518,7 +523,7 @@ class _AdminPageState extends State<AdminPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15.0),
       child: DropdownButtonFormField<String>(
-        value: value,
+        initialValue: value,
         decoration: InputDecoration(
           labelText: label,
           fillColor: Colors.grey.shade100,
@@ -839,7 +844,7 @@ class _AdminPageState extends State<AdminPage> {
                         // Sync to server (Action: 'create')
                         await _syncDormToServer(dormWithId, 'create');
 
-                        if (mounted) {
+                        if (context.mounted) {
                           Navigator.pop(stfContext);
                           _refreshDorms();
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -849,7 +854,7 @@ class _AdminPageState extends State<AdminPage> {
                           );
                         }
                       } catch (e) {
-                        if (mounted) {
+                        if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Failed to add dorm: $e')),
                           );
@@ -1144,7 +1149,7 @@ class _AdminPageState extends State<AdminPage> {
                         await _dbHelper.updateDorm(updatedDorm);
                         await _syncDormToServer(updatedDorm, 'update');
 
-                        if (mounted) {
+                        if (context.mounted) {
                           Navigator.pop(stfContext);
                           _refreshDorms();
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -1154,7 +1159,7 @@ class _AdminPageState extends State<AdminPage> {
                           );
                         }
                       } catch (e) {
-                        if (mounted) {
+                        if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                                 content: Text(

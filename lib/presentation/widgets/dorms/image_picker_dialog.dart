@@ -7,9 +7,9 @@ class ImagePickerDialog extends StatefulWidget {
   final String currentImagePath;
 
   const ImagePickerDialog({
-    Key? key,
+    super.key,
     required this.currentImagePath,
-  }) : super(key: key);
+  });
 
   @override
   State<ImagePickerDialog> createState() => _ImagePickerDialogState();
