@@ -7,7 +7,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:findmydorm/domain/models/dorm_model.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
-import 'package:findmydorm/data/services/auth_manager.dart';
+import 'package:provider/provider.dart';
+import 'package:findmydorm/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:go_router/go_router.dart';
 
 // -------------------------------------------------------------------
@@ -116,7 +117,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
 
   /// Checks the initial favorite status of the dorm for the current user.
   Future<void> _checkFavoriteStatus() async {
-    final currentUser = AuthManager.currentUser;
+    final currentUser = context.read<AuthViewModel>().currentUser;
     if (currentUser != null && currentUser.usrId != null) {
       final isFav = await dbHelper.isDormFavorite(
         currentUser.usrId!,
@@ -132,7 +133,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
 
   /// Adds or removes the dorm from the user's favorites.
   Future<void> _toggleFavorite() async {
-    final currentUser = AuthManager.currentUser;
+    final currentUser = context.read<AuthViewModel>().currentUser;
     if (currentUser == null || currentUser.usrId == null) {
       _showSnackbar('Please log in to add favorites.', Colors.red);
       return;
@@ -173,7 +174,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
 
   /// Handles Geocoding for the user's address and navigates to the map route.
   Future<void> _navigateToMapRoute() async {
-    final currentUser = AuthManager.currentUser;
+    final currentUser = context.read<AuthViewModel>().currentUser;
     final dormLat = widget.dorm.latitude;
     final dormLng = widget.dorm.longitude;
 

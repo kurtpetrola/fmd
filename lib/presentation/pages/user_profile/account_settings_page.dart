@@ -4,17 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/domain/models/user_model.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
-import 'package:findmydorm/data/services/auth_manager.dart';
+import 'package:provider/provider.dart';
+import 'package:findmydorm/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:go_router/go_router.dart';
 
 class AccountSettingsPage extends StatefulWidget {
   final Users user;
-  final ValueChanged<Users> onUserUpdated;
+  final ValueChanged<Users>? onUserUpdated; // Make optional
 
   const AccountSettingsPage({
     super.key,
     required this.user,
-    required this.onUserUpdated,
+    this.onUserUpdated,
   });
 
   @override
@@ -150,12 +151,15 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
           });
         }
 
-        // 5. Update the global AuthManager state!
-        // This ensures DormDetailPage gets the new address immediately.
-        AuthManager.updateCurrentUser(updatedUser);
+        // 5. Update the global AuthViewModel state
+        if (mounted) {
+          await context.read<AuthViewModel>().updateUserProfile(updatedUser);
+        }
 
-        // 6. Update the parent state via the callback
-        widget.onUserUpdated(updatedUser);
+        // 6. Update the parent state via the callback (optional now)
+        if (widget.onUserUpdated != null) {
+          widget.onUserUpdated!(updatedUser);
+        }
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

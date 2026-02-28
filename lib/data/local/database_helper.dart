@@ -2,7 +2,6 @@
 
 import 'package:findmydorm/domain/models/user_model.dart';
 import 'package:findmydorm/domain/models/dorm_model.dart';
-import 'package:findmydorm/data/services/auth_manager.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:bcrypt/bcrypt.dart';
@@ -378,8 +377,8 @@ class DatabaseHelper {
 
   /// Attempts to log in a user by checking the provided password against the stored hash.
   ///
-  /// On successful login, sets the global session via `AuthManager.login()`.
-  Future<bool> login(Users user) async {
+  /// On successful login, returns the authenticated [Users] object. Returns null if invalid.
+  Future<Users?> login(Users user) async {
     final Database db = await database;
     final String identifier = user.usrName;
 
@@ -401,14 +400,13 @@ class DatabaseHelper {
           BCrypt.checkpw(plainTextPassword, storedHash);
 
       if (isPasswordValid) {
-        // 3. SUCCESS: Set session and return true
+        // 3. SUCCESS: Return the user
         final Users loggedInUser = Users.fromJson(result.first);
-        AuthManager.login(loggedInUser);
-        return true;
+        return loggedInUser;
       }
-      return false; // Invalid password
+      return null; // Invalid password
     }
-    return false; // User not found
+    return null; // User not found
   }
 
   /// Registers a new user, hashing the password before insertion.

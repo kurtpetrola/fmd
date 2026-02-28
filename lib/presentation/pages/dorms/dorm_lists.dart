@@ -5,7 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/domain/models/dorm_model.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
-import 'package:findmydorm/data/local/database_helper.dart';
+import 'package:provider/provider.dart';
+import 'package:findmydorm/presentation/viewmodels/dorm_viewmodel.dart';
 
 // -------------------------------------------------------------------
 // ## DORM LIST WIDGET
@@ -27,11 +28,6 @@ class _DormListState extends State<DormList> {
   // -------------------------------------------------------------------
   // ## FIELDS & STATE
   // -------------------------------------------------------------------
-  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
-
-  List<Dorms> _allDorms = []; // Holds all dorms fetched from the DB
-  List<Dorms> _foundDorms = []; // Holds the filtered/searched results
-  bool _isLoading = true;
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -45,7 +41,10 @@ class _DormListState extends State<DormList> {
   @override
   void initState() {
     super.initState();
-    _loadDormsAndFilter();
+    if (widget.initialSearchQuery != null &&
+        widget.initialSearchQuery!.isNotEmpty) {
+      _searchController.text = widget.initialSearchQuery!;
+    }
   }
 
   @override
@@ -58,88 +57,23 @@ class _DormListState extends State<DormList> {
   // ## DATA & FILTER LOGIC (Business Logic)
   // -------------------------------------------------------------------
 
-  /// Fetches all dorms from the database and initializes the list.
-  /// Applies the initial search query if provided.
-  void _loadDormsAndFilter() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final fetchedDorms = await _dbHelper.getDorms();
-      _allDorms = fetchedDorms;
-
-      if (widget.initialSearchQuery != null &&
-          widget.initialSearchQuery!.isNotEmpty) {
-        _searchController.text = widget.initialSearchQuery!;
-        _runFilter(widget.initialSearchQuery!);
-      } else {
-        _foundDorms = fetchedDorms;
-      }
-    } catch (e) {
-      // In a real app, you would show an error message to the user here.
-      debugPrint("Error loading dorms: $e");
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  /// Filters the dorm list based on the search keyword, gender, and price categories.
-  void _runFilter(String enteredKeyword) {
-    List<Dorms> results = _allDorms;
-
-    // 1. Text search filter
-    if (enteredKeyword.isNotEmpty) {
-      final keywordLower = enteredKeyword.toLowerCase();
-      results = results
-          .where((dorm) =>
-              dorm.dormName.toLowerCase().contains(keywordLower) ||
-              dorm.dormLocation.toLowerCase().contains(keywordLower))
-          .toList();
-    }
-
-    // 2. Gender category filter
-    if (_selectedGenderFilter != null) {
-      results = results
-          .where((dorm) => dorm.genderCategory == _selectedGenderFilter)
-          .toList();
-    }
-
-    // 3. Price category filter
-    if (_selectedPriceFilter != null) {
-      results = results
-          .where((dorm) => dorm.priceCategory == _selectedPriceFilter)
-          .toList();
-    }
-
-    setState(() {
-      _foundDorms = results;
-    });
-  }
-
   /// Navigates to the Dorm Detail Page and refreshes the list if favorites changed.
   void _navigateToDormPage(Dorms dorm) async {
     final bool? favoriteChanged =
         await context.push<bool>('/dorm-detail', extra: dorm);
 
-    // If a favorite was toggled, re-run the filter to ensure the list is up-to-date
+    // If a favorite was toggled, run loadDorms to update the global state
     if (favoriteChanged == true && mounted) {
-      // Re-load to refresh favorited status in case it was displayed
-      // A lighter approach is just to run the filter again
-      _runFilter(_searchController.text);
+      context.read<DormViewModel>().loadDorms();
     }
   }
 
-  /// Clears all active filters and re-runs the main filter function.
+  /// Clears all active filters.
   void _clearFilters() {
     setState(() {
       _selectedGenderFilter = null;
       _selectedPriceFilter = null;
-      _runFilter(_searchController.text);
+      _searchController.clear();
     });
   }
 
@@ -197,7 +131,6 @@ class _DormListState extends State<DormList> {
                 onSelected: (selected) {
                   setState(() {
                     _selectedGenderFilter = selected ? category : null;
-                    _runFilter(_searchController.text);
                   });
                 },
                 selectedColor: Colors.deepPurple,
@@ -229,7 +162,6 @@ class _DormListState extends State<DormList> {
                 onSelected: (selected) {
                   setState(() {
                     _selectedPriceFilter = selected ? category : null;
-                    _runFilter(_searchController.text);
                   });
                 },
                 selectedColor: Colors.amber.shade700,
@@ -395,6 +327,31 @@ class _DormListState extends State<DormList> {
     final bool filtersActive =
         _selectedGenderFilter != null || _selectedPriceFilter != null;
 
+    final dormVM = context.watch<DormViewModel>();
+    List<Dorms> foundDorms = dormVM.allDorms;
+
+    // Apply filters dynamically
+    if (_searchController.text.isNotEmpty) {
+      final keywordLower = _searchController.text.toLowerCase();
+      foundDorms = foundDorms
+          .where((dorm) =>
+              dorm.dormName.toLowerCase().contains(keywordLower) ||
+              dorm.dormLocation.toLowerCase().contains(keywordLower))
+          .toList();
+    }
+
+    if (_selectedGenderFilter != null) {
+      foundDorms = foundDorms
+          .where((dorm) => dorm.genderCategory == _selectedGenderFilter)
+          .toList();
+    }
+
+    if (_selectedPriceFilter != null) {
+      foundDorms = foundDorms
+          .where((dorm) => dorm.priceCategory == _selectedPriceFilter)
+          .toList();
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -416,7 +373,7 @@ class _DormListState extends State<DormList> {
             // Search Bar
             TextField(
               controller: _searchController,
-              onChanged: _runFilter,
+              onChanged: (val) => setState(() {}),
               decoration: InputDecoration(
                 hintText: 'Search by Name or Location',
                 prefixIcon:
@@ -457,10 +414,10 @@ class _DormListState extends State<DormList> {
 
             // List View
             Expanded(
-              child: _isLoading
+              child: dormVM.isLoading
                   ? const Center(
                       child: CircularProgressIndicator(color: Colors.amber))
-                  : _foundDorms.isEmpty
+                  : foundDorms.isEmpty
                       ? Center(
                           child: Text(
                             (_searchController.text.isEmpty && !filtersActive)
@@ -471,9 +428,9 @@ class _DormListState extends State<DormList> {
                           ),
                         )
                       : ListView.builder(
-                          itemCount: _foundDorms.length,
+                          itemCount: foundDorms.length,
                           itemBuilder: (context, index) {
-                            final dorm = _foundDorms[index];
+                            final dorm = foundDorms[index];
                             return _buildDormCard(dorm);
                           },
                         ),

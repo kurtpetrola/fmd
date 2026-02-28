@@ -3,23 +3,17 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/domain/models/user_model.dart';
-import 'package:findmydorm/data/services/auth_manager.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:findmydorm/core/widgets/alert_dialog.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:findmydorm/presentation/viewmodels/auth_viewmodel.dart';
 
 // --------------------------------------------------------------------------
 // ## WIDGET DEFINITION
 // --------------------------------------------------------------------------
 class UserPage extends StatefulWidget {
-  final Users currentUser;
-  final ValueChanged<Users> onUserUpdated;
-
-  const UserPage({
-    super.key,
-    required this.currentUser,
-    required this.onUserUpdated,
-  });
+  const UserPage({super.key});
 
   @override
   State<UserPage> createState() => _UserState();
@@ -41,6 +35,12 @@ class _UserState extends State<UserPage> {
   void initState() {
     super.initState();
     // This is called when the widget is first created or when the key is reset.
+    // We defer the fetch to build or didChangeDependencies where context is safely available for Provider
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _fetchFavoriteCount();
   }
 
@@ -49,10 +49,12 @@ class _UserState extends State<UserPage> {
   // --------------------------------------------------------------------------
   /// Fetches the current favorite count from the database and updates the state.
   Future<void> _fetchFavoriteCount() async {
-    if (widget.currentUser.usrId == null) return;
+    final authVM = context.read<AuthViewModel>();
+    final currentUser = authVM.currentUser;
 
-    final count =
-        await handler.getFavoriteDormsCount(widget.currentUser.usrId!);
+    if (currentUser?.usrId == null) return;
+
+    final count = await handler.getFavoriteDormsCount(currentUser!.usrId!);
 
     if (mounted) {
       setState(() {
@@ -66,7 +68,9 @@ class _UserState extends State<UserPage> {
   // --------------------------------------------------------------------------
   /// Navigates to the Favorites Page and refreshes the count on return.
   void _navigateToFavorites() async {
-    await context.push('/favorites', extra: widget.currentUser);
+    final authVM = context.read<AuthViewModel>();
+    final currentUser = authVM.currentUser;
+    await context.push('/favorites', extra: currentUser);
 
     // Refresh the favorite count when the user returns
     _fetchFavoriteCount();
@@ -74,9 +78,16 @@ class _UserState extends State<UserPage> {
 
   /// Navigates to the Account Settings page.
   void _navigateToSettings() async {
+    final authVM = context.read<AuthViewModel>();
+    final currentUser = authVM.currentUser;
+    // We pass authVM method if settings needs callback or read directly
     await context.push('/account-settings', extra: {
-      'user': widget.currentUser,
-      'onUserUpdated': widget.onUserUpdated,
+      'user': currentUser,
+      // Pass a dummy function for now to not break AccountSettings Page
+      // Ideally, AccountSettingsPage should also be refactored to use Provider.
+      'onUserUpdated': (Users user) {
+        authVM.login(user);
+      },
     });
 
     // Trigger a rebuild of the UserPage's UI if needed (e.g., if username changed)
@@ -94,12 +105,17 @@ class _UserState extends State<UserPage> {
     );
 
     if (action == DialogsAction.yes) {
-      // 1. Log out (clears SharedPreferences)
-      await AuthManager.logout();
-
-      // 2. Navigate and clear the stack.
       if (!mounted) return;
-      context.go('/selection');
+
+      // Store references before we await anything
+      final authVM = context.read<AuthViewModel>();
+      final router = GoRouter.of(context);
+
+      // 1. Navigate and clear the stack first
+      router.go('/selection');
+
+      // 2. Log out (clears SharedPreferences and updates state)
+      await authVM.logout();
     }
   }
 
@@ -108,6 +124,14 @@ class _UserState extends State<UserPage> {
   // --------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
+    // Read the current user dynamically
+    final authVM = context.watch<AuthViewModel>();
+    final currentUser = authVM.currentUser;
+
+    if (currentUser == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -128,7 +152,7 @@ class _UserState extends State<UserPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildProfileHeaderCard(widget.currentUser),
+            _buildProfileHeaderCard(currentUser),
             const SizedBox(height: 30),
             _buildSettingsGroup([
               // My Favorites

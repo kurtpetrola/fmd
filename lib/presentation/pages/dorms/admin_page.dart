@@ -2,12 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 import 'package:findmydorm/domain/models/dorm_model.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
 import 'package:findmydorm/core/constants/dorm_image_options.dart';
 import 'package:findmydorm/presentation/widgets/dorms/image_picker_dialog.dart';
 import 'package:findmydorm/presentation/widgets/maps/admin_location_picker.dart';
+import 'package:findmydorm/presentation/viewmodels/dorm_viewmodel.dart';
 
 // NOTE: You would typically import 'package:http/http.dart' as http; for real API calls
 
@@ -23,7 +25,6 @@ class _AdminPageState extends State<AdminPage> {
   // ## STATE & INITIALIZATION
   // ==========================================================
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
-  late Future<List<Dorms>> _dormsFuture;
 
   // PRIMARY STYLING REFERENCE
   final Color _appBarColor = Colors.amber.shade700;
@@ -32,7 +33,9 @@ class _AdminPageState extends State<AdminPage> {
   @override
   void initState() {
     super.initState();
-    _refreshDorms();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshDorms();
+    });
   }
 
   // ==========================================================
@@ -41,9 +44,7 @@ class _AdminPageState extends State<AdminPage> {
 
   /// Fetches the latest list of dorms from the local database.
   void _refreshDorms() {
-    setState(() {
-      _dormsFuture = _dbHelper.getDorms();
-    });
+    context.read<DormViewModel>().loadDorms();
   }
 
   /// Simulates/Performs API calls to synchronize local changes with a server.
@@ -165,6 +166,8 @@ class _AdminPageState extends State<AdminPage> {
 
   @override
   Widget build(BuildContext context) {
+    final dormVM = context.watch<DormViewModel>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -192,23 +195,17 @@ class _AdminPageState extends State<AdminPage> {
           ),
         ],
       ),
-      body: FutureBuilder<List<Dorms>>(
-        future: _dormsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(
-                child: Text('Error loading dorms: ${snapshot.error}',
-                    style: const TextStyle(color: Colors.red)));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-                child: Text('No local dormitories found. Click + to add one.'));
-          } else {
-            return _buildDormList(snapshot.data!);
-          }
-        },
-      ),
+      body: dormVM.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : dormVM.errorMessage.isNotEmpty
+              ? Center(
+                  child: Text(dormVM.errorMessage,
+                      style: const TextStyle(color: Colors.red)))
+              : dormVM.allDorms.isEmpty
+                  ? const Center(
+                      child: Text(
+                          'No local dormitories found. Click + to add one.'))
+                  : _buildDormList(dormVM.allDorms),
     );
   }
 

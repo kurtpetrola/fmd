@@ -4,30 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:go_router/go_router.dart';
 import 'package:findmydorm/domain/models/dorm_model.dart';
-import 'package:findmydorm/domain/models/user_model.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
+import 'package:provider/provider.dart';
+import 'package:findmydorm/presentation/viewmodels/auth_viewmodel.dart';
 
 // ===================================
 // HOME PAGE WIDGET
 // ===================================
 
 class HomePage extends StatefulWidget {
-  // 1. Required parameter for the currently logged-in user
-  final Users currentUser;
-
-  // 2. Required callback function to update the user state
-  // (Used when settings or profile changes)
-  final ValueChanged<Users> onUserUpdated;
-
-  // 3. Keep the optional callback property
+  // Keep the optional callback property
   final VoidCallback? onViewAllTap;
 
-  const HomePage(
-      {super.key,
-      required this.currentUser,
-      required this.onUserUpdated,
-      this.onViewAllTap});
+  const HomePage({super.key, this.onViewAllTap});
 
   @override
   State<HomePage> createState() => _HomeScreenState();
@@ -356,7 +346,8 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                     ),
                     // Subtle refresh badge for Admin
-                    if (widget.currentUser.usrRole == 'Admin') ...[
+                    if (context.watch<AuthViewModel>().currentUser?.usrRole ==
+                        'Admin') ...[
                       const SizedBox(width: 10),
                       InkWell(
                         onTap: () {

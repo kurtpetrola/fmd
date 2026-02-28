@@ -8,15 +8,21 @@ import 'package:findmydorm/presentation/pages/dorms/home_page.dart';
 import 'package:findmydorm/presentation/pages/dorms/dorm_lists.dart';
 import 'package:findmydorm/presentation/pages/dorms/admin_page.dart';
 import 'package:findmydorm/presentation/pages/user_profile/user_page.dart';
+import 'package:provider/provider.dart';
+import 'package:findmydorm/presentation/viewmodels/auth_viewmodel.dart';
 
 // -------------------------------------------------------------------
 // ## HOME HOLDER WIDGET
 // -------------------------------------------------------------------
 
 class HomeHolder extends StatefulWidget {
-  final Users currentUser;
+  // Navigation arguments are typically untyped in go_router's extra,
+  // but we don't strictly need it passed in anymore if it's in Provider.
+  // Keeping it as optional for backwards compatibility during migration if needed,
+  // but not required.
+  final Users? currentUser;
 
-  const HomeHolder({super.key, required this.currentUser});
+  const HomeHolder({super.key, this.currentUser});
 
   @override
   State<HomeHolder> createState() => _HomeHolderState();
@@ -30,9 +36,6 @@ class _HomeHolderState extends State<HomeHolder> {
 
   // Used to manage the index of the CurvedNavigationBar and IndexedStack.
   int myIndex = 0;
-
-  // Mutable state variable to hold the current user data.
-  late Users _currentUser;
 
   /*
     CRITICAL: Key to force a rebuild of the UserPage.
@@ -49,20 +52,16 @@ class _HomeHolderState extends State<HomeHolder> {
   @override
   void initState() {
     super.initState();
-    // Initialize the current user state from the widget property.
-    _currentUser = widget.currentUser;
+    // No longer initialize local _currentUser state from widget property;
+    // we use Provider now.
   }
 
   // -------------------------------------------------------------------
   // ## BUSINESS LOGIC (State Management & Navigation)
   // -------------------------------------------------------------------
 
-  /// Updates the user data stored in the state. Called via callbacks from child widgets.
-  void _updateUser(Users updatedUser) {
-    setState(() {
-      _currentUser = updatedUser;
-    });
-  }
+  // We no longer need _updateUser since AuthViewModel handles it.
+  // The pages reading the provider will rebuild automatically.
 
   /// Changes the bottom navigation index and updates the UI.
   void navigateToTab(int index) {
@@ -78,14 +77,12 @@ class _HomeHolderState extends State<HomeHolder> {
   }
 
   /// Generates the list of pages based on the current user's role.
-  List<Widget> _buildPages() {
-    final bool isAdmin = _currentUser.usrRole == 'Admin';
+  List<Widget> _buildPages(Users currentUser) {
+    final bool isAdmin = currentUser.usrRole == 'Admin';
 
     return [
       // 0: Home Page
       HomePage(
-        currentUser: _currentUser,
-        onUserUpdated: _updateUser,
         onViewAllTap: () =>
             navigateToTab(1), // Navigates to Dorm List/Admin Page
       ),
@@ -97,8 +94,6 @@ class _HomeHolderState extends State<HomeHolder> {
       UserPage(
         // The key is reset in the onTap of the navbar to force rebuild.
         key: _userPageKey,
-        currentUser: _currentUser,
-        onUserUpdated: _updateUser,
       ),
     ];
   }
@@ -109,8 +104,18 @@ class _HomeHolderState extends State<HomeHolder> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isAdmin = _currentUser.usrRole == 'Admin';
+    // Read the current user state from the AuthViewModel.
+    // This will cause a rebuild if the user logs out or modifies their profile.
+    final authVM = context.watch<AuthViewModel>();
+    final currentUser = authVM.currentUser;
+
+    // Safety check in case the user was logged out while on this screen
+    if (currentUser == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final Color primaryAmber = Colors.amber.shade700;
+    final bool isAdmin = currentUser.usrRole == 'Admin';
 
     return Scaffold(
       // --- SMOOTH NAVIGATION BODY: IndexedStack to preserve page state ---
@@ -118,7 +123,7 @@ class _HomeHolderState extends State<HomeHolder> {
         index: myIndex,
         // CRITICAL: Call _buildPages() here to ensure pages are rebuilt
         // when state (like _currentUser) changes.
-        children: _buildPages(),
+        children: _buildPages(currentUser),
       ),
 
       // --- CURVED BOTTOM NAVIGATION BAR ---

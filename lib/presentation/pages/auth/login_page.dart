@@ -3,7 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:findmydorm/domain/models/user_model.dart';
+import 'package:findmydorm/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:ionicons/ionicons.dart';
 
 // ===================================
@@ -66,7 +68,7 @@ class _LoginScreenState extends State<LoginPage> {
 
     try {
       // Attempt login verification using the identifier and password
-      var isAuthenticated = await db.login(Users(
+      Users? loggedInUser = await db.login(Users(
         usrName: enteredIdentifier,
         usrEmail: '',
         usrPassword: enteredPassword,
@@ -74,21 +76,15 @@ class _LoginScreenState extends State<LoginPage> {
         usrGender: '',
       ));
 
-      if (isAuthenticated == true) {
-        // Successful authentication
-        Users? loggedInUser =
-            await db.getUserByUsernameOrEmail(enteredIdentifier);
-
+      if (loggedInUser != null) {
         if (!mounted) return;
 
-        if (loggedInUser != null) {
-          // Navigate to HomeHolder using GoRouter
+        // Update global state
+        await context.read<AuthViewModel>().login(loggedInUser);
+
+        // Navigate to HomeHolder using GoRouter
+        if (mounted) {
           context.go('/home', extra: loggedInUser);
-        } else {
-          // Fallback error if user data couldn't be fetched
-          _showError(
-              message:
-                  "User data not found after successful login. Please contact support.");
         }
       } else {
         // Failed Login (Incorrect credentials)

@@ -5,7 +5,8 @@ import 'package:bcrypt/bcrypt.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:findmydorm/domain/models/user_model.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:findmydorm/data/services/auth_manager.dart';
+import 'package:provider/provider.dart';
+import 'package:findmydorm/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:go_router/go_router.dart';
 
 class ChangePasswordPage extends StatefulWidget {
@@ -79,12 +80,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             const SnackBar(content: Text('Password updated successfully!')),
           );
 
-          // Call logout function to clear session state
-          await AuthManager.logout();
+          // Cache the context/router values to prevent unmounting issues
+          final authVM = context.read<AuthViewModel>();
+          final router = GoRouter.of(context);
 
           // 4. Navigate to the LoginPage and clear the entire navigation stack
-          if (!mounted) return;
-          context.go('/login');
+          router.go('/login');
+
+          // Call logout function to clear session state using AuthViewModel
+          await authVM.logout();
         }
       } else {
         setState(() {
