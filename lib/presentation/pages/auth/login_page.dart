@@ -3,10 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:findmydorm/domain/models/user_model.dart';
-import 'package:findmydorm/presentation/widgets/shared/bottom_navbar.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
-import 'registration_page.dart';
-import 'package:findmydorm/presentation/pages/auth/forgot_password_page.dart';
 
 // ===================================
 // LOGIN PAGE WIDGET
@@ -84,13 +82,8 @@ class _LoginScreenState extends State<LoginPage> {
         if (!mounted) return;
 
         if (loggedInUser != null) {
-          // Navigate to HomeHolder and clear ALL previous routes
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => HomeHolder(currentUser: loggedInUser),
-            ),
-            (Route<dynamic> route) => false,
-          );
+          // Navigate to HomeHolder using GoRouter
+          context.go('/home', extra: loggedInUser);
         } else {
           // Fallback error if user data couldn't be fetched
           _showError(
@@ -215,13 +208,7 @@ class _LoginScreenState extends State<LoginPage> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const ForgotPasswordScreen(), // Navigate to new screen
-                        ),
-                      );
+                      context.push('/forgot-password');
                     },
                     child: Text(
                       "Forgot Password?",
@@ -310,10 +297,7 @@ class _LoginScreenState extends State<LoginPage> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const SignUpScreen()));
+                        context.push('/register');
                       },
                       child: Text(
                         "Register now",

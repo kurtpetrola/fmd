@@ -6,7 +6,7 @@ import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:findmydorm/domain/models/user_model.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/data/services/auth_manager.dart';
-import 'package:findmydorm/presentation/pages/auth/login_page.dart';
+import 'package:go_router/go_router.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   final Users user;
@@ -84,13 +84,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
           // 4. Navigate to the LoginPage and clear the entire navigation stack
           if (!mounted) return;
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              // Replace `const LoginPage()` with the correct constructor if needed
-              builder: (BuildContext context) => const LoginPage(),
-            ),
-            (Route<dynamic> route) => false, // Clears all previous routes
-          );
+          context.go('/login');
         }
       } else {
         setState(() {
@@ -176,7 +170,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
         // Themed icon color for consistency
         prefixIcon: Icon(Ionicons.lock_closed_outline, color: amberColor),
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
 
         suffixIcon: IconButton(
           icon: Icon(

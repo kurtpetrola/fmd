@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
-import 'package:findmydorm/presentation/pages/auth/auth_check_wrapper.dart';
+import 'package:go_router/go_router.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -23,9 +23,12 @@ class SplashScreen extends StatelessWidget {
         child: Image.asset("assets/images/logo1.png"),
       ),
       onAnimationEnd: () => debugPrint("On Fade In End"),
-
-      // Navigate directly to the AuthCheckWrapper
-      nextScreen: const AuthCheckWrapper(),
+      asyncNavigationCallback: () async {
+        await Future.delayed(const Duration(milliseconds: 2000));
+        if (context.mounted) {
+          context.go('/auth-check');
+        }
+      },
     );
   }
 }

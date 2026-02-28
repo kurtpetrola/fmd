@@ -5,7 +5,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/domain/models/user_model.dart';
 import 'package:findmydorm/domain/models/dorm_model.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
-import 'package:findmydorm/presentation/pages/dorms/dorm_detail_page.dart';
+import 'package:go_router/go_router.dart';
 
 class FavoriteDormsPage extends StatefulWidget {
   final Users currentUser;
@@ -58,13 +58,7 @@ class _FavoriteDormsPageState extends State<FavoriteDormsPage> {
 
   // Helper method to navigate to the DormDetailPage
   void _openDormDetail(Dorms dorm) {
-    Navigator.of(context)
-        .push(
-      MaterialPageRoute(
-        builder: (context) => DormDetailPage(dorm),
-      ),
-    )
-        .then((_) {
+    context.push('/dorm-detail', extra: dorm).then((_) {
       // Refresh the list when returning
       _fetchFavoriteDorms();
     });

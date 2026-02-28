@@ -5,7 +5,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/domain/models/user_model.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:findmydorm/data/services/auth_manager.dart';
-import 'package:findmydorm/presentation/pages/auth/change_password_page.dart';
+import 'package:go_router/go_router.dart';
 
 class AccountSettingsPage extends StatefulWidget {
   final Users user;
@@ -467,11 +467,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         trailing: const Icon(Ionicons.chevron_forward, color: Colors.grey),
         onTap: () {
           // Pass the updated local user object to ChangePasswordPage
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => ChangePasswordPage(user: _localUser),
-            ),
-          );
+          context.push('/change-password', extra: _localUser);
         },
       ),
     );

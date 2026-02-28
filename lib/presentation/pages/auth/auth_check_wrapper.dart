@@ -2,9 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:findmydorm/data/services/auth_manager.dart';
-import 'package:findmydorm/domain/models/user_model.dart';
-import 'package:findmydorm/presentation/pages/dorms/selection_page.dart';
-import 'package:findmydorm/presentation/widgets/shared/bottom_navbar.dart';
+import 'package:go_router/go_router.dart';
 
 class AuthCheckWrapper extends StatefulWidget {
   const AuthCheckWrapper({super.key});
@@ -24,32 +22,15 @@ class _AuthCheckWrapperState extends State<AuthCheckWrapper> {
     // 1. Load the persisted user status
     final isAuthenticated = await AuthManager.loadCurrentUser();
 
-    // 2. Determine the next screen
-    Widget nextScreen;
-
-    if (isAuthenticated) {
-      final Users? user = AuthManager.currentUser;
-      if (user != null) {
-        // Navigate to HomeHolder
-        // This is the main shell for the logged-in user.
-        nextScreen = HomeHolder(
-          currentUser: user, // Pass the loaded user to the Bottom Nav
-        );
-      } else {
-        // Fallback if AuthManager.currentUser is somehow null
-        nextScreen = const SelectionPage();
-      }
-    } else {
-      // Not Logged In: Navigate to the login/selection screen
-      nextScreen = const SelectionPage();
-    }
-
-    // Use pushAndRemoveUntil when navigating from the AuthCheckWrapper
+    // 2. Navigate based on authentication status
     if (mounted) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => nextScreen),
-        (Route<dynamic> route) => false, // Clears the entire stack
-      );
+      if (isAuthenticated && AuthManager.currentUser != null) {
+        // Navigate to HomeHolder
+        context.go('/home', extra: AuthManager.currentUser);
+      } else {
+        // Not Logged In or user is null: Navigate to the selection screen
+        context.go('/selection');
+      }
     }
   }
 

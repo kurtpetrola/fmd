@@ -2,12 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:go_router/go_router.dart';
 import 'package:findmydorm/domain/models/dorm_model.dart';
 import 'package:findmydorm/domain/models/user_model.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
-import 'package:findmydorm/presentation/pages/dorms/dorm_detail_page.dart';
-import 'package:findmydorm/presentation/pages/dorms/dorm_lists.dart';
 
 // ===================================
 // HOME PAGE WIDGET
@@ -255,19 +254,13 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                         selectionWithPrefix.startsWith('📍 ');
 
                     if (isLocation) {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => DormList(
-                          initialSearchQuery: selection,
-                        ),
-                      ));
+                      context.push('/dorm-list', extra: selection);
                     } else {
                       final Dorms? selectedDorm = _allDorms
                           .firstWhereOrNull((d) => d.dormName == selection);
 
                       if (selectedDorm != null) {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => DormDetailPage(selectedDorm),
-                        ));
+                        context.push('/dorm-detail', extra: selectedDorm);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -488,9 +481,7 @@ class DormListView extends StatelessWidget {
 
         return GestureDetector(
           onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => DormDetailPage(dorm),
-            ));
+            context.push('/dorm-detail', extra: dorm);
           },
           child: _DormCard(
             itemText: itemText,

@@ -1,7 +1,7 @@
 // login_button.dart
 
 import 'package:flutter/material.dart';
-import 'package:findmydorm/presentation/pages/auth/login_page.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginButton extends StatelessWidget {
   const LoginButton({
@@ -12,8 +12,7 @@ class LoginButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (BuildContext context) => const LoginPage()));
+        context.push('/login');
       },
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 15),

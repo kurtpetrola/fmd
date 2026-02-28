@@ -1,7 +1,7 @@
 // registration_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:findmydorm/presentation/pages/auth/login_page.dart';
+import 'package:go_router/go_router.dart';
 import 'package:findmydorm/domain/models/user_model.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:ionicons/ionicons.dart';
@@ -131,10 +131,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
 
       // Navigate to Login page
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
+      context.go('/login');
     } catch (e) {
       // This catches database errors, most commonly a UNIQUE constraint violation.
       if (mounted) {
@@ -483,11 +480,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
         TextButton(
           onPressed: () {
-            // Use pushReplacement to ensure no back-stack buildup
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginPage()),
-            );
+            // Navigate to login using GoRouter
+            context.go('/login');
           },
           child: Text(
             "Login",

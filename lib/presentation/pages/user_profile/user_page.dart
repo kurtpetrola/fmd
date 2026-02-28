@@ -6,9 +6,7 @@ import 'package:findmydorm/domain/models/user_model.dart';
 import 'package:findmydorm/data/services/auth_manager.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:findmydorm/core/widgets/alert_dialog.dart';
-import 'package:findmydorm/presentation/pages/dorms/selection_page.dart';
-import 'package:findmydorm/presentation/pages/user_profile/account_settings_page.dart';
-import 'package:findmydorm/presentation/pages/user_profile/favorite_dorms_page.dart';
+import 'package:go_router/go_router.dart';
 
 // --------------------------------------------------------------------------
 // ## WIDGET DEFINITION
@@ -68,13 +66,7 @@ class _UserState extends State<UserPage> {
   // --------------------------------------------------------------------------
   /// Navigates to the Favorites Page and refreshes the count on return.
   void _navigateToFavorites() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => FavoriteDormsPage(
-          currentUser: widget.currentUser,
-        ),
-      ),
-    );
+    await context.push('/favorites', extra: widget.currentUser);
 
     // Refresh the favorite count when the user returns
     _fetchFavoriteCount();
@@ -82,14 +74,10 @@ class _UserState extends State<UserPage> {
 
   /// Navigates to the Account Settings page.
   void _navigateToSettings() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => AccountSettingsPage(
-          user: widget.currentUser,
-          onUserUpdated: widget.onUserUpdated,
-        ),
-      ),
-    );
+    await context.push('/account-settings', extra: {
+      'user': widget.currentUser,
+      'onUserUpdated': widget.onUserUpdated,
+    });
 
     // Trigger a rebuild of the UserPage's UI if needed (e.g., if username changed)
     if (mounted) {
@@ -111,12 +99,7 @@ class _UserState extends State<UserPage> {
 
       // 2. Navigate and clear the stack.
       if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (BuildContext context) => const SelectionPage(),
-        ),
-        (Route<dynamic> route) => false, // Clears all previous routes
-      );
+      context.go('/selection');
     }
   }
 

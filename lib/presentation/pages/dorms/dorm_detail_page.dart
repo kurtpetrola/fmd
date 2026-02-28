@@ -8,7 +8,7 @@ import 'package:findmydorm/domain/models/dorm_model.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:findmydorm/data/services/auth_manager.dart';
-import 'package:findmydorm/presentation/pages/maps/maps_detail_page.dart';
+import 'package:go_router/go_router.dart';
 
 // -------------------------------------------------------------------
 // ## REUSABLE WIDGET: _DetailItem
@@ -107,7 +107,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
 
   // Custom back button handler to pass the status change back to the parent.
   void _onBackPressed() {
-    Navigator.pop(context, _favoriteStatusChanged);
+    context.pop(_favoriteStatusChanged);
   }
 
   // -------------------------------------------------------------------
@@ -215,17 +215,15 @@ class _DormDetailPageState extends State<DormDetailPage> {
       // 2. Navigate to MapsDetailPage
       if (mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MapsDetailPage(
-              latitude: dormLat,
-              longitude: dormLng,
-              dormName: widget.dorm.dormName,
-              userLatitude: userLat,
-              userLongitude: userLng,
-            ),
-          ),
+        context.push(
+          '/maps-detail',
+          extra: {
+            'latitude': dormLat,
+            'longitude': dormLng,
+            'dormName': widget.dorm.dormName,
+            'userLatitude': userLat,
+            'userLongitude': userLng,
+          },
         );
       }
     } catch (e) {

@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:findmydorm/presentation/pages/auth/login_page.dart';
+import 'package:go_router/go_router.dart';
 
 // ===================================
 // FORGOT PASSWORD WIDGET
@@ -104,10 +104,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         _showSnackBar("Password successfully reset! Please log in.");
 
         // Navigate back to the Login Page
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-        );
+        context.go('/login');
       } else {
         // This case indicates the email was somehow not found during the final update
         _showSnackBar("Failed to reset password. User not found.",

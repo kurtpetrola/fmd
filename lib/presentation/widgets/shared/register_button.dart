@@ -1,7 +1,7 @@
 // register_button.dart
 
 import 'package:flutter/material.dart';
-import 'package:findmydorm/presentation/pages/auth/registration_page.dart';
+import 'package:go_router/go_router.dart';
 
 class RegisterButton extends StatelessWidget {
   const RegisterButton({
@@ -13,8 +13,7 @@ class RegisterButton extends StatelessWidget {
     // Used a different widget for visual hierarchy
     return OutlinedButton(
       onPressed: () {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (BuildContext context) => const SignUpScreen()));
+        context.push('/register');
       },
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 15),

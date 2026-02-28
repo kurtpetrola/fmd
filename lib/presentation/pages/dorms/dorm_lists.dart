@@ -1,11 +1,11 @@
 // dorm_lists.dart
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/domain/models/dorm_model.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
-import 'package:findmydorm/presentation/pages/dorms/dorm_detail_page.dart';
 
 // -------------------------------------------------------------------
 // ## DORM LIST WIDGET
@@ -123,13 +123,8 @@ class _DormListState extends State<DormList> {
 
   /// Navigates to the Dorm Detail Page and refreshes the list if favorites changed.
   void _navigateToDormPage(Dorms dorm) async {
-    // Navigate and await the result (true if favorite status changed)
-    final bool? favoriteChanged = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DormDetailPage(dorm),
-      ),
-    );
+    final bool? favoriteChanged =
+        await context.push<bool>('/dorm-detail', extra: dorm);
 
     // If a favorite was toggled, re-run the filter to ensure the list is up-to-date
     if (favoriteChanged == true && mounted) {

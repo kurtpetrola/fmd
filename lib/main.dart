@@ -1,6 +1,6 @@
 // main.dart
 
-import 'package:findmydorm/presentation/pages/splash/splash_screen.dart';
+import 'package:findmydorm/core/router/app_router.dart';
 import 'package:findmydorm/data/local/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -40,9 +40,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      routerConfig: appRouter,
     );
   }
 }
