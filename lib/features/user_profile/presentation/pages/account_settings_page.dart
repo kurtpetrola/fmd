@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:go_router/go_router.dart';
 import 'package:findmydorm/core/widgets/custom_text_field.dart';
+import '../../../../core/theme/app_colors.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 import 'package:findmydorm/core/widgets/custom_dropdown_field.dart';
 
@@ -202,8 +203,9 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             fontFamily: 'Lato',
           ),
         ),
-        backgroundColor: Colors.amber.shade700,
-        foregroundColor: Colors.white, // For the back button and text color
+        backgroundColor: AppColors.primaryAmberShade700,
+        foregroundColor:
+            AppColors.textWhite, // For the back button and text color
         centerTitle: true,
         elevation: 0,
         actions: [
@@ -253,21 +255,21 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.shade50, // Very light red background
+                color: AppColors.errorContainer, // Very light red background
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red.shade300, width: 1),
+                border: Border.all(color: AppColors.errorBorder, width: 1),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(Ionicons.alert_circle_outline,
-                      color: Colors.red, size: 20),
+                      color: AppColors.error, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       _errorMessage!,
                       style: const TextStyle(
-                        color: Colors.red,
+                        color: AppColors.error,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -284,8 +286,8 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             text: 'SAVE CHANGES',
             onPressed: _isLoading ? null : _saveChanges,
             isLoading: _isLoading,
-            textColor: Colors.white,
-            backgroundColor: Colors.amber.shade700,
+            textColor: AppColors.textWhite,
+            backgroundColor: AppColors.primaryAmberShade700,
             borderRadius: 12,
           ),
       ],
@@ -301,7 +303,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         style: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.bold,
-          color: Colors.black87,
+          color: AppColors.black87,
         ),
         textAlign: TextAlign.center,
       ),
@@ -321,7 +323,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       padding: const EdgeInsets.all(20),
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: Colors.amber.withValues(alpha: 0.1),
+        color: AppColors.primaryAmber.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -329,12 +331,12 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundColor: Colors.deepPurple,
+            backgroundColor: AppColors.detailPurple,
             child: Text(
               name.isNotEmpty ? name[0].toUpperCase() : 'U',
               style: const TextStyle(
                   fontSize: 24,
-                  color: Colors.white,
+                  color: AppColors.textWhite,
                   fontWeight: FontWeight.bold),
             ),
           ),
@@ -345,7 +347,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
           ),
           Text(
             email,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+            style: const TextStyle(fontSize: 14, color: AppColors.grey700),
           ),
         ],
       ),
@@ -362,7 +364,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Themed Icon Color
-          Icon(icon, color: Colors.amber.shade700, size: 24),
+          Icon(icon, color: AppColors.primaryAmberShade700, size: 24),
           const SizedBox(width: 20),
           Expanded(
             child: Column(
@@ -370,11 +372,11 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                     // Lighter text for the label/key
-                    color: Colors.grey.shade500,
+                    color: AppColors.grey500,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -383,7 +385,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500, // Make value text stand out
-                    color: Colors.black,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ],
@@ -415,11 +417,11 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                 fontSize: 17, // Slightly smaller
                 fontWeight: FontWeight.w700, // Slightly bolder
                 // Use a dark neutral color for card titles
-                color: Colors.black87,
+                color: AppColors.black87,
               ),
             ),
             // Use a thinner divider for a lighter look
-            const Divider(height: 20, thickness: 0.8, color: Colors.grey),
+            const Divider(height: 20, thickness: 0.8, color: AppColors.grey300),
             ...children,
           ],
         ),
@@ -438,12 +440,12 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             vertical: 4, horizontal: 16), // Taller touch target
         // Use a prominent, but professional, security color
         leading: const Icon(Ionicons.key_outline,
-            color: Colors.deepOrangeAccent, size: 28),
+            color: AppColors.securityOrange, size: 28),
         title: const Text(
           'Change Password',
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
         ),
-        trailing: const Icon(Ionicons.chevron_forward, color: Colors.grey),
+        trailing: const Icon(Ionicons.chevron_forward, color: AppColors.grey400),
         onTap: () {
           // Pass the updated local user object to ChangePasswordPage
           context.push('/change-password', extra: _localUser);
@@ -464,7 +466,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         // Address (Uses _localUser)
         _buildInfoRow(
             Ionicons.location_outline, 'Address', _localUser.usrAddress),
-        const Divider(height: 0, indent: 45),
+        const Divider(height: 0, indent: 45, color: AppColors.grey300),
         // Gender (Uses _localUser)
         _buildInfoRow(Ionicons.people_outline, 'Gender', _localUser.usrGender),
       ],

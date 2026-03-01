@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:findmydorm/core/widgets/custom_text_field.dart';
 import 'package:findmydorm/core/widgets/custom_password_field.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
+import 'package:findmydorm/core/theme/app_colors.dart';
 
 // FORGOT PASSWORD WIDGET
 
@@ -34,7 +35,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // Theme Constants
-  final Color primaryAmber = Colors.amber.shade700;
 
   @override
   void dispose() {
@@ -110,7 +110,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: isError ? Colors.red.shade700 : Colors.green.shade700,
+        backgroundColor: isError ? AppColors.error : AppColors.success,
         duration: const Duration(seconds: 3),
       ),
     );
@@ -124,14 +124,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       appBar: AppBar(
         title: Text(
           _currentStep == 'VERIFY' ? 'Verify Account' : 'Reset Password',
-          style: const TextStyle(
-              color: Colors.black,
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontFamily: 'Lato',
               fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        iconTheme: IconThemeData(color: primaryAmber),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -146,7 +146,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ? 'Enter your email and registered address to verify your identity.'
                       : 'Create a new, strong password.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
+                  style:
+                      const TextStyle(fontSize: 16, color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 30),
 

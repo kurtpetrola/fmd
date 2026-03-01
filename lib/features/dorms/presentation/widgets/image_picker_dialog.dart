@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:findmydorm/core/constants/dorm_image_options.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
+import 'package:findmydorm/core/theme/app_colors.dart';
 
 /// A dialog widget allowing administrators to select a predefined dormitory image.
 class ImagePickerDialog extends StatefulWidget {
@@ -71,8 +72,8 @@ class _ImagePickerDialogState extends State<ImagePickerDialog> {
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: isSelected
-                              ? Colors.amber.shade700
-                              : Colors.grey.shade300,
+                              ? AppColors.primaryAmberShade700
+                              : AppColors.grey300,
                           width: isSelected ? 3 : 1,
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -93,7 +94,7 @@ class _ImagePickerDialogState extends State<ImagePickerDialog> {
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Container(
-                                    color: Colors.grey.shade200,
+                                    color: AppColors.grey200,
                                     child: const Center(
                                       child: Icon(Icons.image_not_supported,
                                           size: 30),
@@ -110,8 +111,8 @@ class _ImagePickerDialogState extends State<ImagePickerDialog> {
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? Colors.amber.shade700
-                                    : Colors.grey.shade100,
+                                    ? AppColors.primaryAmberShade700
+                                    : AppColors.backgroundLight,
                                 borderRadius: const BorderRadius.only(
                                   bottomLeft: Radius.circular(12),
                                   bottomRight: Radius.circular(12),
@@ -126,8 +127,8 @@ class _ImagePickerDialogState extends State<ImagePickerDialog> {
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
                                       color: isSelected
-                                          ? Colors.white
-                                          : Colors.black87,
+                                          ? AppColors.textWhite
+                                          : AppColors.black87,
                                     ),
                                     textAlign: TextAlign.center,
                                     maxLines: 2,
@@ -139,8 +140,9 @@ class _ImagePickerDialogState extends State<ImagePickerDialog> {
                                     style: TextStyle(
                                       fontSize: 9,
                                       color: isSelected
-                                          ? Colors.white70
-                                          : Colors.grey,
+                                          ? AppColors.textWhite
+                                              .withValues(alpha: 0.7)
+                                          : AppColors.grey400,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -166,8 +168,8 @@ class _ImagePickerDialogState extends State<ImagePickerDialog> {
                 CustomButton(
                   text: 'CANCEL',
                   onPressed: () => Navigator.pop(context),
-                  backgroundColor: Colors.transparent,
-                  textColor: Colors.grey,
+                  backgroundColor: AppColors.transparent,
+                  textColor: AppColors.grey400,
                   elevation: 0,
                   height: 40,
                   fontSize: 16,
@@ -176,8 +178,8 @@ class _ImagePickerDialogState extends State<ImagePickerDialog> {
                 CustomButton(
                   text: 'SELECT',
                   onPressed: () => Navigator.pop(context, selectedImagePath),
-                  backgroundColor: Colors.amber.shade700,
-                  textColor: Colors.white,
+                  backgroundColor: AppColors.primaryAmberShade700,
+                  textColor: AppColors.textWhite,
                   borderRadius: 8,
                   height: 40,
                 ),

@@ -3,18 +3,17 @@
 import 'package:flutter/material.dart';
 import 'package:findmydorm/features/auth/presentation/widgets/login_button.dart';
 import 'package:findmydorm/features/auth/presentation/widgets/register_button.dart';
+import 'package:findmydorm/core/theme/app_colors.dart';
 
 /// A preliminary screen prompting users to continue as a guest or login.
 class SelectionPage extends StatelessWidget {
   const SelectionPage({super.key});
 
   // Define the primary color for consistent styling
-  final Color primaryAmber = const Color(0xFFFFC107);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25.0),
@@ -38,7 +37,7 @@ class SelectionPage extends StatelessWidget {
                 'Find My Dorm',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.black,
+                  color: AppColors.textPrimary,
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w900,
                   fontSize: 24,

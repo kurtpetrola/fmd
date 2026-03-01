@@ -1,6 +1,5 @@
-// dorm_categories.dart
-
 import 'package:flutter/material.dart';
+import 'package:findmydorm/core/theme/app_colors.dart';
 
 class DormCategories {
   // Available category options
@@ -43,22 +42,22 @@ class DormCategories {
   static Color getGenderColor(String category) {
     switch (category) {
       case 'Female Dorm':
-        return Colors.pink.shade100;
+        return AppColors.genderFemale;
       case 'Male Dorm':
-        return Colors.blue.shade100;
+        return AppColors.genderMale;
       default:
-        return Colors.grey.shade200;
+        return AppColors.genderMixed;
     }
   }
 
   static Color getPriceColor(String category) {
     switch (category) {
       case 'Budget-Friendly':
-        return Colors.green.shade100;
+        return AppColors.priceBudget;
       case 'Luxury':
-        return Colors.purple.shade100;
+        return AppColors.priceLuxury;
       default:
-        return Colors.orange.shade100;
+        return AppColors.priceStandard;
     }
   }
 }

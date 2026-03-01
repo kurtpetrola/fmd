@@ -1,3 +1,5 @@
+// custom_text_field.dart
+
 import 'package:flutter/material.dart';
 
 /// A customizable text input field with optional icons and validation.
@@ -43,9 +45,7 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryAmber = Colors.amber.shade700;
-    final Color inputFillColor = Colors.grey.shade100;
-    const borderRadius = BorderRadius.all(Radius.circular(15.0));
+    final theme = Theme.of(context);
 
     return TextFormField(
       controller: controller,
@@ -63,29 +63,14 @@ class CustomTextField extends StatelessWidget {
         labelText: labelText,
         alignLabelWithHint: alignLabelWithHint,
         filled: true,
-        fillColor: fillColor ?? inputFillColor,
-        hintStyle: const TextStyle(fontFamily: 'Lato', color: Colors.grey),
+        fillColor: fillColor ?? theme.inputDecorationTheme.fillColor,
         prefixIcon: icon != null
             ? Icon(
                 icon,
-                color: iconColor ?? primaryAmber,
+                color: iconColor ?? theme.colorScheme.primary,
               )
             : null,
         suffixIcon: suffixIcon,
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 18.0, horizontal: 20.0),
-        border: const OutlineInputBorder(
-          borderRadius: borderRadius,
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: borderRadius,
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: borderRadius,
-          borderSide: BorderSide(color: primaryAmber, width: 2.0),
-        ),
       ),
     );
   }

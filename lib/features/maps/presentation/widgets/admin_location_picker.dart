@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:findmydorm/core/widgets/custom_text_field.dart';
+import 'package:findmydorm/core/theme/app_colors.dart';
 
 /// A map interface for administrators to pick coordinates for a dormitory.
 class AdminLocationPicker extends StatefulWidget {
@@ -20,9 +21,9 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
   LatLng? _selectedLocation;
   final TextEditingController _searchController = TextEditingController();
 
-  // Define colors for consistent theming
-  final Color primaryAmber = Colors.amber.shade700;
-  final Color foregroundColor = Colors.white;
+  // Colors are now retrieved from AppColors for consistency
+  final Color primaryAmber = AppColors.primaryAmberShade700;
+  final Color foregroundColor = AppColors.textWhite;
 
   @override
   void dispose() {
@@ -150,7 +151,7 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
             right: 10,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.circular(10.0),
                 boxShadow: const [
                   BoxShadow(
@@ -166,7 +167,7 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
                   controller: _searchController,
                   hintText: 'Search place, city, or address...',
                   icon: Icons.search,
-                  fillColor: Colors.white,
+                  fillColor: AppColors.surfaceLight,
                   suffixIcon: IconButton(
                     icon: Icon(Icons.send, color: primaryAmber),
                     onPressed: () {

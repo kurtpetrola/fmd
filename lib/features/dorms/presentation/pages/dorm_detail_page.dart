@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:go_router/go_router.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
+import 'package:findmydorm/core/theme/app_colors.dart';
 
 /// A reusable widget to display a specific detail (icon, label, value) for a dormitory.
 class _DetailItem extends StatelessWidget {
@@ -35,10 +36,10 @@ class _DetailItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
-              color: Colors.deepPurple.shade50,
+              color: AppColors.detailPurpleLight,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: Colors.deepPurple, size: 26),
+            child: Icon(icon, color: AppColors.detailPurple, size: 26),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -47,10 +48,10 @@ class _DetailItem extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.blueGrey.shade400,
+                    color: AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -59,7 +60,7 @@ class _DetailItem extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: AppColors.textPrimary,
                     fontFamily: 'Lato',
                   ),
                 ),
@@ -133,12 +134,12 @@ class _DormDetailPageState extends State<DormDetailPage> {
     try {
       if (_isFavorite) {
         await dbHelper.removeFavorite(currentUser.usrId!, widget.dorm.dormId!);
-        _showSnackbar(
-            'Removed ${widget.dorm.dormName} from favorites.', Colors.orange);
+        _showSnackbar('Removed ${widget.dorm.dormName} from favorites.',
+            AppColors.wazeOrange);
       } else {
         await dbHelper.addFavorite(currentUser.usrId!, widget.dorm.dormId!);
         _showSnackbar(
-            'Added ${widget.dorm.dormName} to favorites!', Colors.green);
+            'Added ${widget.dorm.dormName} to favorites!', AppColors.success);
       }
 
       if (mounted) {
@@ -170,7 +171,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
     if (currentUser == null || currentUser.usrAddress.isEmpty) {
       _showSnackbar(
           'Please log in or update your profile with an address to view the route.',
-          Colors.red);
+          AppColors.error);
       return;
     }
     if (dormLat == null || dormLng == null) {
@@ -178,7 +179,8 @@ class _DormDetailPageState extends State<DormDetailPage> {
       return;
     }
 
-    _showSnackbar('Calculating shortest route...', Colors.blue);
+    _showSnackbar('Calculating shortest route...',
+        Theme.of(context).colorScheme.secondary);
 
     // Default values if geocoding fails (dorm location)
     double userLat = dormLat;
@@ -199,7 +201,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         _showSnackbar(
             'Could not accurately locate your address. Showing dorm location only.',
-            Colors.orange);
+            AppColors.wazeOrange);
       }
 
       // 2. Navigate to MapsDetailPage
@@ -222,7 +224,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       _showSnackbar(
           'Failed to get your location for routing. Showing dorm location only.',
-          Colors.orange);
+          AppColors.wazeOrange);
     }
   }
 
@@ -262,7 +264,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 13,
-              color: Colors.black87,
+              color: AppColors.textPrimary,
             ),
           ),
         ],
@@ -280,8 +282,8 @@ class _DormDetailPageState extends State<DormDetailPage> {
           text: 'View Route to Dorm',
           onPressed: _navigateToMapRoute,
           icon: Ionicons.map,
-          backgroundColor: Colors.amber.shade700,
-          textColor: Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          textColor: AppColors.textWhite,
           borderRadius: 12,
         ),
       ),
@@ -297,7 +299,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
 
             // Leading: Custom back button to pass the status change
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              icon: const Icon(Icons.arrow_back, color: AppColors.textWhite),
               onPressed: _onBackPressed, // Use the dedicated handler
             ),
 
@@ -305,7 +307,8 @@ class _DormDetailPageState extends State<DormDetailPage> {
               IconButton(
                 icon: Icon(
                   _isFavorite ? Ionicons.heart : Ionicons.heart_outline,
-                  color: _isFavorite ? Colors.red.shade400 : Colors.white,
+                  color:
+                      _isFavorite ? AppColors.favoriteRed : AppColors.textWhite,
                   size: 28,
                 ),
                 onPressed: _toggleFavorite,
@@ -322,7 +325,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppColors.textWhite,
                   fontFamily: 'Lato',
                 ),
                 maxLines: 1,
@@ -337,12 +340,12 @@ class _DormDetailPageState extends State<DormDetailPage> {
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        color: Colors.grey.shade300,
+                        color: AppColors.grey300,
                         child: const Center(
                           child: Icon(
                             Icons.image_not_supported,
                             size: 80,
-                            color: Colors.grey,
+                            color: AppColors.grey500,
                           ),
                         ),
                       );
@@ -370,7 +373,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
           // Scrollable Details Section (Body)
           SliverToBoxAdapter(
             child: Container(
-              color: Colors.grey.shade50,
+              color: AppColors.backgroundLight,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -387,13 +390,13 @@ class _DormDetailPageState extends State<DormDetailPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               "Key Details",
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w700,
                                 fontFamily: 'Lato',
-                                color: Colors.deepPurple,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
                             const Divider(height: 25, thickness: 1),
@@ -428,13 +431,13 @@ class _DormDetailPageState extends State<DormDetailPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               "Categories",
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w700,
                                 fontFamily: 'Lato',
-                                color: Colors.deepPurple,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
                             const Divider(height: 25, thickness: 1),
@@ -468,20 +471,20 @@ class _DormDetailPageState extends State<DormDetailPage> {
                       elevation: 2,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.grey.shade200, width: 1),
+                        side: const BorderSide(color: AppColors.grey200, width: 1),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               "Description",
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w700,
                                 fontFamily: 'Lato',
-                                color: Colors.deepPurple,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
                             const Divider(height: 25, thickness: 1),
@@ -491,7 +494,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
                                 fontSize: 16,
                                 fontFamily: 'Lato',
                                 height: 1.6,
-                                color: Colors.black87,
+                                color: AppColors.textPrimary,
                               ),
                               // Limit lines based on expansion state
                               maxLines: _isDescriptionExpanded ? null : 6,
@@ -509,8 +512,9 @@ class _DormDetailPageState extends State<DormDetailPage> {
                                     _isDescriptionExpanded
                                         ? 'Read Less'
                                         : 'Read More',
-                                    style: const TextStyle(
-                                      color: Colors.deepPurple,
+                                    style: TextStyle(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15,
                                     ),

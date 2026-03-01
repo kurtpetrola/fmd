@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/theme/app_colors.dart';
 
 /// The initial loading screen shown during application launch.
 class SplashScreen extends StatelessWidget {
@@ -11,7 +12,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlutterSplashScreen.fadeIn(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       onInit: () {
         debugPrint("On Init");
       },

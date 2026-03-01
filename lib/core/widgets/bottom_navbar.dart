@@ -97,7 +97,7 @@ class _HomeHolderState extends State<HomeHolder> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final Color primaryAmber = Colors.amber.shade700;
+    final theme = Theme.of(context);
     final bool isAdmin = currentUser.usrRole == 'Admin';
 
     return Scaffold(
@@ -111,7 +111,7 @@ class _HomeHolderState extends State<HomeHolder> {
 
       // --- CURVED BOTTOM NAVIGATION BAR ---
       bottomNavigationBar: CurvedNavigationBar(
-        color: primaryAmber,
+        color: theme.colorScheme.primary,
         backgroundColor: Colors.transparent,
         key: _navKey,
         index: myIndex,
@@ -120,7 +120,7 @@ class _HomeHolderState extends State<HomeHolder> {
           // Item 0: Home
           Icon(
             (myIndex == 0) ? Ionicons.home : Ionicons.home_outline,
-            color: Colors.white,
+            color: theme.colorScheme.onPrimary,
           ),
           // Item 1: List (User) / Admin (Admin)
           Icon(
@@ -131,15 +131,15 @@ class _HomeHolderState extends State<HomeHolder> {
                 : (myIndex == 1)
                     ? Ionicons.list
                     : Ionicons.list_outline,
-            color: Colors.white,
+            color: theme.colorScheme.onPrimary,
           ),
           // Item 2: Profile
           Icon(
             (myIndex == 2) ? Ionicons.person : Ionicons.person_outline,
-            color: Colors.white,
+            color: theme.colorScheme.onPrimary,
           ),
         ],
-        buttonBackgroundColor: primaryAmber,
+        buttonBackgroundColor: theme.colorScheme.primary,
         onTap: (index) {
           setState(() {
             // If the target index is the UserPage (index 2),

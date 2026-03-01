@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 import 'package:findmydorm/core/widgets/custom_text_field.dart';
+import 'package:findmydorm/core/theme/app_colors.dart';
 
 /// The main dashboard displaying dorm categories and a search interface.
 class HomePage extends StatefulWidget {
@@ -111,6 +112,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   // BUILD METHODS (UI Segments)
 
   Widget _buildHeaderSection() {
+    final theme = Theme.of(context);
     return SizedBox(
       height: 370,
       child: Stack(
@@ -120,7 +122,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
           Image.asset(
             "assets/images/dorm_default.png",
             fit: BoxFit.cover,
-            color: Colors.black54,
+            color: AppColors.black54,
             colorBlendMode: BlendMode.darken,
           ),
 
@@ -138,7 +140,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                 const Text(
                   "Discover Dorms Near You",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textWhite,
                     fontWeight: FontWeight.bold,
                     fontSize: 32,
                     fontFamily: 'Lato',
@@ -164,7 +166,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.white,
+                        color: theme.colorScheme.surface,
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.1),
@@ -179,8 +181,8 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                         onFieldSubmitted: (value) => onFieldSubmitted(),
                         hintText: "Search for a dorm or location...",
                         icon: Icons.search,
-                        iconColor: Colors.grey,
-                        fillColor: Colors.white,
+                        iconColor: AppColors.textHint,
+                        fillColor: theme.colorScheme.surface,
                       ),
                     );
                   },
@@ -242,17 +244,18 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                 TabBar(
                   controller: _tabController,
                   isScrollable: true,
-                  labelColor: Colors.amber.shade400,
-                  unselectedLabelColor: Colors.white,
+                  labelColor: AppColors.primaryAmberShade400,
+                  unselectedLabelColor: AppColors.textWhite,
                   labelStyle: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Lato',
                   ),
                   labelPadding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  indicator: const UnderlineTabIndicator(
-                    borderSide: BorderSide(width: 4.0, color: Colors.amber),
-                    insets: EdgeInsets.symmetric(horizontal: 16.0),
+                  indicator: UnderlineTabIndicator(
+                    borderSide: BorderSide(
+                        width: 4.0, color: theme.colorScheme.primary),
+                    insets: const EdgeInsets.symmetric(horizontal: 16.0),
                   ),
                   tabs: DormCategories.genderCategories.map((category) {
                     return Tab(text: category);
@@ -285,9 +288,10 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     if (_allDorms.isEmpty && mounted) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
-          child: CircularProgressIndicator(color: Colors.amber),
+          child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary),
         ),
       );
     }
@@ -313,7 +317,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Lato',
-                        color: Colors.black87,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     // Subtle refresh badge for Admin
@@ -329,13 +333,13 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(Icons.refresh,
-                                      color: Colors.white, size: 18),
+                                      color: AppColors.textWhite, size: 18),
                                   SizedBox(width: 8),
                                   Text('Refreshed!'),
                                 ],
                               ),
                               duration: const Duration(seconds: 1),
-                              backgroundColor: Colors.green.shade600,
+                              backgroundColor: AppColors.success,
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -349,23 +353,24 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.amber.shade100,
+                            color: AppColors.primaryAmberShade100,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                                color: Colors.amber.shade300, width: 1),
+                            border:
+                                Border.all(color: AppColors.grey300, width: 1),
                           ),
-                          child: Row(
+                          child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.refresh,
-                                  size: 14, color: Colors.amber.shade700),
-                              const SizedBox(width: 4),
+                                  size: 14,
+                                  color: AppColors.primaryAmberShade700),
+                              SizedBox(width: 4),
                               Text(
                                 'Refresh',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.amber.shade700,
+                                  color: AppColors.primaryAmberShade700,
                                 ),
                               ),
                             ],
@@ -382,11 +387,12 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                   fontSize: 14,
                   height: 35,
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  backgroundColor: Colors.amber.shade50,
-                  textColor: Colors.amber.shade700,
+                  backgroundColor:
+                      AppColors.primaryAmberShade100.withValues(alpha: 0.5),
+                  textColor: AppColors.primaryAmberShade700,
                   elevation: 0,
-                  border: BorderSide(
-                    color: Colors.amber.shade700,
+                  border: const BorderSide(
+                    color: AppColors.primaryAmberShade700,
                     width: 1.5,
                   ),
                   onPressed: () {
@@ -466,10 +472,10 @@ class _DormCard extends StatelessWidget {
       width: 200,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.3),
+            color: AppColors.grey400.withValues(alpha: 0.3),
             spreadRadius: 1,
             blurRadius: 7,
             offset: const Offset(0, 3),
@@ -487,7 +493,7 @@ class _DormCard extends StatelessWidget {
                 errorBuilder: (context, error, stackTrace) {
                   // Fallback if image fails to load
                   return Container(
-                    color: Colors.grey.shade300,
+                    color: AppColors.grey300,
                     child: const Icon(Icons.image_not_supported, size: 50),
                   );
                 },
@@ -497,7 +503,8 @@ class _DormCard extends StatelessWidget {
           const Positioned(
             top: 10,
             right: 10,
-            child: Icon(Icons.info_outline, color: Colors.white, size: 30),
+            child:
+                Icon(Icons.info_outline, color: AppColors.textWhite, size: 30),
           ),
           Positioned(
             bottom: 0,
@@ -527,7 +534,7 @@ class _DormCard extends StatelessWidget {
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Lato',
-                      color: Colors.white,
+                      color: AppColors.textWhite,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -535,10 +542,10 @@ class _DormCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontFamily: 'Lato',
-                      color: Colors.white70,
+                      color: AppColors.textWhite.withValues(alpha: 0.7),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

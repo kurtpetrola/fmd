@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:findmydorm/features/dorms/presentation/viewmodels/dorm_viewmodel.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 import 'package:findmydorm/core/widgets/custom_text_field.dart';
+import 'package:findmydorm/core/theme/app_colors.dart';
 
 // ## DORM LIST WIDGET
 
@@ -92,7 +93,7 @@ class _DormListState extends State<DormList> {
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: AppColors.textPrimary,
             ),
           ),
         ],
@@ -115,7 +116,9 @@ class _DormListState extends State<DormList> {
                 label: Text(
                   '${DormCategories.getGenderIcon(category)} $category',
                   style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.black87,
+                    color: isSelected
+                        ? AppColors.textWhite
+                        : AppColors.textPrimary,
                     fontWeight:
                         isSelected ? FontWeight.bold : FontWeight.normal,
                   ),
@@ -126,15 +129,15 @@ class _DormListState extends State<DormList> {
                     _selectedGenderFilter = selected ? category : null;
                   });
                 },
-                selectedColor: Colors.deepPurple,
+                selectedColor: Theme.of(context).colorScheme.primary,
                 backgroundColor: DormCategories.getGenderColor(category),
-                checkmarkColor: Colors.white,
+                checkmarkColor: AppColors.textWhite,
               ),
             );
           }),
 
           const SizedBox(width: 8),
-          Container(width: 1, height: 30, color: Colors.grey.shade300),
+          Container(width: 1, height: 30, color: AppColors.grey300),
           const SizedBox(width: 8),
 
           // Price Filter Chips
@@ -146,7 +149,9 @@ class _DormListState extends State<DormList> {
                 label: Text(
                   '${DormCategories.getPriceIcon(category)} $category',
                   style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.black87,
+                    color: isSelected
+                        ? AppColors.textWhite
+                        : AppColors.textPrimary,
                     fontWeight:
                         isSelected ? FontWeight.bold : FontWeight.normal,
                   ),
@@ -157,9 +162,9 @@ class _DormListState extends State<DormList> {
                     _selectedPriceFilter = selected ? category : null;
                   });
                 },
-                selectedColor: Colors.amber.shade700,
+                selectedColor: AppColors.primaryAmber,
                 backgroundColor: DormCategories.getPriceColor(category),
-                checkmarkColor: Colors.white,
+                checkmarkColor: AppColors.textWhite,
               ),
             );
           }),
@@ -200,15 +205,15 @@ class _DormListState extends State<DormList> {
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     height: 180,
-                    color: Colors.grey.shade300,
-                    child: Column(
+                    color: AppColors.grey300,
+                    child: const Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Ionicons.image_outline,
-                            size: 40, color: Colors.grey),
-                        const SizedBox(height: 8),
+                        Icon(Ionicons.image_outline,
+                            size: 40, color: AppColors.textSecondary),
+                        SizedBox(height: 8),
                         Text('Image not found',
-                            style: TextStyle(color: Colors.grey.shade600)),
+                            style: TextStyle(color: AppColors.textSecondary)),
                       ],
                     ),
                   );
@@ -229,10 +234,10 @@ class _DormListState extends State<DormList> {
                       Expanded(
                         child: Text(
                           dorm.dormName,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -241,15 +246,15 @@ class _DormListState extends State<DormList> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.amber.withValues(alpha: 0.2),
+                          color: AppColors.primaryAmber.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           '#${dorm.dormNumber}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Colors.deepPurple,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ),
@@ -261,13 +266,13 @@ class _DormListState extends State<DormList> {
                   Row(
                     children: [
                       const Icon(Ionicons.location_outline,
-                          size: 18, color: Colors.grey),
+                          size: 18, color: AppColors.textSecondary),
                       const SizedBox(width: 5),
                       Expanded(
                         child: Text(
                           dorm.dormLocation,
-                          style: TextStyle(
-                              fontSize: 14, color: Colors.grey.shade700),
+                          style: const TextStyle(
+                              fontSize: 14, color: AppColors.textSecondary),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -297,7 +302,8 @@ class _DormListState extends State<DormList> {
                   // Row 3: Description Snippet
                   Text(
                     getSnippet(dorm.dormDescription),
-                    style: const TextStyle(fontSize: 14, color: Colors.black54),
+                    style: const TextStyle(
+                        fontSize: 14, color: AppColors.textSecondary),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -352,8 +358,8 @@ class _DormListState extends State<DormList> {
           style:
               const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Lato'),
         ),
-        backgroundColor: Colors.amber.shade700,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: AppColors.textWhite,
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
@@ -367,8 +373,8 @@ class _DormListState extends State<DormList> {
               onChanged: (val) => setState(() {}),
               hintText: 'Search by Name or Location',
               icon: Ionicons.search,
-              iconColor: Colors.deepPurple,
-              fillColor: Colors.grey.shade200,
+              iconColor: Theme.of(context).colorScheme.primary,
+              fillColor: AppColors.grey200,
             ),
             const SizedBox(height: 15),
 
@@ -388,7 +394,7 @@ class _DormListState extends State<DormList> {
                     height: 35,
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     backgroundColor: Colors.transparent,
-                    textColor: Colors.red.shade600,
+                    textColor: AppColors.error,
                     elevation: 0,
                     border: BorderSide.none,
                     onPressed: _clearFilters,
@@ -402,7 +408,8 @@ class _DormListState extends State<DormList> {
             Expanded(
               child: dormVM.isLoading
                   ? const Center(
-                      child: CircularProgressIndicator(color: Colors.amber))
+                      child: CircularProgressIndicator(
+                          color: AppColors.primaryAmber))
                   : foundDorms.isEmpty
                       ? Center(
                           child: Text(
@@ -410,7 +417,7 @@ class _DormListState extends State<DormList> {
                                 ? 'No dormitories available.'
                                 : 'No dormitories match your criteria.',
                             style: const TextStyle(
-                                fontSize: 20, color: Colors.grey),
+                                fontSize: 20, color: AppColors.textSecondary),
                           ),
                         )
                       : ListView.builder(

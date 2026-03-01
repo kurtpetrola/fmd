@@ -9,6 +9,7 @@ import 'package:findmydorm/core/widgets/custom_text_field.dart';
 import 'package:findmydorm/core/widgets/custom_password_field.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 import 'package:findmydorm/core/widgets/custom_dropdown_field.dart';
+import 'package:findmydorm/core/theme/app_colors.dart';
 
 // SIGN UP WIDGET
 
@@ -43,7 +44,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // Theme Constants
-  final Color primaryAmber = Colors.amber.shade700;
 
   // LIFECYCLE METHODS
 
@@ -69,7 +69,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red.shade700,
+        backgroundColor: AppColors.error,
         duration: const Duration(seconds: 3),
       ),
     );
@@ -112,10 +112,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       // Successful registration
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("Registration successful! Please log in."),
-          backgroundColor: Colors.green.shade700,
-          duration: const Duration(seconds: 3),
+        const SnackBar(
+          content: Text("Registration successful! Please log in."),
+          backgroundColor: AppColors.success,
+          duration: Duration(seconds: 3),
         ),
       );
 
@@ -154,11 +154,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(height: 10),
 
                 // "Find My Dorm" brand text
-                const Text(
+                Text(
                   'Find My Dorm',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w900,
                     fontSize: 24,
@@ -281,23 +281,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 15, vertical: 12),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade100,
+                        color: AppColors.errorContainer,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.red.shade400),
+                        border: Border.all(color: AppColors.error),
                       ),
                       child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Ionicons.warning_outline,
-                            color: Colors.red.shade700,
+                            color: AppColors.error,
                             size: 20,
                           ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               _dbErrorMessage,
-                              style: TextStyle(
-                                color: Colors.red.shade700,
+                              style: const TextStyle(
+                                color: AppColors.error,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'Lato',
                                 fontSize: 14,
@@ -348,8 +348,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         }
         return null;
       },
-      dropdownColor: Colors.white,
-      iconEnabledColor: primaryAmber,
+      dropdownColor: Theme.of(context).colorScheme.surface,
+      iconEnabledColor: Theme.of(context).colorScheme.primary,
     );
   }
 
@@ -379,7 +379,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             "Login",
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: primaryAmber,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ),

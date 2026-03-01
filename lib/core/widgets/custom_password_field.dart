@@ -1,3 +1,5 @@
+// custom_password_field.dart
+
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'custom_text_field.dart';
@@ -30,7 +32,7 @@ class _CustomPasswordFieldState extends State<CustomPasswordField> {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryAmber = Colors.amber.shade700;
+    final theme = Theme.of(context);
 
     return CustomTextField(
       controller: widget.controller,
@@ -42,7 +44,7 @@ class _CustomPasswordFieldState extends State<CustomPasswordField> {
         onPressed: _togglePasswordVisibility,
         icon: Icon(
           _isPasswordVisible ? Ionicons.eye_off_outline : Ionicons.eye_outline,
-          color: primaryAmber,
+          color: theme.colorScheme.primary,
         ),
       ),
     );

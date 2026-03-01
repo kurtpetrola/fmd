@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/features/auth/domain/models/user_model.dart';
 import 'package:findmydorm/core/database/database_helper.dart';
+import '../../../../core/theme/app_colors.dart';
 import 'package:findmydorm/core/widgets/alert_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -130,8 +131,8 @@ class _UserState extends State<UserPage> {
             fontFamily: 'Lato',
           ),
         ),
-        backgroundColor: Colors.amber.shade700,
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.primaryAmberShade700,
+        foregroundColor: AppColors.textWhite,
         elevation: 0,
         automaticallyImplyLeading: false,
         centerTitle: true,
@@ -146,7 +147,7 @@ class _UserState extends State<UserPage> {
             _buildSettingsGroup([
               // My Favorites
               _buildProfileOption('My Favorites', Ionicons.heart_outline,
-                  _navigateToFavorites, Colors.redAccent,
+                  _navigateToFavorites, AppColors.favoriteRed,
                   trailingWidget: _buildFavoritesBadge()),
 
               // Account Settings
@@ -154,7 +155,7 @@ class _UserState extends State<UserPage> {
                   'Account Settings',
                   Ionicons.person_circle_outline,
                   _navigateToSettings,
-                  Colors.deepPurple),
+                  AppColors.detailPurple),
             ]),
             const SizedBox(height: 15),
             Card(
@@ -173,7 +174,7 @@ class _UserState extends State<UserPage> {
   /// Builds the badge showing the count of favorite dorms.
   Widget _buildFavoritesBadge() {
     if (_favoriteCount == 0) {
-      return const Icon(Ionicons.chevron_forward, color: Colors.grey);
+      return const Icon(Ionicons.chevron_forward, color: AppColors.grey400);
     }
 
     // Use a SizedBox to contain the Stack and define the trailing area width.
@@ -184,7 +185,7 @@ class _UserState extends State<UserPage> {
         alignment: Alignment.centerRight,
         children: [
           // 1. Forward Chevron Icon (The arrow)
-          const Icon(Ionicons.chevron_forward, color: Colors.grey),
+          const Icon(Ionicons.chevron_forward, color: AppColors.grey400),
 
           // 2. Positioned Badge (Moved left of the chevron)
           Positioned(
@@ -196,7 +197,7 @@ class _UserState extends State<UserPage> {
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: Colors.red,
+                color: AppColors.error,
                 borderRadius: BorderRadius.circular(10),
               ),
               constraints: const BoxConstraints(
@@ -206,7 +207,7 @@ class _UserState extends State<UserPage> {
               child: Text(
                 '$_favoriteCount',
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppColors.textWhite,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                 ),
@@ -226,20 +227,20 @@ class _UserState extends State<UserPage> {
       padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 20.0),
       margin: const EdgeInsets.only(bottom: 5),
       decoration: BoxDecoration(
-        color: Colors.amber.withValues(alpha: 0.1),
+        color: AppColors.primaryAmber.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
         children: [
           CircleAvatar(
             radius: 40,
-            backgroundColor: Colors.deepPurple,
+            backgroundColor: AppColors.detailPurple,
             child: Text(
               user.usrName.isNotEmpty ? user.usrName[0].toUpperCase() : 'U',
               style: const TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: AppColors.textWhite,
               ),
             ),
           ),
@@ -250,15 +251,15 @@ class _UserState extends State<UserPage> {
               fontSize: 24,
               fontWeight: FontWeight.bold,
               fontFamily: 'Lato',
-              color: Colors.deepPurple,
+              color: AppColors.detailPurple,
             ),
           ),
           Text(
             user.usrEmail,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               fontFamily: 'Lato',
-              color: Colors.grey.shade700,
+              color: AppColors.grey700,
             ),
           ),
           const SizedBox(height: 5),
@@ -268,7 +269,7 @@ class _UserState extends State<UserPage> {
               fontSize: 14,
               fontFamily: 'Lato',
               fontStyle: FontStyle.italic,
-              color: Colors.black54,
+              color: AppColors.black54,
             ),
           ),
         ],
@@ -286,7 +287,11 @@ class _UserState extends State<UserPage> {
           for (int i = 0; i < options.length; i++) ...[
             options[i],
             if (i < options.length - 1)
-              const Divider(height: 1, indent: 20, endIndent: 20),
+              const Divider(
+                  height: 1,
+                  indent: 20,
+                  endIndent: 20,
+                  color: AppColors.grey300),
           ],
         ],
       ),
@@ -307,7 +312,7 @@ class _UserState extends State<UserPage> {
         ),
       ),
       trailing: trailingWidget ??
-          const Icon(Ionicons.chevron_forward, color: Colors.grey),
+          const Icon(Ionicons.chevron_forward, color: AppColors.grey400),
       onTap: onTap,
       contentPadding:
           const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
@@ -321,7 +326,7 @@ class _UserState extends State<UserPage> {
       'Sign Out',
       Ionicons.log_out_outline,
       _handleSignOut,
-      Colors.red,
+      AppColors.error,
     );
   }
 }

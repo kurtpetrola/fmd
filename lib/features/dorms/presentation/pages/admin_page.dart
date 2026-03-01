@@ -13,6 +13,7 @@ import 'package:findmydorm/features/dorms/presentation/viewmodels/dorm_viewmodel
 import 'package:findmydorm/core/widgets/custom_text_field.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 import 'package:findmydorm/core/widgets/custom_dropdown_field.dart';
+import 'package:findmydorm/core/theme/app_colors.dart';
 
 // NOTE: You would typically import 'package:http/http.dart' as http; for real API calls
 
@@ -28,9 +29,9 @@ class _AdminPageState extends State<AdminPage> {
   // ## STATE & INITIALIZATION
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
-  // PRIMARY STYLING REFERENCE
-  final Color _appBarColor = Colors.amber.shade700;
-  final Color _errorRed = Colors.red.shade700;
+  // PRIMARY STYLING REFERENCE (Modified in build)
+  Color get _appBarColor => Theme.of(context).colorScheme.primary;
+  final Color _errorRed = AppColors.error;
 
   @override
   void initState() {
@@ -112,7 +113,7 @@ class _AdminPageState extends State<AdminPage> {
                 : '${dorm.dormName} removed from featured.',
           ),
           backgroundColor:
-              updatedDorm.isFeatured ? Colors.green : Colors.orange,
+              updatedDorm.isFeatured ? AppColors.success : AppColors.wazeOrange,
           duration: const Duration(seconds: 2),
         ),
       );
@@ -176,7 +177,7 @@ class _AdminPageState extends State<AdminPage> {
           ),
         ),
         backgroundColor: _appBarColor,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.textWhite,
         centerTitle: true,
         automaticallyImplyLeading: false,
         actions: [
@@ -198,7 +199,7 @@ class _AdminPageState extends State<AdminPage> {
           : dormVM.errorMessage.isNotEmpty
               ? Center(
                   child: Text(dormVM.errorMessage,
-                      style: const TextStyle(color: Colors.red)))
+                      style: const TextStyle(color: AppColors.error)))
               : dormVM.allDorms.isEmpty
                   ? const Center(
                       child: Text(
@@ -244,7 +245,7 @@ class _AdminPageState extends State<AdminPage> {
                   return Container(
                     width: 60,
                     height: 60,
-                    color: Colors.grey.shade300,
+                    color: AppColors.grey300,
                     child: const Icon(Icons.image_not_supported),
                   );
                 },
@@ -265,7 +266,7 @@ class _AdminPageState extends State<AdminPage> {
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: AppColors.textPrimary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -276,20 +277,21 @@ class _AdminPageState extends State<AdminPage> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: Colors.amber.shade600,
+                            color: AppColors.primaryAmber,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.star, size: 12, color: Colors.white),
+                              Icon(Icons.star,
+                                  size: 12, color: AppColors.textWhite),
                               SizedBox(width: 4),
                               Text(
                                 'FEATURED',
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: AppColors.textWhite,
                                 ),
                               ),
                             ],
@@ -334,8 +336,8 @@ class _AdminPageState extends State<AdminPage> {
                   icon: Icon(
                     dorm.isFeatured ? Icons.star : Icons.star_border,
                     color: dorm.isFeatured
-                        ? Colors.amber.shade700
-                        : Colors.grey.shade400,
+                        ? AppColors.primaryAmber
+                        : AppColors.grey400,
                     size: 28,
                   ),
                   onPressed: () => _toggleFeatured(dorm),
@@ -397,7 +399,8 @@ class _AdminPageState extends State<AdminPage> {
         Expanded(
           child: Text(
             text,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+            style:
+                const TextStyle(fontSize: 14, color: AppColors.textSecondary),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -423,7 +426,7 @@ class _AdminPageState extends State<AdminPage> {
             style: const TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: AppColors.textPrimary,
             ),
           ),
         ],
@@ -485,8 +488,9 @@ class _AdminPageState extends State<AdminPage> {
                   borderRadius: BorderRadius.circular(16)),
               title: Text(
                 'Add New Dormitory',
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: _appBarColor),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary),
               ),
               content: SingleChildScrollView(
                 child: Column(
@@ -508,20 +512,20 @@ class _AdminPageState extends State<AdminPage> {
                         width: double.infinity,
                         decoration: BoxDecoration(
                           border: Border.all(
-                              color: Colors.amber.shade700, width: 2),
+                              color: AppColors.primaryAmberShade700, width: 2),
                           borderRadius: BorderRadius.circular(12),
-                          color: Colors.grey.shade100,
+                          color: AppColors.inputFill,
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.add_photo_alternate,
-                                size: 40, color: Colors.amber.shade700),
+                            const Icon(Icons.add_photo_alternate,
+                                size: 40, color: AppColors.primaryAmber),
                             const SizedBox(height: 8),
-                            Text(
+                            const Text(
                               'Tap to Select Dorm Image',
                               style: TextStyle(
-                                color: Colors.grey.shade700,
+                                color: AppColors.grey700,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -532,9 +536,9 @@ class _AdminPageState extends State<AdminPage> {
                                   .last
                                   .replaceAll('.png', '')
                                   .replaceAll('_', ' '),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 11,
-                                color: Colors.amber.shade700,
+                                color: AppColors.primaryAmber,
                               ),
                             ),
                           ],
@@ -608,10 +612,12 @@ class _AdminPageState extends State<AdminPage> {
                     Container(
                       margin: const EdgeInsets.only(bottom: 15),
                       decoration: BoxDecoration(
-                        color: Colors.amber.shade50,
+                        color: AppColors.detailPurpleLight,
                         borderRadius: BorderRadius.circular(15),
-                        border:
-                            Border.all(color: Colors.amber.shade200, width: 1),
+                        border: Border.all(
+                            color:
+                                AppColors.primaryAmber.withValues(alpha: 0.3),
+                            width: 1),
                       ),
                       child: CheckboxListTile(
                         title: const Text(
@@ -621,10 +627,11 @@ class _AdminPageState extends State<AdminPage> {
                         ),
                         subtitle: const Text(
                           'Featured dorms appear on the home page',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                          style:
+                              TextStyle(fontSize: 12, color: AppColors.grey600),
                         ),
                         value: isFeatured,
-                        activeColor: Colors.amber.shade700,
+                        activeColor: AppColors.primaryAmber,
                         onChanged: (value) {
                           stfSetState(() {
                             isFeatured = value ?? false;
@@ -686,9 +693,9 @@ class _AdminPageState extends State<AdminPage> {
                       width: double.infinity,
                       height: 45,
                       backgroundColor: latController.text.isEmpty
-                          ? Colors.amber.shade700
-                          : Colors.green.shade600,
-                      textColor: Colors.white,
+                          ? AppColors.primaryAmber
+                          : AppColors.success,
+                      textColor: AppColors.textWhite,
                       borderRadius: 8,
                     ),
 
@@ -701,14 +708,14 @@ class _AdminPageState extends State<AdminPage> {
                                 controller: latController,
                                 labelText: 'Latitude',
                                 readOnly: true,
-                                fillColor: Colors.grey.shade200)),
+                                fillColor: AppColors.grey200)),
                         const SizedBox(width: 8),
                         Expanded(
                             child: CustomTextField(
                                 controller: lngController,
                                 labelText: 'Longitude',
                                 readOnly: true,
-                                fillColor: Colors.grey.shade200)),
+                                fillColor: AppColors.grey200)),
                       ],
                     ),
                   ],
@@ -720,7 +727,7 @@ class _AdminPageState extends State<AdminPage> {
                   text: 'CANCEL',
                   onPressed: () => Navigator.pop(stfContext),
                   backgroundColor: Colors.transparent,
-                  textColor: Colors.grey,
+                  textColor: AppColors.textSecondary,
                   elevation: 0,
                   height: 45,
                   fontSize: 16,
@@ -788,8 +795,8 @@ class _AdminPageState extends State<AdminPage> {
                       });
                     }
                   },
-                  backgroundColor: Colors.blue.shade700,
-                  textColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  textColor: AppColors.textWhite,
                   borderRadius: 10,
                   height: 45,
                 ),
@@ -947,10 +954,12 @@ class _AdminPageState extends State<AdminPage> {
                     Container(
                       margin: const EdgeInsets.only(bottom: 15),
                       decoration: BoxDecoration(
-                        color: Colors.amber.shade50,
+                        color: AppColors.detailPurpleLight,
                         borderRadius: BorderRadius.circular(15),
-                        border:
-                            Border.all(color: Colors.amber.shade200, width: 1),
+                        border: Border.all(
+                            color:
+                                AppColors.primaryAmber.withValues(alpha: 0.3),
+                            width: 1),
                       ),
                       child: CheckboxListTile(
                         title: const Text(
@@ -960,10 +969,11 @@ class _AdminPageState extends State<AdminPage> {
                         ),
                         subtitle: const Text(
                           'Featured dorms appear on the home page',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                          style: TextStyle(
+                              fontSize: 12, color: AppColors.textSecondary),
                         ),
                         value: isFeatured,
-                        activeColor: Colors.amber.shade700,
+                        activeColor: AppColors.primaryAmber,
                         onChanged: (value) {
                           stfSetState(() {
                             isFeatured = value ?? false;

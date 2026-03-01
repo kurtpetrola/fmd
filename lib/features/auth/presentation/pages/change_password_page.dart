@@ -9,6 +9,7 @@ import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.
 import 'package:go_router/go_router.dart';
 import 'package:findmydorm/core/widgets/custom_password_field.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
+import 'package:findmydorm/core/theme/app_colors.dart';
 
 /// Screen for users to change their existing password.
 class ChangePasswordPage extends StatefulWidget {
@@ -127,11 +128,11 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
-                color: Colors.black87,
+                color: AppColors.textPrimary,
               ),
             ),
             // Thinner divider
-            const Divider(height: 20, thickness: 0.8, color: Colors.grey),
+            const Divider(height: 20, thickness: 0.8, color: AppColors.borderLight),
             ...children,
           ],
         ),
@@ -150,9 +151,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             fontFamily: 'Lato',
           ),
         ),
-        // Use the specific shade and color contrast from other pages
-        backgroundColor: Colors.amber.shade700,
-        foregroundColor: Colors.white, // Text and back button color
         centerTitle: true,
         elevation: 0,
       ),
@@ -171,7 +169,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     padding: EdgeInsets.only(bottom: 10.0),
                     child: Text(
                       'Enter your current and new passwords. You will be logged out after a successful password change.',
-                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                      style: TextStyle(
+                          fontSize: 14, color: AppColors.textSecondary),
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -230,7 +229,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   child: Text(
                     _errorMessage!,
                     style: const TextStyle(
-                        color: Colors.red, fontWeight: FontWeight.bold),
+                        color: AppColors.error, fontWeight: FontWeight.bold),
                   ),
                 ),
 

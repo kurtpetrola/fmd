@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import '../../../../core/theme/app_colors.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -260,17 +262,17 @@ class _MapsDetailState extends State<MapsDetailPage> {
 
     return Column(
       children: [
-        Icon(icon, color: Colors.blue.shade700, size: 28),
+        Icon(icon, color: AppColors.mapBlue, size: 28),
         const SizedBox(height: 4),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.blue.shade900,
+                color: AppColors.mapBlueDark,
               ),
             ),
             if (showInfoIcon)
@@ -283,10 +285,10 @@ class _MapsDetailState extends State<MapsDetailPage> {
                   child: Tooltip(
                     key: tooltipKey,
                     message: tooltipMessage,
-                    child: Icon(
+                    child: const Icon(
                       Ionicons.information_circle_outline,
                       size: 16,
-                      color: Colors.grey.shade500,
+                      color: AppColors.grey500,
                     ),
                   ),
                 ),
@@ -295,7 +297,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
         ),
         Text(
           label,
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          style: const TextStyle(fontSize: 12, color: AppColors.grey600),
         ),
       ],
     );
@@ -317,7 +319,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
+                color: AppColors.black87.withValues(alpha: 0.2),
                 blurRadius: 6,
                 offset: const Offset(0, 3),
               ),
@@ -338,8 +340,8 @@ class _MapsDetailState extends State<MapsDetailPage> {
             },
             borderRadius: BorderRadius.circular(30),
             selectedColor: Colors.white,
-            color: Colors.blue.shade700,
-            fillColor: Colors.blue.shade700,
+            color: AppColors.mapBlue,
+            fillColor: AppColors.mapBlue,
             children: const [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -382,7 +384,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
       child: FloatingActionButton(
         heroTag: 'directionsFAB',
         mini: true,
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: AppColors.mapBlue,
         foregroundColor: Colors.white,
         onPressed: () {
           _showDirectionsOptions(context);
@@ -415,7 +417,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
               ),
               const Divider(),
               ListTile(
-                leading: const Icon(Ionicons.map_outline, color: Colors.green),
+                leading: const Icon(Ionicons.map_outline, color: AppColors.success),
                 title: const Text('Google Maps'),
                 subtitle: Text('Opens the $modeText route in Google Maps.'),
                 onTap: () {
@@ -426,7 +428,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
               // Note: Waze typically forces driving mode regardless of what we pass
               ListTile(
                 leading:
-                    const Icon(Ionicons.compass_outline, color: Colors.orange),
+                    const Icon(Ionicons.compass_outline, color: AppColors.wazeOrange),
                 title: const Text('Waze'),
                 subtitle: const Text(
                     'Opens the fastest route in Waze (Driving recommended).'),
@@ -450,7 +452,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
         left: 20,
         right: 20,
         child: Card(
-          color: Colors.amber.shade100,
+          color: AppColors.primaryAmberShade100,
           elevation: 8,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -459,7 +461,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
             child: Row(
               children: [
                 Icon(Ionicons.alert_circle_outline,
-                    color: Colors.orange, size: 24),
+                    color: AppColors.wazeOrange, size: 24),
                 SizedBox(width: 10),
                 Flexible(
                   child: Text(
@@ -533,7 +535,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
                 label: '$modeLabel Distance',
                 value: currentDistance,
               ),
-              Container(width: 1, height: 40, color: Colors.grey.shade300),
+              Container(width: 1, height: 40, color: AppColors.grey300),
               _buildInfoItem(
                 icon: timeIcon,
                 label: '$modeLabel Time',
@@ -570,7 +572,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
               child: const Icon(
                 Ionicons.home,
                 size: 35.0,
-                color: Colors.red,
+                color: AppColors.error,
               ),
             ),
           ),
@@ -595,7 +597,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
                 child: const Icon(
                   Icons.person_pin_circle,
                   size: 48.0,
-                  color: Colors.green,
+                  color: AppColors.success,
                 ),
               ),
             ),
@@ -647,7 +649,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
             fontFamily: 'Lato',
           ),
         ),
-        backgroundColor: Colors.amber.shade700,
+        backgroundColor: AppColors.primaryAmberShade700,
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -674,8 +676,8 @@ class _MapsDetailState extends State<MapsDetailPage> {
                       strokeWidth:
                           (_selectedMode == TravelMode.driving) ? 6.0 : 4.0,
                       color: (_selectedMode == TravelMode.driving)
-                          ? Colors.blue.shade700
-                          : Colors.green.shade700,
+                          ? AppColors.mapBlue
+                          : AppColors.walkGreen,
                       borderStrokeWidth: 1.5,
                       borderColor: Colors.white,
                     ),

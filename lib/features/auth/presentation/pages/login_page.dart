@@ -34,8 +34,6 @@ class _LoginScreenState extends State<LoginPage> {
   final db = DatabaseHelper.instance;
   final formKey = GlobalKey<FormState>();
 
-  // Theme Constants
-  final Color primaryAmber = Colors.amber.shade700;
   // LIFECYCLE METHODS
 
   @override
@@ -100,7 +98,7 @@ class _LoginScreenState extends State<LoginPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red.shade700,
+        backgroundColor: Theme.of(context).colorScheme.error,
         duration: const Duration(seconds: 2),
       ),
     );
@@ -110,6 +108,7 @@ class _LoginScreenState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -179,7 +178,7 @@ class _LoginScreenState extends State<LoginPage> {
                     child: Text(
                       "Forgot Password?",
                       style: TextStyle(
-                        color: primaryAmber,
+                        color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -196,9 +195,11 @@ class _LoginScreenState extends State<LoginPage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 15, vertical: 12),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade100,
+                        color: theme.colorScheme.errorContainer,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.red.shade400),
+                        border: Border.all(
+                            color:
+                                theme.colorScheme.error.withValues(alpha: 0.4)),
                       ),
                       child: Row(
                         children: [
@@ -212,7 +213,7 @@ class _LoginScreenState extends State<LoginPage> {
                             child: Text(
                               errorMessage,
                               style: TextStyle(
-                                color: Colors.red.shade700,
+                                color: theme.colorScheme.error,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'Lato',
                                 fontSize: 14,
@@ -252,7 +253,7 @@ class _LoginScreenState extends State<LoginPage> {
                         "Register now",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: primaryAmber,
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                     )

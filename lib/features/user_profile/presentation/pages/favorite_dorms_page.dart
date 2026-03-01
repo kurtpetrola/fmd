@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import '../../../../core/theme/app_colors.dart';
 import 'package:findmydorm/features/auth/domain/models/user_model.dart';
 import 'package:findmydorm/features/dorms/domain/models/dorm_model.dart';
 import 'package:findmydorm/core/database/database_helper.dart';
@@ -77,8 +78,9 @@ class _FavoriteDormsPageState extends State<FavoriteDormsPage> {
           ),
         ),
         // Set a consistent color scheme
-        backgroundColor: Colors.amber.shade700,
-        foregroundColor: Colors.white, // For the back button and text color
+        backgroundColor: AppColors.primaryAmberShade700,
+        foregroundColor:
+            AppColors.textWhite, // For the back button and text color
         centerTitle: true,
         elevation: 0,
       ),
@@ -90,29 +92,29 @@ class _FavoriteDormsPageState extends State<FavoriteDormsPage> {
   Widget _buildFavoriteDormsList() {
     if (_isLoading) {
       return const Center(
-          child: CircularProgressIndicator(color: Colors.amber));
+          child: CircularProgressIndicator(color: AppColors.primaryAmber));
     }
 
     if (_favoriteDorms.isEmpty) {
       // Improved Empty State UI
-      return Center(
+      return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Ionicons.heart_dislike_outline,
               size: 80,
-              color: Colors.grey.shade300,
+              color: AppColors.grey300,
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Padding(
-              padding: const EdgeInsets.all(40.0),
+              padding: EdgeInsets.all(40.0),
               child: Text(
                 "Your favorites list is empty.\nTap the ♡ on any dorm to add it here!",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey[700],
+                  color: AppColors.grey700,
                   fontFamily: 'Lato',
                 ),
               ),
@@ -176,7 +178,7 @@ class _FavoriteDormCard extends StatelessWidget {
                     return Container(
                       width: 80,
                       height: 80,
-                      color: Colors.grey.shade300,
+                      color: AppColors.grey300,
                       child: const Icon(Icons.image_not_supported, size: 30),
                     );
                   },
@@ -204,7 +206,7 @@ class _FavoriteDormCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Ionicons.location_outline,
-                            size: 14, color: Colors.grey),
+                            size: 14, color: AppColors.grey400),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
@@ -212,7 +214,7 @@ class _FavoriteDormCard extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 13,
                               fontFamily: 'Lato',
-                              color: Colors.grey,
+                              color: AppColors.grey400,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -225,12 +227,12 @@ class _FavoriteDormCard extends StatelessWidget {
               ),
 
               // 3. Trailing Heart Icon (Red Heart to confirm it's a favorite)
-              Align(
+              const Align(
                 alignment: Alignment.topRight,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
+                  padding: EdgeInsets.only(top: 4.0),
                   child: Icon(Ionicons.heart,
-                      size: 24, color: Colors.red.shade400),
+                      size: 24, color: AppColors.favoriteRed),
                 ),
               ),
             ],

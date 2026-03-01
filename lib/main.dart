@@ -1,11 +1,13 @@
 // main.dart
 
-import 'package:findmydorm/core/router/app_router.dart';
-import 'package:findmydorm/core/database/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:findmydorm/core/router/app_router.dart';
+import 'package:findmydorm/core/database/database_helper.dart';
+import 'package:findmydorm/core/theme/app_theme.dart';
+import 'package:findmydorm/core/theme/app_colors.dart';
 import 'dart:developer';
 
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
@@ -19,9 +21,9 @@ Future<void> main() async {
   /// Set default status bar style for pages without AppBars.
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
+      statusBarColor: AppColors.transparent,
       statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.white,
+      systemNavigationBarColor: AppColors.surfaceLight,
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
@@ -66,6 +68,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       routerConfig: appRouter,
+      theme: AppTheme.lightTheme,
     );
   }
 }

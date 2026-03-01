@@ -1,3 +1,5 @@
+// custom_button.dart
+
 import 'package:flutter/material.dart';
 
 /// A customizable button widget used throughout the app.
@@ -35,16 +37,17 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryAmber = Colors.amber.shade700;
+    final theme = Theme.of(context);
 
     return SizedBox(
       height: height,
       width: width,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          foregroundColor: textColor ?? Colors.black,
-          backgroundColor: backgroundColor ?? primaryAmber,
+          foregroundColor: textColor ?? theme.colorScheme.onPrimary,
+          backgroundColor: backgroundColor ?? theme.colorScheme.primary,
           padding: padding,
+          minimumSize: Size(width ?? 0, height),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
             side: border ?? BorderSide.none,
@@ -53,11 +56,11 @@ class CustomButton extends StatelessWidget {
         ),
         onPressed: isLoading ? null : onPressed,
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
-                  color: Colors.white,
+                  color: textColor ?? theme.colorScheme.onPrimary,
                   strokeWidth: 2.5,
                 ),
               )

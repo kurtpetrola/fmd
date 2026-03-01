@@ -1,4 +1,7 @@
+// custom_dropdown_field.dart
+
 import 'package:flutter/material.dart';
+import 'package:findmydorm/core/theme/app_colors.dart';
 
 /// A custom, stylized dropdown field used for selecting predefined options.
 class CustomDropdownField<T> extends StatelessWidget {
@@ -27,8 +30,7 @@ class CustomDropdownField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryAmber = Colors.amber.shade700;
-    final Color inputFillColor = Colors.grey.shade100;
+    final theme = Theme.of(context);
     const borderRadius = BorderRadius.all(Radius.circular(15.0));
 
     return DropdownButtonFormField<T>(
@@ -40,21 +42,22 @@ class CustomDropdownField<T> extends StatelessWidget {
         labelText: labelText,
         hintText: hintText,
         filled: true,
-        fillColor: inputFillColor,
-        prefixIcon: icon != null ? Icon(icon, color: primaryAmber) : null,
+        fillColor: AppColors.inputFill,
+        prefixIcon:
+            icon != null ? Icon(icon, color: theme.colorScheme.primary) : null,
         contentPadding:
             const EdgeInsets.symmetric(vertical: 18.0, horizontal: 20.0),
         border: const OutlineInputBorder(
           borderRadius: borderRadius,
           borderSide: BorderSide.none,
         ),
-        enabledBorder: OutlineInputBorder(
+        enabledBorder: const OutlineInputBorder(
           borderRadius: borderRadius,
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
+          borderSide: BorderSide(color: AppColors.borderLight, width: 1.0),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: borderRadius,
-          borderSide: BorderSide(color: primaryAmber, width: 2.0),
+          borderSide: BorderSide(color: theme.colorScheme.primary, width: 2.0),
         ),
       ),
       items: items,
