@@ -7,6 +7,9 @@ import 'package:findmydorm/core/database/database_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:go_router/go_router.dart';
+import 'package:findmydorm/core/widgets/custom_text_field.dart';
+import 'package:findmydorm/core/widgets/custom_button.dart';
+import 'package:findmydorm/core/widgets/custom_dropdown_field.dart';
 
 class AccountSettingsPage extends StatefulWidget {
   final Users user;
@@ -278,36 +281,13 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
         // 4. Save button (only visible in Edit Mode)
         if (_isEditing)
-          ElevatedButton(
+          CustomButton(
+            text: 'SAVE CHANGES',
             onPressed: _isLoading ? null : _saveChanges,
-            style: ElevatedButton.styleFrom(
-              // Use the strong primary color for the button
-              backgroundColor: Colors.amber.shade700,
-              foregroundColor:
-                  Colors.deepPurple.shade900, // Deep Purple text/icon
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 6,
-            ),
-            child: _isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                        color: Colors.white, // White spinner for contrast
-                        strokeWidth: 2.5),
-                  )
-                : const Text(
-                    'SAVE CHANGES',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white, // White text for contrast
-                      letterSpacing: 0.5,
-                    ),
-                  ),
+            isLoading: _isLoading,
+            textColor: Colors.white,
+            backgroundColor: Colors.amber.shade700,
+            borderRadius: 12,
           ),
       ],
     );
@@ -477,49 +457,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     );
   }
 
-  // --- Helper for consistent TextFormField styling ---
-  Widget _buildTextFormField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    String? Function(String?)? validator,
-    TextInputType keyboardType = TextInputType.text,
-    int maxLines = 1,
-  }) {
-    // Define the primary Amber color once for consistency
-    final Color amberColor = Colors.amber.shade700;
-
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        labelText: label,
-        // Use filled background for a modern look
-        filled: true,
-        fillColor:
-            Colors.grey.shade100, // Light grey fill is less harsh than white
-
-        // Use a soft, rounded border
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none, // Hide the default outline
-        ),
-
-        // Themed focused border
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: amberColor, width: 2.0),
-        ),
-
-        // Themed icon color
-        prefixIcon: Icon(icon, color: amberColor),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      ),
-      validator: validator,
-    );
-  }
+  // Removed _buildTextFormField in favor of CustomTextField
 
   // --------------------------------------------------------------------------
   // ## View Mode (Read-Only)
@@ -551,9 +489,9 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       children: [
         // ... (TextFormFields and Dropdown remain the same, bound to controllers)
         // Editable Username Field
-        _buildTextFormField(
+        CustomTextField(
           controller: _usernameController,
-          label: 'Username',
+          labelText: 'Username',
           icon: Ionicons.person,
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
@@ -565,9 +503,9 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         const SizedBox(height: 15),
 
         // Editable Email Field
-        _buildTextFormField(
+        CustomTextField(
           controller: _emailController,
-          label: 'Email Address',
+          labelText: 'Email Address',
           icon: Ionicons.mail,
           keyboardType: TextInputType.emailAddress,
           validator: (value) {
@@ -583,9 +521,9 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         const SizedBox(height: 15),
 
         // Editable Address Field
-        _buildTextFormField(
+        CustomTextField(
           controller: _addressController,
-          label: 'Address',
+          labelText: 'Address',
           icon: Ionicons.location,
           maxLines: 2,
           validator: (value) {
@@ -598,28 +536,13 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         const SizedBox(height: 15),
 
         // Editable Gender Dropdown
-        DropdownButtonFormField<String>(
-          initialValue: _selectedGender.isNotEmpty &&
+        CustomDropdownField<String>(
+          labelText: 'Gender',
+          value: _selectedGender.isNotEmpty &&
                   _genderOptions.contains(_selectedGender)
               ? _selectedGender
               : null,
-          decoration: InputDecoration(
-            labelText: 'Gender',
-            // APPLY MODERN STYLING:
-            filled: true,
-            fillColor: Colors.grey.shade100,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.amber.shade700, width: 2.0),
-            ),
-            prefixIcon: Icon(Ionicons.people, color: Colors.amber.shade700),
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-          ),
+          icon: Ionicons.people,
           items: _genderOptions.map((String value) {
             return DropdownMenuItem<String>(
               value: value,

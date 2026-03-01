@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:findmydorm/core/constants/dorm_image_options.dart';
+import 'package:findmydorm/core/widgets/custom_button.dart';
 
 class ImagePickerDialog extends StatefulWidget {
   final String currentImagePath;
@@ -161,24 +162,23 @@ class _ImagePickerDialogState extends State<ImagePickerDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
+                CustomButton(
+                  text: 'CANCEL',
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('CANCEL',
-                      style: TextStyle(color: Colors.grey)),
+                  backgroundColor: Colors.transparent,
+                  textColor: Colors.grey,
+                  elevation: 0,
+                  height: 40,
+                  fontSize: 16,
                 ),
                 const SizedBox(width: 8),
-                ElevatedButton(
+                CustomButton(
+                  text: 'SELECT',
                   onPressed: () => Navigator.pop(context, selectedImagePath),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber.shade700,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: const Text(
-                    'SELECT',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
+                  backgroundColor: Colors.amber.shade700,
+                  textColor: Colors.white,
+                  borderRadius: 8,
+                  height: 40,
                 ),
               ],
             ),

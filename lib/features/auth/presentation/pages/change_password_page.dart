@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:findmydorm/core/database/database_helper.dart';
 import 'package:findmydorm/features/auth/domain/models/user_model.dart';
-import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:go_router/go_router.dart';
+import 'package:findmydorm/core/widgets/custom_password_field.dart';
+import 'package:findmydorm/core/widgets/custom_button.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   final Users user;
@@ -28,10 +29,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   bool _isLoading = false;
   String? _errorMessage;
-  // Use separate visibility flags for security, though one can be shared if only one field is ever focused
-  bool _isCurrentVisible = false;
-  bool _isNewVisible = false;
-  bool _isConfirmVisible = false;
 
   @override
   void dispose() {
@@ -142,54 +139,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 
-  // --- Password Field Builder with Card Consistency ---
-  Widget _buildPasswordField(
-      TextEditingController controller,
-      String label,
-      bool isVisible,
-      ValueChanged<bool> onVisibilityToggle,
-      String? Function(String?) validator) {
-    final Color amberColor = Colors.amber.shade700; // Define primary color
-
-    return TextFormField(
-      controller: controller,
-      obscureText: !isVisible,
-      decoration: InputDecoration(
-        labelText: label,
-        // Modern, filled styling
-        filled: true,
-        fillColor: Colors.grey.shade100,
-
-        // Soft, rounded border
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-
-        // Themed focused border
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: amberColor, width: 2.0),
-        ),
-
-        // Themed icon color for consistency
-        prefixIcon: Icon(Ionicons.lock_closed_outline, color: amberColor),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-
-        suffixIcon: IconButton(
-          icon: Icon(
-            isVisible ? Ionicons.eye_outline : Ionicons.eye_off_outline,
-            color:
-                Colors.grey.shade600, // Use a neutral color for secondary icon
-          ),
-          onPressed: () => onVisibilityToggle(!isVisible),
-        ),
-      ),
-      validator: validator,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -228,12 +177,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   const SizedBox(height: 15),
 
                   // Current Password Field
-                  _buildPasswordField(
-                    _currentPasswordController,
-                    'Current Password',
-                    _isCurrentVisible,
-                    (value) => setState(() => _isCurrentVisible = value),
-                    (value) {
+                  CustomPasswordField(
+                    controller: _currentPasswordController,
+                    hintText: 'Current Password',
+                    validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your current password.';
                       }
@@ -243,12 +190,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   const SizedBox(height: 15),
 
                   // New Password Field
-                  _buildPasswordField(
-                    _newPasswordController,
-                    'New Password',
-                    _isNewVisible,
-                    (value) => setState(() => _isNewVisible = value),
-                    (value) {
+                  CustomPasswordField(
+                    controller: _newPasswordController,
+                    hintText: 'New Password',
+                    validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a new password.';
                       }
@@ -261,12 +206,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   const SizedBox(height: 15),
 
                   // Confirm New Password Field
-                  _buildPasswordField(
-                    _confirmPasswordController,
-                    'Confirm New Password',
-                    _isConfirmVisible,
-                    (value) => setState(() => _isConfirmVisible = value),
-                    (value) {
+                  CustomPasswordField(
+                    controller: _confirmPasswordController,
+                    hintText: 'Confirm New Password',
+                    validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please confirm your new password.';
                       }
@@ -292,36 +235,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 ),
 
               // Save Button
-              ElevatedButton(
-                onPressed: _isLoading ? null : _changePassword,
-                style: ElevatedButton.styleFrom(
-                  //  Use the specific shade and white text for high contrast
-                  backgroundColor: Colors.amber.shade700,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 18), // Taller button
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(12), // Match field radius
-                  ),
-                  elevation: 6, // Make it pop
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                            color: Colors.white, // White spinner for contrast
-                            strokeWidth: 2.5),
-                      )
-                    : const Text(
-                        'UPDATE PASSWORD',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white, // White text for contrast
-                          letterSpacing: 0.5,
-                        ),
-                      ),
+              CustomButton(
+                text: 'UPDATE PASSWORD',
+                onPressed: _changePassword,
+                isLoading: _isLoading,
               ),
             ],
           ),

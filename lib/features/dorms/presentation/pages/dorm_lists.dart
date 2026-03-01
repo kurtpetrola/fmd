@@ -7,6 +7,8 @@ import 'package:findmydorm/features/dorms/domain/models/dorm_model.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
 import 'package:provider/provider.dart';
 import 'package:findmydorm/features/dorms/presentation/viewmodels/dorm_viewmodel.dart';
+import 'package:findmydorm/core/widgets/custom_button.dart';
+import 'package:findmydorm/core/widgets/custom_text_field.dart';
 
 // -------------------------------------------------------------------
 // ## DORM LIST WIDGET
@@ -371,22 +373,13 @@ class _DormListState extends State<DormList> {
         child: Column(
           children: [
             // Search Bar
-            TextField(
+            CustomTextField(
               controller: _searchController,
               onChanged: (val) => setState(() {}),
-              decoration: InputDecoration(
-                hintText: 'Search by Name or Location',
-                prefixIcon:
-                    const Icon(Ionicons.search, color: Colors.deepPurple),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.grey.shade200,
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 15.0, horizontal: 20.0),
-              ),
+              hintText: 'Search by Name or Location',
+              icon: Ionicons.search,
+              iconColor: Colors.deepPurple,
+              fillColor: Colors.grey.shade200,
             ),
             const SizedBox(height: 15),
 
@@ -399,13 +392,17 @@ class _DormListState extends State<DormList> {
                 padding: const EdgeInsets.only(top: 10),
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child: TextButton.icon(
-                    icon: const Icon(Icons.clear, size: 16),
-                    label: const Text('Clear Filters'),
+                  child: CustomButton(
+                    icon: Icons.clear,
+                    text: 'Clear Filters',
+                    fontSize: 14,
+                    height: 35,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    backgroundColor: Colors.transparent,
+                    textColor: Colors.red.shade600,
+                    elevation: 0,
+                    border: BorderSide.none,
                     onPressed: _clearFilters,
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.red.shade600,
-                    ),
                   ),
                 ),
               ),

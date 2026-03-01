@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:findmydorm/core/widgets/custom_text_field.dart';
 
 class AdminLocationPicker extends StatefulWidget {
   const AdminLocationPicker({super.key});
@@ -164,25 +165,20 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
               ),
               child: Padding(
                 padding: const EdgeInsets.only(left: 8.0),
-                child: TextField(
+                child: CustomTextField(
                   controller: _searchController,
-                  style: const TextStyle(color: Colors.black),
-                  decoration: InputDecoration(
-                    hintText: 'Search place, city, or address...',
-                    hintStyle: TextStyle(color: Colors.grey.shade600),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 15.0),
-                    border: InputBorder.none,
-                    prefixIcon: Icon(Icons.search, color: primaryAmber),
-                    suffixIcon: IconButton(
-                      icon: Icon(Icons.send, color: primaryAmber),
-                      onPressed: () {
-                        if (_searchController.text.isNotEmpty) {
-                          navigateToPlace(_searchController.text);
-                        }
-                      },
-                    ),
+                  hintText: 'Search place, city, or address...',
+                  icon: Icons.search,
+                  fillColor: Colors.white,
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.send, color: primaryAmber),
+                    onPressed: () {
+                      if (_searchController.text.isNotEmpty) {
+                        navigateToPlace(_searchController.text);
+                      }
+                    },
                   ),
-                  onSubmitted: (value) {
+                  onFieldSubmitted: (value) {
                     if (value.isNotEmpty) {
                       navigateToPlace(value);
                     }

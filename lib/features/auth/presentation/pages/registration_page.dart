@@ -5,6 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:findmydorm/features/auth/domain/models/user_model.dart';
 import 'package:findmydorm/core/database/database_helper.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:findmydorm/core/widgets/custom_text_field.dart';
+import 'package:findmydorm/core/widgets/custom_password_field.dart';
+import 'package:findmydorm/core/widgets/custom_button.dart';
+import 'package:findmydorm/core/widgets/custom_dropdown_field.dart';
 
 // ===================================
 // SIGN UP WIDGET
@@ -32,7 +36,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   // State Variables
   String? _selectedGender;
   final List<String> _genders = ['Male', 'Female', 'Other'];
-  bool _isPasswordVisible = false;
 
   // Error State Variables
   bool _showDBError = false;
@@ -44,7 +47,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   // Theme Constants
   final Color primaryAmber = Colors.amber.shade700;
-  final Color inputFillColor = Colors.grey.shade100;
 
   // ===================================
   // LIFECYCLE METHODS
@@ -63,12 +65,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   // ===================================
   // CORE LOGIC
   // ===================================
-
-  void _togglePasswordVisibility() {
-    setState(() {
-      _isPasswordVisible = !_isPasswordVisible;
-    });
-  }
 
   // Consolidated error display logic (updates state and shows SnackBar)
   void _showError(String message) {
@@ -180,7 +176,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(height: 35),
 
                 // 1. FULL NAME FIELD (Letters, spaces, and dots only)
-                _buildStyledTextField(
+                CustomTextField(
                   controller: _usernameController,
                   hintText: 'Full Name', // Updated hint
                   icon: Ionicons.person_outline,
@@ -206,7 +202,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(height: 15),
 
                 // 3. ADDRESS (Simple non-empty check for flexibility)
-                _buildStyledTextField(
+                CustomTextField(
                   controller: _addressController,
                   hintText: 'Address',
                   icon: Ionicons.location_outline,
@@ -221,7 +217,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(height: 15),
 
                 // 4. EMAIL ADDRESS
-                _buildStyledTextField(
+                CustomTextField(
                   controller: _emailController,
                   hintText: 'Email Address',
                   icon: Ionicons.mail_outline,
@@ -239,7 +235,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(height: 15),
 
                 // 5. PASSWORD (Updated with stronger security requirements)
-                _buildStyledPasswordField(
+                CustomPasswordField(
                   controller: _passwordController,
                   hintText: 'Password',
                   validator: (value) {
@@ -271,7 +267,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(height: 15),
 
                 // 6. CONFIRM PASSWORD
-                _buildStyledPasswordField(
+                CustomPasswordField(
                   controller: _confirmPasswordController,
                   hintText: 'Confirm Password',
                   validator: (value) {
@@ -337,90 +333,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  // ===================================
-  // UI HELPER WIDGETS
-  // ===================================
-
-  // Reusable function to create stylish input fields
-  Widget _buildStyledTextField({
-    required TextEditingController controller,
-    required String hintText,
-    required IconData icon,
-    required String? Function(String?) validator,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return TextFormField(
-      controller: controller,
-      validator: validator,
-      keyboardType: keyboardType,
-      decoration: _buildInputDecoration(hintText: hintText, icon: icon),
-    );
-  }
-
-  // Reusable function to create stylish password fields
-  Widget _buildStyledPasswordField({
-    required TextEditingController controller,
-    required String hintText,
-    required String? Function(String?) validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      validator: validator,
-      obscureText: !_isPasswordVisible,
-      decoration: _buildInputDecoration(
-        hintText: hintText,
-        icon: Ionicons.lock_closed_outline,
-        suffixIcon: IconButton(
-          onPressed: _togglePasswordVisibility,
-          icon: Icon(
-            _isPasswordVisible
-                ? Ionicons.eye_off_outline
-                : Ionicons.eye_outline,
-            color: primaryAmber,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Helper function for consistent decoration style
-  InputDecoration _buildInputDecoration({
-    required String hintText,
-    required IconData icon,
-    Widget? suffixIcon,
-  }) {
-    const borderRadius = BorderRadius.all(Radius.circular(15.0));
-    return InputDecoration(
-      hintText: hintText,
-      filled: true,
-      fillColor: inputFillColor,
-      prefixIcon: Icon(icon, color: primaryAmber),
-      suffixIcon: suffixIcon,
-      contentPadding:
-          const EdgeInsets.symmetric(vertical: 18.0, horizontal: 20.0),
-      border: const OutlineInputBorder(
-        borderRadius: borderRadius,
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: borderRadius,
-        borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: borderRadius,
-        borderSide: BorderSide(color: primaryAmber, width: 2.0),
-      ),
-    );
-  }
-
   // Improved Gender Dropdown
   Widget _buildGenderDropdown() {
-    return DropdownButtonFormField<String>(
-      decoration: _buildInputDecoration(
-        hintText: 'Select Gender',
-        icon: Ionicons.people_outline,
-      ),
-      initialValue: _selectedGender,
+    return CustomDropdownField<String>(
+      labelText: 'Gender',
+      hintText: 'Select Gender',
+      icon: Ionicons.people_outline,
+      value: _selectedGender,
       items: _genders.map((String gender) {
         return DropdownMenuItem<String>(
           value: gender,
@@ -445,27 +364,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   // Improved Register Button
   Widget _buildRegisterButton(BuildContext context) {
-    return SizedBox(
-      height: 55,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.black, // Text color
-          backgroundColor: primaryAmber, // Button background color
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          elevation: 5, // Added subtle elevation
-        ),
-        onPressed: () => _attemptRegistration(), // Use the new handler
-        child: const Text(
-          "REGISTER ACCOUNT", // More explicit text
-          style: TextStyle(
-            fontFamily: 'Lato',
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-          ),
-        ),
-      ),
+    return CustomButton(
+      text: "REGISTER ACCOUNT",
+      onPressed: () => _attemptRegistration(),
     );
   }
 

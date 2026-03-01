@@ -8,6 +8,8 @@ import 'package:findmydorm/core/database/database_helper.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
 import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
+import 'package:findmydorm/core/widgets/custom_button.dart';
+import 'package:findmydorm/core/widgets/custom_text_field.dart';
 
 // ===================================
 // HOME PAGE WIDGET
@@ -186,27 +188,14 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                         ],
                       ),
-                      child: TextField(
+                      child: CustomTextField(
                         controller: textController,
                         focusNode: focusNode,
-                        onSubmitted: (value) => onFieldSubmitted(),
-                        style: const TextStyle(
-                            color: Colors.black, fontFamily: 'Lato'),
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 14, horizontal: 8),
-                          hintText: "Search for a dorm or location...",
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade500,
-                            fontSize: 16,
-                            fontFamily: 'Lato',
-                          ),
-                          border: InputBorder.none,
-                          prefixIcon: const Icon(
-                            Icons.search,
-                            color: Colors.grey,
-                          ),
-                        ),
+                        onFieldSubmitted: (value) => onFieldSubmitted(),
+                        hintText: "Search for a dorm or location...",
+                        icon: Icons.search,
+                        iconColor: Colors.grey,
+                        fillColor: Colors.white,
                       ),
                     );
                   },
@@ -406,27 +395,21 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                 ),
 
                 // View All Button
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.amber.shade50,
-                    foregroundColor: Colors.amber.shade700,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    side: BorderSide(
-                      color: Colors.amber.shade700,
-                      width: 1.5,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
+                CustomButton(
+                  text: 'View All',
+                  fontSize: 14,
+                  height: 35,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  backgroundColor: Colors.amber.shade50,
+                  textColor: Colors.amber.shade700,
+                  elevation: 0,
+                  border: BorderSide(
+                    color: Colors.amber.shade700,
+                    width: 1.5,
                   ),
                   onPressed: () {
                     widget.onViewAllTap?.call();
                   },
-                  child: const Text(
-                    'View All',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
                 )
               ],
             ),

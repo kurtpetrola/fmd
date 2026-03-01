@@ -10,7 +10,7 @@ import 'package:findmydorm/core/database/database_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:findmydorm/core/widgets/custom_button.dart';
 // -------------------------------------------------------------------
 // ## REUSABLE WIDGET: _DetailItem
 // -------------------------------------------------------------------
@@ -293,21 +293,13 @@ class _DormDetailPageState extends State<DormDetailPage> {
       // --------------------------------------------------------------
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-        child: ElevatedButton.icon(
+        child: CustomButton(
+          text: 'View Route to Dorm',
           onPressed: _navigateToMapRoute,
-          icon: const Icon(Ionicons.map, size: 28),
-          label: const Text(
-            'View Route to Dorm',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(double.infinity, 55),
-            backgroundColor: Colors.amber.shade700,
-            foregroundColor: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 8,
-          ),
+          icon: Ionicons.map,
+          backgroundColor: Colors.amber.shade700,
+          textColor: Colors.white,
+          borderRadius: 12,
         ),
       ),
 

@@ -10,6 +10,9 @@ import 'package:findmydorm/core/constants/dorm_image_options.dart';
 import 'package:findmydorm/features/dorms/presentation/widgets/image_picker_dialog.dart';
 import 'package:findmydorm/features/maps/presentation/widgets/admin_location_picker.dart';
 import 'package:findmydorm/features/dorms/presentation/viewmodels/dorm_viewmodel.dart';
+import 'package:findmydorm/core/widgets/custom_text_field.dart';
+import 'package:findmydorm/core/widgets/custom_button.dart';
+import 'package:findmydorm/core/widgets/custom_dropdown_field.dart';
 
 // NOTE: You would typically import 'package:http/http.dart' as http; for real API calls
 
@@ -435,80 +438,7 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  /// Helper method for styled text form fields in dialogs.
-  Widget _buildStyledTextField({
-    required TextEditingController controller,
-    required String label,
-    TextInputType keyboardType = TextInputType.text,
-    bool isRequired = false,
-    int maxLines = 1, // Add maxLines parameter
-    int? minLines, // Add minLines parameter for expandable fields
-  }) {
-    final Color primaryAmber = _appBarColor;
-    const borderRadius = BorderRadius.all(Radius.circular(15.0));
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15.0),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        maxLines: maxLines,
-        minLines: minLines,
-        style: const TextStyle(color: Colors.black, fontSize: 15),
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: isRequired ? '(Required)' : '',
-          hintStyle: TextStyle(color: Colors.red.shade400, fontSize: 12),
-          fillColor: Colors.grey.shade100,
-          filled: true,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 15, vertical: 18),
-          alignLabelWithHint: true, // Keeps label at top for multiline fields
-
-          floatingLabelStyle: TextStyle(
-            color: primaryAmber,
-            fontWeight: FontWeight.bold,
-          ),
-          labelStyle: TextStyle(
-            color: Colors.grey.shade600,
-          ),
-
-          border: const OutlineInputBorder(
-            borderRadius: borderRadius,
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: borderRadius,
-            borderSide: BorderSide(color: primaryAmber, width: 2.0),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Helper method for read-only fields (e.g., Latitude/Longitude).
-  Widget _buildReadOnlyField({
-    required TextEditingController controller,
-    required String label,
-  }) {
-    return TextField(
-      controller: controller,
-      readOnly: true,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15.0), // Consistent radius
-          borderSide: BorderSide.none,
-        ),
-        fillColor: Colors.grey.shade200, // Slightly darker fill for read-only
-        filled: true,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-      ),
-      style: const TextStyle(
-          fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w600),
-    );
-  }
+  // Removed _buildStyledTextField in favor of CustomTextField
 
   /// Helper method for category dropdown menus in dialogs.
   Widget _buildCategoryDropdown({
@@ -519,28 +449,9 @@ class _AdminPageState extends State<AdminPage> {
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15.0),
-      child: DropdownButtonFormField<String>(
-        initialValue: value,
-        decoration: InputDecoration(
-          labelText: label,
-          fillColor: Colors.grey.shade100,
-          filled: true,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-          floatingLabelStyle: TextStyle(
-            color: _appBarColor,
-            fontWeight: FontWeight.bold,
-          ),
-          labelStyle: TextStyle(color: Colors.grey.shade600),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15.0),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15.0),
-            borderSide: BorderSide(color: _appBarColor, width: 2.0),
-          ),
-        ),
+      child: CustomDropdownField<String>(
+        labelText: label,
+        value: value,
         items: options.map((String category) {
           return DropdownMenuItem<String>(
             value: category,
@@ -644,22 +555,36 @@ class _AdminPageState extends State<AdminPage> {
                     const SizedBox(height: 20),
 
                     // Input fields
-                    _buildStyledTextField(
-                      controller: nameController,
-                      label: 'Dorm Name',
-                      isRequired: true,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      child: CustomTextField(
+                        controller: nameController,
+                        labelText: 'Dorm Name',
+                        hintText: '(Required)',
+                        validator: (value) =>
+                            value?.isEmpty ?? true ? 'Required' : null,
+                      ),
                     ),
-                    _buildStyledTextField(
-                      controller: numberController,
-                      label: 'Dorm Number (Optional)',
-                      keyboardType: TextInputType.number,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      child: CustomTextField(
+                        controller: numberController,
+                        labelText: 'Dorm Number (Optional)',
+                        keyboardType: TextInputType.number,
+                      ),
                     ),
-                    _buildStyledTextField(
-                      controller: locationController,
-                      label: 'Location/Address Text',
-                      isRequired: true,
-                      minLines: 2,
-                      maxLines: 3,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      child: CustomTextField(
+                        controller: locationController,
+                        labelText: 'Location/Address Text',
+                        hintText: '(Required)',
+                        validator: (value) =>
+                            value?.isEmpty ?? true ? 'Required' : null,
+                        minLines: 2,
+                        maxLines: 3,
+                        alignLabelWithHint: true,
+                      ),
                     ),
 
                     // Gender Category Dropdown
@@ -720,12 +645,16 @@ class _AdminPageState extends State<AdminPage> {
                       ),
                     ),
 
-                    _buildStyledTextField(
-                      controller: descriptionController,
-                      label: 'Dorm Description/Details',
-                      keyboardType: TextInputType.multiline,
-                      minLines: 4,
-                      maxLines: 8,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      child: CustomTextField(
+                        controller: descriptionController,
+                        labelText: 'Dorm Description/Details',
+                        keyboardType: TextInputType.multiline,
+                        minLines: 4,
+                        maxLines: 8,
+                        alignLabelWithHint: true,
+                      ),
                     ),
 
                     // Display validation error below fields
@@ -742,14 +671,11 @@ class _AdminPageState extends State<AdminPage> {
                     const SizedBox(height: 20),
 
                     // Location Picker Button
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.location_on),
-                      label: Text(
-                        latController.text.isEmpty
-                            ? 'SELECT LOCATION ON MAP'
-                            : 'LOCATION SELECTED',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                    CustomButton(
+                      icon: Icons.location_on,
+                      text: latController.text.isEmpty
+                          ? 'SELECT LOCATION ON MAP'
+                          : 'LOCATION SELECTED',
                       onPressed: () async {
                         final LatLng? pickedLocation = await Navigator.push(
                           stfContext,
@@ -768,15 +694,13 @@ class _AdminPageState extends State<AdminPage> {
                           });
                         }
                       },
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 45),
-                        backgroundColor: latController.text.isEmpty
-                            ? Colors.amber.shade700
-                            : Colors.green.shade600,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
+                      width: double.infinity,
+                      height: 45,
+                      backgroundColor: latController.text.isEmpty
+                          ? Colors.amber.shade700
+                          : Colors.green.shade600,
+                      textColor: Colors.white,
+                      borderRadius: 8,
                     ),
 
                     const SizedBox(height: 15),
@@ -784,12 +708,18 @@ class _AdminPageState extends State<AdminPage> {
                     Row(
                       children: [
                         Expanded(
-                            child: _buildReadOnlyField(
-                                controller: latController, label: 'Latitude')),
+                            child: CustomTextField(
+                                controller: latController,
+                                labelText: 'Latitude',
+                                readOnly: true,
+                                fillColor: Colors.grey.shade200)),
                         const SizedBox(width: 8),
                         Expanded(
-                            child: _buildReadOnlyField(
-                                controller: lngController, label: 'Longitude')),
+                            child: CustomTextField(
+                                controller: lngController,
+                                labelText: 'Longitude',
+                                readOnly: true,
+                                fillColor: Colors.grey.shade200)),
                       ],
                     ),
                   ],
@@ -797,12 +727,17 @@ class _AdminPageState extends State<AdminPage> {
               ),
               actions: [
                 // CANCEL Button (Secondary action: TextButton with Red color)
-                TextButton(
+                CustomButton(
+                  text: 'CANCEL',
                   onPressed: () => Navigator.pop(stfContext),
-                  child: const Text('CANCEL',
-                      style: TextStyle(color: Colors.grey)),
+                  backgroundColor: Colors.transparent,
+                  textColor: Colors.grey,
+                  elevation: 0,
+                  height: 45,
+                  fontSize: 16,
                 ),
-                ElevatedButton(
+                CustomButton(
+                  text: 'ADD DORM',
                   onPressed: () async {
                     // Basic validation check
                     if (nameController.text.isNotEmpty &&
@@ -864,14 +799,10 @@ class _AdminPageState extends State<AdminPage> {
                       });
                     }
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade700,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                  child: const Text('ADD DORM',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
+                  backgroundColor: Colors.blue.shade700,
+                  textColor: Colors.white,
+                  borderRadius: 10,
+                  height: 45,
                 ),
               ],
             );
@@ -974,15 +905,26 @@ class _AdminPageState extends State<AdminPage> {
                     const SizedBox(height: 20),
 
                     // Rest of the fields
-                    _buildStyledTextField(
-                        controller: nameController, label: 'Dorm Name'),
-                    _buildStyledTextField(
-                        controller: numberController,
-                        label: 'Dorm Number (Optional)',
-                        keyboardType: TextInputType.number),
-                    _buildStyledTextField(
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      child: CustomTextField(
+                          controller: nameController, labelText: 'Dorm Name'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      child: CustomTextField(
+                          controller: numberController,
+                          labelText: 'Dorm Number (Optional)',
+                          keyboardType: TextInputType.number),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      child: CustomTextField(
                         controller: locationController,
-                        label: 'Location/Address Text'),
+                        labelText: 'Location/Address Text',
+                        alignLabelWithHint: true,
+                      ),
+                    ),
 
                     // Gender Category Dropdown
                     _buildCategoryDropdown(
@@ -1042,12 +984,16 @@ class _AdminPageState extends State<AdminPage> {
                       ),
                     ),
 
-                    _buildStyledTextField(
-                      controller: descriptionController,
-                      label: 'Dorm Description/Details',
-                      keyboardType: TextInputType.multiline,
-                      minLines: 4,
-                      maxLines: 8,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      child: CustomTextField(
+                        controller: descriptionController,
+                        labelText: 'Dorm Description/Details',
+                        keyboardType: TextInputType.multiline,
+                        minLines: 4,
+                        maxLines: 8,
+                        alignLabelWithHint: true,
+                      ),
                     ),
 
                     if (validationError.isNotEmpty)
@@ -1060,14 +1006,11 @@ class _AdminPageState extends State<AdminPage> {
 
                     const SizedBox(height: 20),
 
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.location_on),
-                      label: Text(
-                        latController.text.isEmpty
-                            ? 'SELECT LOCATION ON MAP'
-                            : 'LOCATION SELECTED',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                    CustomButton(
+                      icon: Icons.location_on,
+                      text: latController.text.isEmpty
+                          ? 'SELECT LOCATION ON MAP'
+                          : 'LOCATION SELECTED',
                       onPressed: () async {
                         final LatLng? pickedLocation = await Navigator.push(
                           stfContext,
@@ -1084,15 +1027,13 @@ class _AdminPageState extends State<AdminPage> {
                           });
                         }
                       },
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 45),
-                        backgroundColor: latController.text.isEmpty
-                            ? Colors.amber.shade700
-                            : Colors.green.shade600,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
+                      width: double.infinity,
+                      height: 45,
+                      backgroundColor: latController.text.isEmpty
+                          ? Colors.amber.shade700
+                          : Colors.green.shade600,
+                      textColor: Colors.white,
+                      borderRadius: 8,
                     ),
 
                     const SizedBox(height: 15),
@@ -1100,24 +1041,35 @@ class _AdminPageState extends State<AdminPage> {
                     Row(
                       children: [
                         Expanded(
-                            child: _buildReadOnlyField(
-                                controller: latController, label: 'Latitude')),
+                            child: CustomTextField(
+                                controller: latController,
+                                labelText: 'Latitude',
+                                readOnly: true,
+                                fillColor: Colors.grey.shade200)),
                         const SizedBox(width: 8),
                         Expanded(
-                            child: _buildReadOnlyField(
-                                controller: lngController, label: 'Longitude')),
+                            child: CustomTextField(
+                                controller: lngController,
+                                labelText: 'Longitude',
+                                readOnly: true,
+                                fillColor: Colors.grey.shade200)),
                       ],
                     ),
                   ],
                 ),
               ),
               actions: [
-                TextButton(
+                CustomButton(
+                  text: 'CANCEL',
                   onPressed: () => Navigator.pop(stfContext),
-                  child: const Text('CANCEL',
-                      style: TextStyle(color: Colors.grey)),
+                  backgroundColor: Colors.transparent,
+                  textColor: Colors.grey,
+                  elevation: 0,
+                  height: 45,
+                  fontSize: 16,
                 ),
-                ElevatedButton(
+                CustomButton(
+                  text: 'UPDATE DORM',
                   onPressed: () async {
                     if (nameController.text.isNotEmpty &&
                         locationController.text.isNotEmpty &&
@@ -1171,14 +1123,10 @@ class _AdminPageState extends State<AdminPage> {
                       });
                     }
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade700,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                  child: const Text('UPDATE DORM',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
+                  backgroundColor: Colors.blue.shade700,
+                  textColor: Colors.white,
+                  borderRadius: 10,
+                  height: 45,
                 ),
               ],
             );

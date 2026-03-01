@@ -1,6 +1,7 @@
 // alert_dialog.dart
 
 import 'package:flutter/material.dart';
+import 'package:findmydorm/core/widgets/custom_button.dart';
 
 enum DialogsAction { yes, cancel }
 
@@ -52,61 +53,31 @@ class AlertDialogs {
             Column(
               children: [
                 // 1. Primary Action (CONFIRM/YES)
-                SizedBox(
-                  // Forces button to take full width of the actions area
+                CustomButton(
+                  text: 'CONFIRM',
+                  onPressed: () => Navigator.of(context).pop(DialogsAction.yes),
+                  backgroundColor: primaryColor,
+                  textColor: Colors.white,
+                  borderRadius: 12,
+                  elevation: 0,
+                  height: 50.0,
                   width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      minimumSize: const Size(double.infinity, 50.0), // Taller
-                      // Use the App's Primary Amber Color
-                      backgroundColor: primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () =>
-                        Navigator.of(context).pop(DialogsAction.yes),
-                    child: const Text(
-                      'CONFIRM',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'Lato',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700),
-                    ),
-                  ),
                 ),
 
                 const SizedBox(height: 10), // Spacing between buttons
 
                 // 2. Secondary Action (CANCEL) - Subtle Background
-                SizedBox(
+                CustomButton(
+                  text: 'CANCEL',
+                  onPressed: () =>
+                      Navigator.of(context).pop(DialogsAction.cancel),
+                  backgroundColor: Colors.transparent,
+                  textColor: Colors.black,
+                  borderRadius: 12,
+                  elevation: 0,
+                  height: 50.0,
                   width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      minimumSize: const Size(double.infinity, 50.0), // Taller
-                      // Use transparent or very light background
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: Colors.black54,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        // Add a subtle border for definition
-                        side: BorderSide(color: Colors.grey.shade300, width: 1),
-                      ),
-                    ),
-                    onPressed: () =>
-                        Navigator.of(context).pop(DialogsAction.cancel),
-                    child: const Text(
-                      'CANCEL',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'Lato',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ),
+                  border: BorderSide(color: Colors.grey.shade300, width: 1),
                 ),
               ],
             ),

@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:findmydorm/core/database/database_helper.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:go_router/go_router.dart';
+import 'package:findmydorm/core/widgets/custom_text_field.dart';
+import 'package:findmydorm/core/widgets/custom_password_field.dart';
+import 'package:findmydorm/core/widgets/custom_button.dart';
 
 // ===================================
 // FORGOT PASSWORD WIDGET
@@ -28,7 +31,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   // State Variables
   String _currentStep = 'VERIFY'; // 'VERIFY', 'RESET'
-  bool _isPasswordVisible = false;
 
   // Database and Form Key
   final _db = DatabaseHelper.instance;
@@ -36,7 +38,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   // Theme Constants
   final Color primaryAmber = Colors.amber.shade700;
-  final Color inputFillColor = Colors.grey.shade100;
 
   @override
   void dispose() {
@@ -50,12 +51,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   // ===================================
   // CORE LOGIC
   // ===================================
-
-  void _togglePasswordVisibility() {
-    setState(() {
-      _isPasswordVisible = !_isPasswordVisible;
-    });
-  }
 
   // Step 1: Verify user identity using Email and Address
   Future<void> _verifyIdentity() async {
@@ -165,7 +160,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 // --- STEP 1: VERIFY FORM ---
                 if (_currentStep == 'VERIFY') ...[
                   // Email Field
-                  _buildStyledTextField(
+                  CustomTextField(
                     controller: _emailController,
                     hintText: 'Registered Email Address',
                     icon: Ionicons.mail_outline,
@@ -183,7 +178,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   const SizedBox(height: 20),
 
                   // Address Field (Security Check)
-                  _buildStyledTextField(
+                  CustomTextField(
                     controller: _addressController,
                     hintText: 'Registered Address (Security Check)',
                     icon: Ionicons.location_outline,
@@ -197,7 +192,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   const SizedBox(height: 30),
 
                   // Verify Button
-                  _buildActionButton(
+                  CustomButton(
                     text: 'VERIFY ACCOUNT',
                     onPressed: _verifyIdentity,
                   ),
@@ -206,7 +201,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 // --- STEP 2: RESET FORM ---
                 if (_currentStep == 'RESET') ...[
                   // New Password Field
-                  _buildStyledPasswordField(
+                  CustomPasswordField(
                     controller: _newPasswordController,
                     hintText: 'New Password',
                     validator: (value) {
@@ -231,7 +226,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   const SizedBox(height: 20),
 
                   // Confirm Password Field
-                  _buildStyledPasswordField(
+                  CustomPasswordField(
                     controller: _confirmPasswordController,
                     hintText: 'Confirm New Password',
                     validator: (value) {
@@ -247,7 +242,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   const SizedBox(height: 30),
 
                   // Reset Button
-                  _buildActionButton(
+                  CustomButton(
                     text: 'RESET PASSWORD',
                     onPressed: _resetPassword,
                   ),
@@ -264,100 +259,5 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   // UI HELPER WIDGETS
   // ===================================
 
-  Widget _buildStyledTextField({
-    required TextEditingController controller,
-    required String hintText,
-    required IconData icon,
-    required String? Function(String?) validator,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return TextFormField(
-      controller: controller,
-      validator: validator,
-      keyboardType: keyboardType,
-      decoration: _buildInputDecoration(hintText: hintText, icon: icon),
-    );
-  }
-
-  Widget _buildStyledPasswordField({
-    required TextEditingController controller,
-    required String hintText,
-    required String? Function(String?) validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      validator: validator,
-      obscureText: !_isPasswordVisible,
-      decoration: _buildInputDecoration(
-        hintText: hintText,
-        icon: Ionicons.lock_closed_outline,
-        suffixIcon: IconButton(
-          onPressed: _togglePasswordVisibility,
-          icon: Icon(
-            _isPasswordVisible
-                ? Ionicons.eye_off_outline
-                : Ionicons.eye_outline,
-            color: primaryAmber,
-          ),
-        ),
-      ),
-    );
-  }
-
-  InputDecoration _buildInputDecoration({
-    required String hintText,
-    required IconData icon,
-    Widget? suffixIcon,
-  }) {
-    const borderRadius = BorderRadius.all(Radius.circular(15.0));
-    return InputDecoration(
-      hintText: hintText,
-      filled: true,
-      fillColor: inputFillColor,
-      prefixIcon: Icon(icon, color: primaryAmber),
-      suffixIcon: suffixIcon,
-      contentPadding:
-          const EdgeInsets.symmetric(vertical: 18.0, horizontal: 20.0),
-      border: const OutlineInputBorder(
-        borderRadius: borderRadius,
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: borderRadius,
-        borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: borderRadius,
-        borderSide: BorderSide(color: primaryAmber, width: 2.0),
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required String text,
-    required VoidCallback onPressed,
-  }) {
-    return SizedBox(
-      height: 55,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.black,
-          backgroundColor: primaryAmber,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          elevation: 5,
-        ),
-        onPressed: onPressed,
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontFamily: 'Lato',
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-          ),
-        ),
-      ),
-    );
-  }
+  // UI helpers removed as we're using common widgets
 }

@@ -7,6 +7,9 @@ import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:findmydorm/core/widgets/custom_text_field.dart';
+import 'package:findmydorm/core/widgets/custom_password_field.dart';
+import 'package:findmydorm/core/widgets/custom_button.dart';
 
 // ===================================
 // LOGIN PAGE WIDGET
@@ -29,7 +32,6 @@ class _LoginScreenState extends State<LoginPage> {
   final passwordController = TextEditingController();
 
   // State Variables
-  bool isVisible = false;
   bool showErrorMessage = false;
   String errorMessage = "Username or password is incorrect";
 
@@ -39,8 +41,6 @@ class _LoginScreenState extends State<LoginPage> {
 
   // Theme Constants
   final Color primaryAmber = Colors.amber.shade700;
-  final Color inputFillColor = Colors.grey.shade100;
-
   // ===================================
   // LIFECYCLE METHODS
   // ===================================
@@ -155,48 +155,29 @@ class _LoginScreenState extends State<LoginPage> {
                 const SizedBox(height: 40),
 
                 // Username/Email field
-                TextFormField(
+                CustomTextField(
                   controller: identifierController,
+                  hintText: 'Username or Email Address',
+                  icon: Ionicons.person_outline,
                   validator: (value) {
                     if (value!.isEmpty) {
                       return "Username or Email is required.";
                     }
                     return null;
                   },
-                  decoration: _buildInputDecoration(
-                    hintText: 'Username or Email Address',
-                    icon: Ionicons.person_outline,
-                  ),
                 ),
                 const SizedBox(height: 20),
 
                 // Password field
-                TextFormField(
+                CustomPasswordField(
                   controller: passwordController,
+                  hintText: 'Password',
                   validator: (value) {
                     if (value!.isEmpty) {
                       return "Password is required.";
                     }
                     return null;
                   },
-                  obscureText: !isVisible,
-                  decoration: _buildInputDecoration(
-                    hintText: 'Password',
-                    icon: Ionicons.lock_closed_outline,
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          isVisible = !isVisible;
-                        });
-                      },
-                      icon: Icon(
-                        isVisible
-                            ? Ionicons.eye_off_outline
-                            : Ionicons.eye_outline,
-                        color: primaryAmber,
-                      ),
-                    ),
-                  ),
                 ),
 
                 // <--- FORGOT PASSWORD LINK (NEW) --->
@@ -255,31 +236,14 @@ class _LoginScreenState extends State<LoginPage> {
                   ),
 
                 // Login button (Styled)
-                SizedBox(
-                  height: 55,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.black,
-                      backgroundColor: primaryAmber,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      elevation: 5,
-                    ),
-                    onPressed: () {
-                      if (formKey.currentState!.validate()) {
-                        // Form fields are valid, attempt login
-                        login();
-                      }
-                    },
-                    child: const Text(
-                      "LOGIN",
-                      style: TextStyle(
-                          fontFamily: 'Lato',
-                          fontWeight: FontWeight.w700,
-                          fontSize: 18),
-                    ),
-                  ),
+                CustomButton(
+                  text: 'LOGIN',
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      // Form fields are valid, attempt login
+                      login();
+                    }
+                  },
                 ),
                 const SizedBox(height: 10),
 
@@ -319,33 +283,5 @@ class _LoginScreenState extends State<LoginPage> {
   // UI HELPER FUNCTIONS
   // ===================================
 
-  // Helper function for consistent decoration style
-  InputDecoration _buildInputDecoration({
-    required String hintText,
-    required IconData icon,
-    Widget? suffixIcon,
-  }) {
-    const borderRadius = BorderRadius.all(Radius.circular(15.0));
-    return InputDecoration(
-      hintText: hintText,
-      filled: true,
-      fillColor: inputFillColor,
-      prefixIcon: Icon(icon, color: primaryAmber),
-      suffixIcon: suffixIcon,
-      contentPadding:
-          const EdgeInsets.symmetric(vertical: 18.0, horizontal: 20.0),
-      border: const OutlineInputBorder(
-        borderRadius: borderRadius,
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: borderRadius,
-        borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: borderRadius,
-        borderSide: BorderSide(color: primaryAmber, width: 2.0),
-      ),
-    );
-  }
+  // UI helpers removed as we're using common widgets
 }
