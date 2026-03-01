@@ -30,17 +30,20 @@ You can download the latest **Android APK** file and install the application man
 | **Security**         | **`bcrypt`**             | Used for secure one-way hashing of user passwords.                             |
 | **Mapping**          | **`flutter_map`**        | Provides interactive map views and location tracking.                          |
 | **Routing API**      | **OpenRouteService API** | Enables dynamic route generation and location-based mapping features.          |
- 
+
 ## 🏗️ Project Architecture
- 
-The project follows a **Clean Architecture** approach with **Layer-First** organization, ensuring scalability, maintainability, and clear separation of concerns.
- 
+
+The project follows a **Clean Architecture** approach with **Feature-First (Slice)** organization, ensuring scalability, maintainability, and clear separation of concerns.
+
 ```text
 lib/
-├── core/           # Global utilities, constants, and global components
-├── data/           # Data layer: Local SQLite and Auth services
-├── domain/         # Domain layer: Business models and entities
-└── presentation/   # UI layer: Feature-based Pages and Widgets
+├── core/           # Global utilities, constants, shared widgets, and local database implementation
+└── features/       # Feature directories containing their specific domain, presentation, and widgets
+    ├── auth/
+    ├── dorms/
+    ├── maps/
+    ├── splash/
+    └── user_profile/
 ```
 
 ## 🚀 Getting Started

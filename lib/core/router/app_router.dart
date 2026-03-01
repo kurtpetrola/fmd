@@ -1,21 +1,21 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 
-import 'package:findmydorm/domain/models/user_model.dart';
-import 'package:findmydorm/domain/models/dorm_model.dart';
-import 'package:findmydorm/presentation/pages/splash/splash_screen.dart';
-import 'package:findmydorm/presentation/pages/auth/auth_check_wrapper.dart';
-import 'package:findmydorm/presentation/pages/dorms/selection_page.dart';
-import 'package:findmydorm/presentation/pages/auth/login_page.dart';
-import 'package:findmydorm/presentation/pages/auth/registration_page.dart';
-import 'package:findmydorm/presentation/pages/auth/forgot_password_page.dart';
-import 'package:findmydorm/presentation/pages/auth/change_password_page.dart';
-import 'package:findmydorm/presentation/widgets/shared/bottom_navbar.dart';
-import 'package:findmydorm/presentation/pages/dorms/dorm_detail_page.dart';
-import 'package:findmydorm/presentation/pages/user_profile/favorite_dorms_page.dart';
-import 'package:findmydorm/presentation/pages/user_profile/account_settings_page.dart';
-import 'package:findmydorm/presentation/pages/dorms/dorm_lists.dart';
-import 'package:findmydorm/presentation/pages/maps/maps_detail_page.dart';
+import 'package:findmydorm/features/auth/domain/models/user_model.dart';
+import 'package:findmydorm/features/dorms/domain/models/dorm_model.dart';
+import 'package:findmydorm/features/splash/presentation/pages/splash_screen.dart';
+import 'package:findmydorm/features/auth/presentation/pages/auth_check_wrapper.dart';
+import 'package:findmydorm/features/dorms/presentation/pages/selection_page.dart';
+import 'package:findmydorm/features/auth/presentation/pages/login_page.dart';
+import 'package:findmydorm/features/auth/presentation/pages/registration_page.dart';
+import 'package:findmydorm/features/auth/presentation/pages/forgot_password_page.dart';
+import 'package:findmydorm/features/auth/presentation/pages/change_password_page.dart';
+import 'package:findmydorm/core/widgets/bottom_navbar.dart';
+import 'package:findmydorm/features/dorms/presentation/pages/dorm_detail_page.dart';
+import 'package:findmydorm/features/user_profile/presentation/pages/favorite_dorms_page.dart';
+import 'package:findmydorm/features/user_profile/presentation/pages/account_settings_page.dart';
+import 'package:findmydorm/features/dorms/presentation/pages/dorm_lists.dart';
+import 'package:findmydorm/features/maps/presentation/pages/maps_detail_page.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 

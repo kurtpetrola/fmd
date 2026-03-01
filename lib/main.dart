@@ -1,15 +1,15 @@
 // main.dart
 
 import 'package:findmydorm/core/router/app_router.dart';
-import 'package:findmydorm/data/local/database_helper.dart';
+import 'package:findmydorm/core/database/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'dart:developer';
 
-import 'package:findmydorm/presentation/viewmodels/auth_viewmodel.dart';
-import 'package:findmydorm/presentation/viewmodels/dorm_viewmodel.dart';
+import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
+import 'package:findmydorm/features/dorms/presentation/viewmodels/dorm_viewmodel.dart';
 
 // 1. Change main to async and add WidgetsFlutterBinding
 Future<void> main() async {
