@@ -3,6 +3,7 @@ import 'package:findmydorm/features/auth/domain/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:findmydorm/core/database/database_helper.dart';
 
+/// Manages user authentication state and loads saved user sessions.
 class AuthViewModel extends ChangeNotifier {
   Users? _currentUser;
   bool _isLoading = true;
@@ -17,7 +18,7 @@ class AuthViewModel extends ChangeNotifier {
     _loadUser();
   }
 
-  // Initial load
+  /// Loads the user from local storage initially.
   Future<void> _loadUser() async {
     _isLoading = true;
     notifyListeners();
@@ -35,7 +36,7 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Login
+  /// Sets the current user and persists the session.
   Future<void> login(Users user) async {
     _currentUser = user;
     notifyListeners();
@@ -46,7 +47,7 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
-  // Logout
+  /// Clears the current user and removes the saved session.
   Future<void> logout() async {
     _currentUser = null;
     notifyListeners();
@@ -55,7 +56,7 @@ class AuthViewModel extends ChangeNotifier {
     await prefs.remove(_userIdKey);
   }
 
-  // Update profile
+  /// Updates the current user's profile data in state if the ID matches.
   Future<void> updateUserProfile(Users updatedUser) async {
     if (_currentUser?.usrId == updatedUser.usrId) {
       _currentUser = updatedUser;

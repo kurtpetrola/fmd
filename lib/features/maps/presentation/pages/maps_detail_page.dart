@@ -11,6 +11,7 @@ import 'dart:convert';
 
 enum TravelMode { driving, walking }
 
+/// Provides map visualization mapping the user's location to the dormitory location.
 class MapsDetailPage extends StatefulWidget {
   final double latitude; // Dorm Latitude
   final double longitude; // Dorm Longitude
@@ -34,9 +35,7 @@ class MapsDetailPage extends StatefulWidget {
 }
 
 class _MapsDetailState extends State<MapsDetailPage> {
-  // =======================================================================
   // ## STATE MANAGEMENT
-  // =======================================================================
   List<LatLng> _routePoints = [];
   bool _isLoadingRoute = true;
   String? _routeError;
@@ -53,7 +52,6 @@ class _MapsDetailState extends State<MapsDetailPage> {
   final GlobalKey<TooltipState> _timeTooltipKey = GlobalKey<TooltipState>();
   final GlobalKey<TooltipState> _dormTooltipKey = GlobalKey<TooltipState>();
   final GlobalKey<TooltipState> _userTooltipKey = GlobalKey<TooltipState>();
-  // =======================================================================
 
   @override
   void initState() {
@@ -72,9 +70,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
     }
   }
 
-  // =======================================================================
   // ## API & LOGIC METHODS
-  // =======================================================================
 
   String _formatDuration(double seconds) {
     final minutes = (seconds / 60).ceil();
@@ -248,11 +244,8 @@ class _MapsDetailState extends State<MapsDetailPage> {
 
     _launchMapUrl(url);
   }
-  // =======================================================================
 
-  // =======================================================================
   // ## HELPER WIDGETS
-  // =======================================================================
 
   Widget _buildInfoItem({
     required IconData icon,
@@ -611,9 +604,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
     );
   }
 
-  // =======================================================================
   // ## MAIN BUILD METHOD
-  // =======================================================================
 
   @override
   Widget build(BuildContext context) {

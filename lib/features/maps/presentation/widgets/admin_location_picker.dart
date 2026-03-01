@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:findmydorm/core/widgets/custom_text_field.dart';
 
+/// A map interface for administrators to pick coordinates for a dormitory.
 class AdminLocationPicker extends StatefulWidget {
   const AdminLocationPicker({super.key});
 
@@ -30,7 +31,6 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
   }
 
   Future<LatLng?> getCoordinatesFromAddress(String address) async {
-    // ... (logic remains the same) ...
     try {
       List<Location> locations = await locationFromAddress(address);
       if (locations.isNotEmpty) {
@@ -132,9 +132,6 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
                       point: _selectedLocation!,
                       width: 50.0,
                       height: 50.0,
-                      // 🟢 FIX: Removed the problematic 'anchor' property entirely.
-                      // The map will use default centering, which is usually fine
-                      // for an icon of this shape.
                       child: Icon(
                         Icons.location_on,
                         color: primaryAmber,

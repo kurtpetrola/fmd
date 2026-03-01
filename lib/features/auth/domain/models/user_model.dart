@@ -1,5 +1,6 @@
 // models/users.dart
 
+/// Represents a user within the application.
 class Users {
   final int? usrId;
   final String usrName;
@@ -18,7 +19,7 @@ class Users {
       required this.usrGender,
       this.usrRole = 'User'});
 
-  // Convert a User object into a Map (for database insertion)
+  /// Converts a [Users] object into a map for database insertion.
   Map<String, dynamic> toJson() {
     return {
       'usrId': usrId,
@@ -31,7 +32,7 @@ class Users {
     };
   }
 
-  // Factory method to create a User object from a Map (for database retrieval)
+  /// Creates a [Users] object from a map for database retrieval.
   factory Users.fromJson(Map<String, dynamic> json) {
     return Users(
       usrId: json['usrId'] as int?,

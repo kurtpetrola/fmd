@@ -11,6 +11,7 @@ import 'package:findmydorm/core/widgets/custom_text_field.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 import 'package:findmydorm/core/widgets/custom_dropdown_field.dart';
 
+/// A page allowing the user to update their profile details and change their password.
 class AccountSettingsPage extends StatefulWidget {
   final Users user;
   final ValueChanged<Users>? onUserUpdated; // Make optional
@@ -226,9 +227,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     );
   }
 
-  // --------------------------------------------------------------------------
   // ## Common Body Builder for View and Edit Mode
-  // --------------------------------------------------------------------------
 
   Widget _buildCommonBody() {
     return Column(
@@ -309,9 +308,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     );
   }
 
-  // --------------------------------------------------------------------------
   // ## Profile Header (View Mode Only)
-  // --------------------------------------------------------------------------
 
   Widget _buildProfileHeader(BuildContext context, String name, String email) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -355,9 +352,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     );
   }
 
-  // --------------------------------------------------------------------------
   // ## Component Builders (Shared)
-  // --------------------------------------------------------------------------
 
   // --- Info Row (for key-value display) ---
   Widget _buildInfoRow(IconData icon, String label, String value) {
@@ -459,9 +454,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
   // Removed _buildTextFormField in favor of CustomTextField
 
-  // --------------------------------------------------------------------------
   // ## View Mode (Read-Only)
-  // --------------------------------------------------------------------------
 
   Widget _buildViewModeCard() {
     // Returns a single card for account details in view mode
@@ -478,9 +471,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     );
   }
 
-  // --------------------------------------------------------------------------
   // ## Edit Mode (Consistent Card Design)
-  // --------------------------------------------------------------------------
 
   Widget _buildEditModeCard() {
     // Returns a single card containing all editable fields

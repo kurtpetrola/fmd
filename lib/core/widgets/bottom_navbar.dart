@@ -11,15 +11,11 @@ import 'package:findmydorm/features/user_profile/presentation/pages/user_page.da
 import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 
-// -------------------------------------------------------------------
-// ## HOME HOLDER WIDGET
-// -------------------------------------------------------------------
+/// A stateful widget that acts as the container for the main application tabs
+/// and provides the bottom navigation bar interface.
 
 class HomeHolder extends StatefulWidget {
-  // Navigation arguments are typically untyped in go_router's extra,
-  // but we don't strictly need it passed in anymore if it's in Provider.
-  // Keeping it as optional for backwards compatibility during migration if needed,
-  // but not required.
+  /// Currently logged-in user, optional if handled by Provider.
   final Users? currentUser;
 
   const HomeHolder({super.key, this.currentUser});
@@ -29,25 +25,16 @@ class HomeHolder extends StatefulWidget {
 }
 
 class _HomeHolderState extends State<HomeHolder> {
-  // -------------------------------------------------------------------
   // ## FIELDS & STATE
-  // -------------------------------------------------------------------
   final GlobalKey _navKey = GlobalKey();
 
   // Used to manage the index of the CurvedNavigationBar and IndexedStack.
   int myIndex = 0;
 
-  /*
-    CRITICAL: Key to force a rebuild of the UserPage.
-    When the UserPage is navigated to, this key is reset, forcing Flutter
-    to discard the old UserPage state and run its initState() again,
-    which is useful for refreshing data that might have changed on another tab.
-  */
+  /// Key used to force a rebuild of the UserPage when navigated to.
   GlobalKey _userPageKey = GlobalKey();
 
-  // -------------------------------------------------------------------
   // ## LIFECYCLE METHODS
-  // -------------------------------------------------------------------
 
   @override
   void initState() {
@@ -56,9 +43,7 @@ class _HomeHolderState extends State<HomeHolder> {
     // we use Provider now.
   }
 
-  // -------------------------------------------------------------------
   // ## BUSINESS LOGIC (State Management & Navigation)
-  // -------------------------------------------------------------------
 
   // We no longer need _updateUser since AuthViewModel handles it.
   // The pages reading the provider will rebuild automatically.
@@ -98,9 +83,7 @@ class _HomeHolderState extends State<HomeHolder> {
     ];
   }
 
-  // -------------------------------------------------------------------
   // ## WIDGET BUILDER (UI)
-  // -------------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +104,7 @@ class _HomeHolderState extends State<HomeHolder> {
       // --- SMOOTH NAVIGATION BODY: IndexedStack to preserve page state ---
       body: IndexedStack(
         index: myIndex,
-        // CRITICAL: Call _buildPages() here to ensure pages are rebuilt
+        // Call _buildPages() here to ensure pages are rebuilt
         // when state (like _currentUser) changes.
         children: _buildPages(currentUser),
       ),
@@ -159,7 +142,7 @@ class _HomeHolderState extends State<HomeHolder> {
         buttonBackgroundColor: primaryAmber,
         onTap: (index) {
           setState(() {
-            // CRITICAL FIX: If the target index is the UserPage (index 2),
+            // If the target index is the UserPage (index 2),
             // reset the key to force the UserPage to run its initState().
             if (index == 2) {
               _userPageKey = GlobalKey();

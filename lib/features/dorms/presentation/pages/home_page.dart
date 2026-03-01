@@ -11,12 +11,8 @@ import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.
 import 'package:findmydorm/core/widgets/custom_button.dart';
 import 'package:findmydorm/core/widgets/custom_text_field.dart';
 
-// ===================================
-// HOME PAGE WIDGET
-// ===================================
-
+/// The main dashboard displaying dorm categories and a search interface.
 class HomePage extends StatefulWidget {
-  // Keep the optional callback property
   final VoidCallback? onViewAllTap;
 
   const HomePage({super.key, this.onViewAllTap});
@@ -26,10 +22,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
-  // ===================================
   // STATE AND CONTROLLERS
-  // ===================================
-
   late TabController _tabController;
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
@@ -39,10 +32,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   List<Dorms> _maleDorms = [];
   List<Dorms> _mixedDorms = [];
 
-  // ===================================
   // LIFECYCLE METHODS
-  // ===================================
-
   @override
   void initState() {
     super.initState();
@@ -64,9 +54,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  // ===================================
   // HELPER LOGIC (Getters/Functions)
-  // ===================================
 
   // HELPER GETTER: Combines unique dorm names and unique dorm locations
   List<String> get _searchOptions {
@@ -116,14 +104,11 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
         });
       }
     } catch (e) {
-      // In a production app, use a logging library here
       debugPrint('Error loading dorms: $e');
     }
   }
 
-  // ===================================
   // BUILD METHODS (UI Segments)
-  // ===================================
 
   Widget _buildHeaderSection() {
     return SizedBox(
@@ -253,18 +238,17 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
 
                 const Spacer(), // Pushes tabs to the bottom
 
-                // TabBar (with responsiveness fixes)
+                // TabBar
                 TabBar(
                   controller: _tabController,
-                  isScrollable: true, // FIX 1: Allows horizontal scrolling
+                  isScrollable: true,
                   labelColor: Colors.amber.shade400,
                   unselectedLabelColor: Colors.white,
                   labelStyle: const TextStyle(
-                    fontSize: 16, // FIX 2: Reduced font size for better fit
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Lato',
                   ),
-                  // FIX 3: Added horizontal padding to separate tabs from edges
                   labelPadding: const EdgeInsets.symmetric(horizontal: 15.0),
                   indicator: const UnderlineTabIndicator(
                     borderSide: BorderSide(width: 4.0, color: Colors.amber),
@@ -296,9 +280,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  // ===================================
   // MAIN BUILD METHOD
-  // ===================================
 
   @override
   Widget build(BuildContext context) {
@@ -422,11 +404,9 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   }
 }
 
-// ===================================
 // REUSABLE LIST WIDGETS
-// ===================================
 
-// Reusable Dorm List View
+/// A reusable list view for displaying a collection of dormitories.
 class DormListView extends StatelessWidget {
   final List<Dorms> dorms;
   final int maxItems; // Limit the number of items
@@ -468,7 +448,7 @@ class DormListView extends StatelessWidget {
   }
 }
 
-// Extracted Card Widget
+/// A stylized card widget representing an individual dormitory.
 class _DormCard extends StatelessWidget {
   final String itemText;
   final String subtitle;

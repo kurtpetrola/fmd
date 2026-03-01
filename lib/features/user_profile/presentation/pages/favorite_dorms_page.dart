@@ -7,6 +7,7 @@ import 'package:findmydorm/features/dorms/domain/models/dorm_model.dart';
 import 'package:findmydorm/core/database/database_helper.dart';
 import 'package:go_router/go_router.dart';
 
+/// A page displaying all the dormitories the user has marked as favorite.
 class FavoriteDormsPage extends StatefulWidget {
   final Users currentUser;
 
@@ -136,9 +137,7 @@ class _FavoriteDormsPageState extends State<FavoriteDormsPage> {
   }
 }
 
-// ------------------------------------------------------------------
-// --- NEW WIDGET: Reusable Card for Favorite Dorms (Card with Image) ---
-// ------------------------------------------------------------------
+// --- Reusable Card for Favorite Dorms (Card with Image) ---
 
 class _FavoriteDormCard extends StatelessWidget {
   final Dorms dorm;

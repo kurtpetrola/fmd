@@ -11,10 +11,8 @@ import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:go_router/go_router.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
-// -------------------------------------------------------------------
-// ## REUSABLE WIDGET: _DetailItem
-// -------------------------------------------------------------------
 
+/// A reusable widget to display a specific detail (icon, label, value) for a dormitory.
 class _DetailItem extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -74,10 +72,7 @@ class _DetailItem extends StatelessWidget {
   }
 }
 
-// -------------------------------------------------------------------
-// ## MAIN WIDGET: DormDetailPage
-// -------------------------------------------------------------------
-
+/// Displays the comprehensive details of a specific dormitory, including an option to navigate.
 class DormDetailPage extends StatefulWidget {
   final Dorms dorm;
 
@@ -97,9 +92,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
   bool _favoriteStatusChanged = false; // Flag to track if the status changed
   bool _isDescriptionExpanded = false; // State for expanding the description
 
-  // -------------------------------------------------------------------
   // ## LIFECYCLE METHODS
-  // -------------------------------------------------------------------
   @override
   void initState() {
     super.initState();
@@ -111,9 +104,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
     context.pop(_favoriteStatusChanged);
   }
 
-  // -------------------------------------------------------------------
   // ## DATA/STATE LOGIC
-  // -------------------------------------------------------------------
 
   /// Checks the initial favorite status of the dorm for the current user.
   Future<void> _checkFavoriteStatus() async {
@@ -168,9 +159,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
     });
   }
 
-  // -------------------------------------------------------------------
   // ## NAVIGATION HANDLERS
-  // -------------------------------------------------------------------
 
   /// Handles Geocoding for the user's address and navigates to the map route.
   Future<void> _navigateToMapRoute() async {
@@ -237,9 +226,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
     }
   }
 
-  // -------------------------------------------------------------------
   // ## UTILITY METHODS
-  // -------------------------------------------------------------------
 
   /// Displays a SnackBar with a custom message and color.
   void _showSnackbar(String message, Color color) {
@@ -254,9 +241,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
     }
   }
 
-  // -------------------------------------------------------------------
   // ## WIDGET BUILDER METHODS
-  // -------------------------------------------------------------------
 
   /// Builds the stylized category chip (e.g., 'Male', 'Affordable').
   Widget _buildCategoryChip(String category, Color color, String icon) {
@@ -288,9 +273,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // --------------------------------------------------------------
       // Map Button (Bottom Bar)
-      // --------------------------------------------------------------
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         child: CustomButton(
@@ -303,9 +286,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
         ),
       ),
 
-      // --------------------------------------------------------------
       // CustomScrollView with SliverAppBar (Header)
-      // --------------------------------------------------------------
       body: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
@@ -386,9 +367,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
             ),
           ),
 
-          // ----------------------------------------------------------
           // Scrollable Details Section (Body)
-          // ----------------------------------------------------------
           SliverToBoxAdapter(
             child: Container(
               color: Colors.grey.shade50,

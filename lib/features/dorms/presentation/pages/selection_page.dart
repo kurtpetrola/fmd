@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:findmydorm/features/auth/presentation/widgets/login_button.dart';
 import 'package:findmydorm/features/auth/presentation/widgets/register_button.dart';
 
+/// A preliminary screen prompting users to continue as a guest or login.
 class SelectionPage extends StatelessWidget {
   const SelectionPage({super.key});
 
@@ -15,11 +16,9 @@ class SelectionPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        // REMOVED: Center and SingleChildScrollView wrappers here
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25.0),
           child: Column(
-            // THIS IS CRITICAL: Make the Column fill the available vertical space
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

@@ -10,10 +10,9 @@ import 'package:findmydorm/core/widgets/custom_password_field.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 import 'package:findmydorm/core/widgets/custom_dropdown_field.dart';
 
-// ===================================
 // SIGN UP WIDGET
-// ===================================
 
+/// Screen for new user registration and account creation.
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -22,9 +21,7 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  // ===================================
   // STATE & CONTROLLERS
-  // ===================================
 
   // Text Controllers
   final _usernameController = TextEditingController();
@@ -48,9 +45,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   // Theme Constants
   final Color primaryAmber = Colors.amber.shade700;
 
-  // ===================================
   // LIFECYCLE METHODS
-  // ===================================
 
   @override
   void dispose() {
@@ -62,9 +57,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  // ===================================
   // CORE LOGIC
-  // ===================================
 
   // Consolidated error display logic (updates state and shows SnackBar)
   void _showError(String message) {
@@ -138,9 +131,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-  // ===================================
   // UI BUILD METHOD
-  // ===================================
 
   @override
   Widget build(BuildContext context) {

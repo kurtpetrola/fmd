@@ -16,6 +16,7 @@ import 'package:findmydorm/core/widgets/custom_dropdown_field.dart';
 
 // NOTE: You would typically import 'package:http/http.dart' as http; for real API calls
 
+/// The administration dashboard for managing dormitories (CRUD operations).
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
 
@@ -24,9 +25,7 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
-  // ==========================================================
   // ## STATE & INITIALIZATION
-  // ==========================================================
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
   // PRIMARY STYLING REFERENCE
@@ -41,9 +40,7 @@ class _AdminPageState extends State<AdminPage> {
     });
   }
 
-  // ==========================================================
   // ## CORE DATA & BUSINESS LOGIC (CRUD + Sync)
-  // ==========================================================
 
   /// Fetches the latest list of dorms from the local database.
   void _refreshDorms() {
@@ -163,9 +160,7 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
-  // ==========================================================
   // ## WIDGET BUILD METHODS (UI Layout)
-  // ==========================================================
 
   @override
   Widget build(BuildContext context) {
@@ -222,9 +217,7 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  // ==========================================================
   // ## CARD AND DIALOG UI HELPERS
-  // ==========================================================
 
   /// Builds a single Card UI for a Dormitory item in the list.
   Widget _buildDormCard(Dorms dorm) {
@@ -438,8 +431,6 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  // Removed _buildStyledTextField in favor of CustomTextField
-
   /// Helper method for category dropdown menus in dialogs.
   Widget _buildCategoryDropdown({
     required String label,
@@ -463,9 +454,7 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  // ==========================================================
   // ## DIALOGS
-  // ==========================================================
 
   /// Shows the dialog for creating a new dorm entry.
   Future<void> _showAddDormDialog(BuildContext context) async {

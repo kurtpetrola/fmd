@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:findmydorm/core/constants/dorm_image_options.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 
+/// A dialog widget allowing administrators to select a predefined dormitory image.
 class ImagePickerDialog extends StatefulWidget {
   final String currentImagePath;
 

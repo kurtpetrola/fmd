@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'custom_text_field.dart';
 
+/// A custom text field specifically designed for passwords with a visibility toggle.
 class CustomPasswordField extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;

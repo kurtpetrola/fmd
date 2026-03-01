@@ -11,10 +11,7 @@ import 'package:findmydorm/core/widgets/custom_text_field.dart';
 import 'package:findmydorm/core/widgets/custom_password_field.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 
-// ===================================
-// LOGIN PAGE WIDGET
-// ===================================
-
+/// The main login screen for user authentication.
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -23,9 +20,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginPage> {
-  // ===================================
   // STATE & CONTROLLERS
-  // ===================================
 
   // Text Controllers
   final identifierController = TextEditingController();
@@ -41,9 +36,7 @@ class _LoginScreenState extends State<LoginPage> {
 
   // Theme Constants
   final Color primaryAmber = Colors.amber.shade700;
-  // ===================================
   // LIFECYCLE METHODS
-  // ===================================
 
   @override
   void dispose() {
@@ -52,9 +45,7 @@ class _LoginScreenState extends State<LoginPage> {
     super.dispose();
   }
 
-  // ===================================
   // CORE LOGIC
-  // ===================================
 
   // Handles the main login process and navigation
   login() async {
@@ -115,9 +106,7 @@ class _LoginScreenState extends State<LoginPage> {
     );
   }
 
-  // ===================================
   // UI BUILD METHOD
-  // ===================================
 
   @override
   Widget build(BuildContext context) {
@@ -180,7 +169,7 @@ class _LoginScreenState extends State<LoginPage> {
                   },
                 ),
 
-                // <--- FORGOT PASSWORD LINK (NEW) --->
+                // <--- FORGOT PASSWORD LINK  --->
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -278,10 +267,4 @@ class _LoginScreenState extends State<LoginPage> {
       ),
     );
   }
-
-  // ===================================
-  // UI HELPER FUNCTIONS
-  // ===================================
-
-  // UI helpers removed as we're using common widgets
 }

@@ -3,6 +3,7 @@ import 'package:findmydorm/features/dorms/domain/models/dorm_model.dart';
 import 'package:findmydorm/core/database/database_helper.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
 
+/// Manages the state of the dormitories, providing filtered lists by gender and feature status.
 class DormViewModel extends ChangeNotifier {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
@@ -65,7 +66,7 @@ class DormViewModel extends ChangeNotifier {
     }
   }
 
-  // Refreshes dorm data (useful after a new dorm is added/edited by admin)
+  /// Refreshes dorm data (useful after a new dorm is added or edited by an admin).
   Future<void> refreshDorms() async {
     await loadDorms();
   }

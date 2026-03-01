@@ -7,9 +7,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'dart:developer';
 
-// ==========================================================
 // DatabaseHelper - Singleton Class for SQLite Operations
-// ==========================================================
 
 class DatabaseHelper {
   // --- 1. SINGLETON SETUP ---
@@ -262,9 +260,7 @@ class DatabaseHelper {
     log("Initial Seeding Complete: Admin user and ${initialDorms.length} dorms inserted.");
   }
 
-  // ==========================================================
   // DEBUG METHODS - For Development & Testing
-  // ==========================================================
 
   /// Prints the full database path for manual inspection
   Future<void> printDatabasePath() async {
@@ -371,9 +367,7 @@ class DatabaseHelper {
     log("═══════════════════════════════════════════════════════\n");
   }
 
-  // ==========================================================
   // I. USER AUTHENTICATION & PROFILE METHODS (Users Table)
-  // ==========================================================
 
   /// Attempts to log in a user by checking the provided password against the stored hash.
   ///
@@ -563,9 +557,7 @@ class DatabaseHelper {
     });
   }
 
-  // ==========================================================
   // II. DORMITORY CRUD METHODS (Dorms Table)
-  // ==========================================================
 
   /// Inserts a new dorm into the database.
   Future<int> insertDorm(Dorms dorm) async {
@@ -648,9 +640,7 @@ class DatabaseHelper {
     return result;
   }
 
-  // ==========================================================
   // III. FAVORITES CRUD METHODS (Favorites Table)
-  // ==========================================================
 
   // NOTE: These methods require the current logged-in user's ID (usrId).
 

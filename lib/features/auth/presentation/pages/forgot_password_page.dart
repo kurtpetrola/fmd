@@ -8,10 +8,9 @@ import 'package:findmydorm/core/widgets/custom_text_field.dart';
 import 'package:findmydorm/core/widgets/custom_password_field.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 
-// ===================================
 // FORGOT PASSWORD WIDGET
-// ===================================
 
+/// Screen for users to request a password reset functionality.
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -20,9 +19,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  // ===================================
   // STATE & CONTROLLERS
-  // ===================================
 
   final _emailController = TextEditingController();
   final _addressController = TextEditingController();
@@ -48,9 +45,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  // ===================================
   // CORE LOGIC
-  // ===================================
 
   // Step 1: Verify user identity using Email and Address
   Future<void> _verifyIdentity() async {
@@ -121,9 +116,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
-  // ===================================
   // UI BUILD METHOD
-  // ===================================
 
   @override
   Widget build(BuildContext context) {
@@ -254,10 +247,4 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       ),
     );
   }
-
-  // ===================================
-  // UI HELPER WIDGETS
-  // ===================================
-
-  // UI helpers removed as we're using common widgets
 }

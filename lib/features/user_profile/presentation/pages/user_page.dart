@@ -9,9 +9,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 
-// --------------------------------------------------------------------------
 // ## WIDGET DEFINITION
-// --------------------------------------------------------------------------
+/// Displays the user's profile information and standard actions like edit profile and logout.
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
 
@@ -20,17 +19,13 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserState extends State<UserPage> {
-  // --------------------------------------------------------------------------
   // ## FIELDS & DATABASE
-  // --------------------------------------------------------------------------
   final DatabaseHelper handler = DatabaseHelper.instance;
 
   // State variable to hold the favorite count for the badge
   int _favoriteCount = 0;
 
-  // --------------------------------------------------------------------------
   // ## LIFECYCLE METHODS
-  // --------------------------------------------------------------------------
   @override
   void initState() {
     super.initState();
@@ -44,9 +39,7 @@ class _UserState extends State<UserPage> {
     _fetchFavoriteCount();
   }
 
-  // --------------------------------------------------------------------------
   // ## DATA FETCHING & LOGIC
-  // --------------------------------------------------------------------------
   /// Fetches the current favorite count from the database and updates the state.
   Future<void> _fetchFavoriteCount() async {
     final authVM = context.read<AuthViewModel>();
@@ -63,9 +56,7 @@ class _UserState extends State<UserPage> {
     }
   }
 
-  // --------------------------------------------------------------------------
   // ## NAVIGATION HANDLERS
-  // --------------------------------------------------------------------------
   /// Navigates to the Favorites Page and refreshes the count on return.
   void _navigateToFavorites() async {
     final authVM = context.read<AuthViewModel>();
@@ -119,9 +110,7 @@ class _UserState extends State<UserPage> {
     }
   }
 
-  // --------------------------------------------------------------------------
   // ## WIDGET BUILDER METHODS
-  // --------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     // Read the current user dynamically

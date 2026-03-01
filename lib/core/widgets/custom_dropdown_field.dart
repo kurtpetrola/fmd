@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// A custom, stylized dropdown field used for selecting predefined options.
 class CustomDropdownField<T> extends StatelessWidget {
   final String labelText;
   final T? value;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// A customizable text input field with optional icons and validation.
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final String? hintText;

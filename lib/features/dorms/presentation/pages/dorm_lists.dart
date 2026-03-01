@@ -10,10 +10,9 @@ import 'package:findmydorm/features/dorms/presentation/viewmodels/dorm_viewmodel
 import 'package:findmydorm/core/widgets/custom_button.dart';
 import 'package:findmydorm/core/widgets/custom_text_field.dart';
 
-// -------------------------------------------------------------------
 // ## DORM LIST WIDGET
-// -------------------------------------------------------------------
 
+/// Provides a comprehensive list view of all dormitories with categorizations.
 class DormList extends StatefulWidget {
   final String? initialSearchQuery;
 
@@ -27,9 +26,7 @@ class DormList extends StatefulWidget {
 }
 
 class _DormListState extends State<DormList> {
-  // -------------------------------------------------------------------
   // ## FIELDS & STATE
-  // -------------------------------------------------------------------
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -37,9 +34,7 @@ class _DormListState extends State<DormList> {
   String? _selectedGenderFilter;
   String? _selectedPriceFilter;
 
-  // -------------------------------------------------------------------
   // ## LIFECYCLE METHODS
-  // -------------------------------------------------------------------
   @override
   void initState() {
     super.initState();
@@ -55,9 +50,7 @@ class _DormListState extends State<DormList> {
     super.dispose();
   }
 
-  // -------------------------------------------------------------------
   // ## DATA & FILTER LOGIC (Business Logic)
-  // -------------------------------------------------------------------
 
   /// Navigates to the Dorm Detail Page and refreshes the list if favorites changed.
   void _navigateToDormPage(Dorms dorm) async {
@@ -79,9 +72,7 @@ class _DormListState extends State<DormList> {
     });
   }
 
-  // -------------------------------------------------------------------
   // ## WIDGET BUILDERS
-  // -------------------------------------------------------------------
 
   /// Builds the small, colored chip for display inside a dorm card.
   Widget _buildSmallCategoryChip(String category, Color color, String icon) {
@@ -319,9 +310,7 @@ class _DormListState extends State<DormList> {
     );
   }
 
-  // -------------------------------------------------------------------
   // ## MAIN BUILD METHOD
-  // -------------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {

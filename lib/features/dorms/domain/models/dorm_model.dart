@@ -6,6 +6,7 @@ Dorms dormsFromJson(String str) => Dorms.fromJson(json.decode(str));
 
 String dormsToJson(Dorms data) => json.encode(data.toJson());
 
+/// Represents a dormitory entity.
 class Dorms {
   final int? dormId;
   final String dormName;
@@ -39,10 +40,7 @@ class Dorms {
     required this.createdAt,
   });
 
-  // =========================================================
-  // copyWith METHOD
-  // This method allows creating a new Dorms object with updated properties.
-  // =========================================================
+  /// Creates a copy of this [Dorms] instance with updated properties.
   Dorms copyWith({
     int? dormId,
     String? dormName,
@@ -73,9 +71,7 @@ class Dorms {
     );
   }
 
-  // =========================================================
-  // 1. JSON Conversion (for API)
-  // =========================================================
+  /// Creates a [Dorms] object from a JSON map.
 
   factory Dorms.fromJson(Map<String, dynamic> json) => Dorms(
         dormId: json["dormId"] as int?,
@@ -92,6 +88,7 @@ class Dorms {
         createdAt: json["createdAt"] as String,
       );
 
+  /// Converts the [Dorms] object back to a JSON map.
   Map<String, dynamic> toJson() => {
         "dormId": dormId,
         "dormName": dormName,
@@ -108,9 +105,7 @@ class Dorms {
         "createdAt": createdAt,
       };
 
-  // =========================================================
-  // 2. SQLite Conversion (for DatabaseHelper)
-  // =========================================================
+  /// Creates a [Dorms] object from a SQLite map.
 
   factory Dorms.fromSqlite(Map<String, dynamic> map) => Dorms(
         dormId: map["dormId"] as int?,
@@ -130,6 +125,7 @@ class Dorms {
         createdAt: map["createdAt"] as String,
       );
 
+  /// Converts the [Dorms] object to a map for SQLite insertion.
   Map<String, dynamic> toSqlite() => {
         "dormId": dormId,
         "dormName": dormName,

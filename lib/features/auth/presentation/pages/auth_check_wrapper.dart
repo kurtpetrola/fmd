@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'dart:developer';
 
+/// A wrapper widget that checks authentication status and redirects to the home or login page.
 class AuthCheckWrapper extends StatefulWidget {
   const AuthCheckWrapper({super.key});
 

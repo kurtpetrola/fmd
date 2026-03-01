@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 
+/// A widget that provides a styled button for navigating to the registration page.
 class RegisterButton extends StatelessWidget {
   const RegisterButton({
     super.key,

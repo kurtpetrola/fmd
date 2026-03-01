@@ -19,6 +19,7 @@ import 'package:findmydorm/features/maps/presentation/pages/maps_detail_page.dar
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
+/// Main router configuration for the application handling all navigation paths.
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',

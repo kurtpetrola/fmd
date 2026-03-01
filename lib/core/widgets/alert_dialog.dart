@@ -5,6 +5,7 @@ import 'package:findmydorm/core/widgets/custom_button.dart';
 
 enum DialogsAction { yes, cancel }
 
+/// Utility class for displaying standard alert dialogs.
 class AlertDialogs {
   static Future<DialogsAction> yesCancelDialog(
     BuildContext context,
@@ -46,9 +47,7 @@ class AlertDialogs {
           title: Text(title),
           content: Text(body),
 
-          // -------------------------------------------------------------
           // Actions: Full-Width Stacked Buttons
-          // -------------------------------------------------------------
           actions: <Widget>[
             Column(
               children: [

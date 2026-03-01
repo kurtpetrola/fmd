@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:findmydorm/core/widgets/custom_password_field.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 
+/// Screen for users to change their existing password.
 class ChangePasswordPage extends StatefulWidget {
   final Users user;
 
@@ -126,7 +127,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
-                // 🟢 IMPROVEMENT: Use a dark neutral color
                 color: Colors.black87,
               ),
             ),

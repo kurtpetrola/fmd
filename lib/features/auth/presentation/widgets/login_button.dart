@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 
+/// A styled button that navigates the user to the login page.
 class LoginButton extends StatelessWidget {
   const LoginButton({
     super.key,

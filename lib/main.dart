@@ -11,12 +11,12 @@ import 'dart:developer';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:findmydorm/features/dorms/presentation/viewmodels/dorm_viewmodel.dart';
 
-// 1. Change main to async and add WidgetsFlutterBinding
+/// App entry point.
 Future<void> main() async {
-  // This line ensures Flutter is fully initialized before we load the .env file.
+  /// Ensure Flutter is fully initialized before loading the .env file.
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Set default status bar style to transparent with dark icons for pages without AppBars
+  /// Set default status bar style for pages without AppBars.
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -26,19 +26,18 @@ Future<void> main() async {
     ),
   );
 
-  // 2. Load the .env file
+  /// Load the environment variables.
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
-    // Handle the error if the file is missing or corrupted (optional, but good practice)
+    /// Handle the error if the file is missing or corrupted.
     log("Error loading .env file: $e");
   }
 
-  // 3. Initialize the database (this triggers onCreate if it's the first run)
+  /// Initialize the database (this triggers onCreate if it's the first run).
   await DatabaseHelper.instance.database;
 
-  // 4. DEBUG: Selective debugging - shows only table overview and specific tables
-  // Comment out these lines in production
+  /// DEBUG: Selective debugging. Comment out these lines in production.
   log("\n🔍 DEBUGGING DATABASE ON APP START 🔍");
   await DatabaseHelper.instance.debugPrintTables();
   await DatabaseHelper.instance.debugPrintTableData('users');
@@ -46,7 +45,7 @@ Future<void> main() async {
   await DatabaseHelper.instance.debugPrintTableData('favorites');
   await DatabaseHelper.instance.debugPrintTableSchema('users');
 
-  // We no longer need the 'args' parameter from the old signature, so we remove it.
+  /// Initialize the app with providers.
   runApp(
     MultiProvider(
       providers: [
@@ -58,6 +57,7 @@ Future<void> main() async {
   );
 }
 
+/// The main application widget setting up routing and theme.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
