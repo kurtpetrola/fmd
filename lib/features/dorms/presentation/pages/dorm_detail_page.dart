@@ -295,7 +295,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
             expandedHeight: MediaQuery.of(context).size.height * 0.35,
             pinned: true,
             elevation: 0,
-            backgroundColor: Colors.amber.shade700,
+            backgroundColor: AppColors.primaryAmberShade700,
 
             // Leading: Custom back button to pass the status change
             leading: IconButton(
@@ -471,7 +471,8 @@ class _DormDetailPageState extends State<DormDetailPage> {
                       elevation: 2,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: const BorderSide(color: AppColors.grey200, width: 1),
+                        side: const BorderSide(
+                            color: AppColors.grey200, width: 1),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),

@@ -8,8 +8,6 @@ import 'package:findmydorm/core/router/app_router.dart';
 import 'package:findmydorm/core/database/database_helper.dart';
 import 'package:findmydorm/core/theme/app_theme.dart';
 import 'package:findmydorm/core/theme/app_colors.dart';
-import 'dart:developer';
-
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:findmydorm/features/dorms/presentation/viewmodels/dorm_viewmodel.dart';
 
@@ -33,19 +31,11 @@ Future<void> main() async {
     await dotenv.load(fileName: ".env");
   } catch (e) {
     /// Handle the error if the file is missing or corrupted.
-    log("Error loading .env file: $e");
+    debugPrint("Error loading .env file: $e");
   }
 
   /// Initialize the database (this triggers onCreate if it's the first run).
   await DatabaseHelper.instance.database;
-
-  /// DEBUG: Selective debugging. Comment out these lines in production.
-  log("\n🔍 DEBUGGING DATABASE ON APP START 🔍");
-  await DatabaseHelper.instance.debugPrintTables();
-  await DatabaseHelper.instance.debugPrintTableData('users');
-  await DatabaseHelper.instance.debugPrintTableData('dorms');
-  await DatabaseHelper.instance.debugPrintTableData('favorites');
-  await DatabaseHelper.instance.debugPrintTableSchema('users');
 
   /// Initialize the app with providers.
   runApp(

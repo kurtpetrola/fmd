@@ -13,6 +13,7 @@ import 'package:findmydorm/features/dorms/presentation/viewmodels/dorm_viewmodel
 import 'package:findmydorm/core/widgets/custom_text_field.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 import 'package:findmydorm/core/widgets/custom_dropdown_field.dart';
+import 'package:findmydorm/core/widgets/alert_dialog.dart';
 import 'package:findmydorm/core/theme/app_colors.dart';
 
 // NOTE: You would typically import 'package:http/http.dart' as http; for real API calls
@@ -363,7 +364,16 @@ class _AdminPageState extends State<AdminPage> {
                     IconButton(
                       icon: Icon(Icons.delete_forever,
                           color: adminDeleteColor, size: 24),
-                      onPressed: () => _deleteDorm(dorm),
+                      onPressed: () async {
+                        final action = await AlertDialogs.yesCancelDialog(
+                          context,
+                          'Delete "${dorm.dormName}"?',
+                          'This action cannot be undone.',
+                        );
+                        if (action == DialogsAction.yes) {
+                          _deleteDorm(dorm);
+                        }
+                      },
                       tooltip: 'Delete Dorm',
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),

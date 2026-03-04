@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
-import 'dart:developer';
 
 /// A wrapper widget that checks authentication status and redirects to the home or login page.
 class AuthCheckWrapper extends StatefulWidget {
@@ -32,10 +31,11 @@ class _AuthCheckWrapperState extends State<AuthCheckWrapper> {
     if (authVM.isLoading) return;
 
     if (authVM.isLoggedIn && authVM.currentUser != null) {
-      log("AuthCheckWrapper: User is logged in. Navigating to /home");
+      debugPrint("AuthCheckWrapper: User is logged in. Navigating to /home");
       context.go('/home', extra: authVM.currentUser);
     } else {
-      log("AuthCheckWrapper: User is NOT logged in. Navigating to /selection");
+      debugPrint(
+          "AuthCheckWrapper: User is NOT logged in. Navigating to /selection");
       context.go('/selection');
     }
   }
