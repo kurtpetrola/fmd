@@ -46,34 +46,6 @@ lib/
     └── user_profile/
 ```
 
-## 🚀 Getting Started
-
-Follow these steps to get a copy of the project running on your local machine for development and testing.
-
-### Prerequisites
-
-1.  **Flutter SDK:** Make sure you have Flutter installed.
-2.  **IDE:** Visual Studio Code or Android Studio.
-
-### Installation
-
-1.  Clone the repository and navigate to the directory:
-
-    ```bash
-    git clone https://github.com/kurtpetrola/fmd.git
-    cd fmd
-    ```
-
-2.  Install dependencies:
-    ```bash
-    flutter pub get
-    ```
-3.  Run the application:
-    ```bash
-    flutter run
-    ```
-    _(Ensure you have a device or emulator running.)_
-
 ## 🔑 Demo Accounts
 
 Use the following accounts to quickly explore the application's different user roles (User and Admin) without needing to register:
@@ -93,21 +65,6 @@ The following tasks are prioritized for future development:
 - **Advanced Filtering:** Implement new filters based on **amenities** (Wi-Fi, laundry, parking), **price range**, and **real-time availability**.
 - **Community Integration:** Integrate **user reviews and ratings** for dormitories to enhance trust and transparency.
 - **Map Enhancements:** Upgrade the interactive map with **real-time location updates** and detailed neighborhood information.
-
-## 🤝 Contributing
-
-We welcome contributions! If you have suggestions or find bugs, please open an issue or submit a pull request.
-
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'feat: Add AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
-
-## 💖 Support & Connect
-
-If you found this repository helpful, consider leaving a ⭐ on **[fmd](https://github.com/kurtpetrola/fmd/stargazers)**.  
-You can also **[follow me](https://github.com/kurtpetrola)** on GitHub to stay updated with my latest projects.
 
 ## 📄 License
 
