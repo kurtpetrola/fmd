@@ -1,7 +1,7 @@
 // login_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:findmydorm/core/database/database_helper.dart';
+import 'package:findmydorm/features/auth/data/repositories/auth_repository.dart';
 import 'package:findmydorm/features/auth/domain/models/user_model.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:go_router/go_router.dart';
@@ -31,7 +31,6 @@ class _LoginScreenState extends State<LoginPage> {
   String errorMessage = "Username or password is incorrect";
 
   // Database and Form Key
-  final db = DatabaseHelper.instance;
   final formKey = GlobalKey<FormState>();
 
   // LIFECYCLE METHODS
@@ -57,13 +56,13 @@ class _LoginScreenState extends State<LoginPage> {
 
     try {
       // Attempt login verification using the identifier and password
-      Users? loggedInUser = await db.login(Users(
-        usrName: enteredIdentifier,
-        usrEmail: '',
-        usrPassword: enteredPassword,
-        usrAddress: '',
-        usrGender: '',
-      ));
+      Users? loggedInUser = await context.read<AuthRepository>().login(Users(
+            usrName: enteredIdentifier,
+            usrEmail: '',
+            usrPassword: enteredPassword,
+            usrAddress: '',
+            usrGender: '',
+          ));
 
       if (loggedInUser != null) {
         if (!mounted) return;

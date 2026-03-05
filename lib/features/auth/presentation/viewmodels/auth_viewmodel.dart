@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:findmydorm/features/auth/domain/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:findmydorm/core/database/database_helper.dart';
+import 'package:findmydorm/features/auth/data/repositories/auth_repository.dart';
 
 /// Manages user authentication state and loads saved user sessions.
 class AuthViewModel extends ChangeNotifier {
+  final AuthRepository _authRepo;
+
   Users? _currentUser;
   bool _isLoading = true;
 
@@ -14,7 +16,8 @@ class AuthViewModel extends ChangeNotifier {
   bool get isLoggedIn => _currentUser != null;
   bool get isLoading => _isLoading;
 
-  AuthViewModel() {
+  AuthViewModel({required AuthRepository authRepository})
+      : _authRepo = authRepository {
     _loadUser();
   }
 
@@ -27,7 +30,7 @@ class AuthViewModel extends ChangeNotifier {
     final storedUserId = prefs.getInt(_userIdKey);
 
     if (storedUserId != null) {
-      final user = await DatabaseHelper.instance.getUserById(storedUserId);
+      final user = await _authRepo.getUserById(storedUserId);
       if (user != null) {
         _currentUser = user;
       }

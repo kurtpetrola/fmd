@@ -1,7 +1,8 @@
 // forgot_password_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:findmydorm/core/database/database_helper.dart';
+import 'package:findmydorm/features/auth/data/repositories/auth_repository.dart';
+import 'package:provider/provider.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:findmydorm/core/widgets/custom_text_field.dart';
@@ -31,7 +32,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   String _currentStep = 'VERIFY'; // 'VERIFY', 'RESET'
 
   // Database and Form Key
-  final _db = DatabaseHelper.instance;
+  // Database and Form Key
   final _formKey = GlobalKey<FormState>();
 
   // Theme Constants
@@ -57,7 +58,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     try {
       // 2. Call the newly implemented verification method
-      final user = await _db.verifyUserByEmailAndAddress(usrEmail, usrAddress);
+      final user = await context
+          .read<AuthRepository>()
+          .verifyUserByEmailAndAddress(usrEmail, usrAddress);
 
       // 3. Check if a user was found
       if (user != null) {
@@ -85,7 +88,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     try {
       // 2. Call the newly implemented password update method (which handles hashing)
-      final rowsAffected = await _db.updatePasswordByEmail(email, newPassword);
+      final rowsAffected = await context
+          .read<AuthRepository>()
+          .updatePasswordByEmail(email, newPassword);
 
       if (!mounted) return;
 
@@ -146,8 +151,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ? 'Enter your email and registered address to verify your identity.'
                       : 'Create a new, strong password.',
                   textAlign: TextAlign.center,
-                  style:
-                      const TextStyle(fontSize: 16, color: AppColors.textSecondary),
+                  style: const TextStyle(
+                      fontSize: 16, color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 30),
 

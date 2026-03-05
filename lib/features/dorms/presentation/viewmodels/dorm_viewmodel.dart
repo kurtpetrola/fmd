@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:findmydorm/features/dorms/domain/models/dorm_model.dart';
-import 'package:findmydorm/core/database/database_helper.dart';
+import 'package:findmydorm/features/dorms/data/repositories/dorm_repository.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
 
 /// Manages the state of the dormitories, providing filtered lists by gender and feature status.
 class DormViewModel extends ChangeNotifier {
-  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
+  final DormRepository _dormRepo;
 
   List<Dorms> _allDorms = [];
   List<Dorms> _femaleDorms = [];
@@ -23,7 +23,8 @@ class DormViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
 
-  DormViewModel() {
+  DormViewModel({required DormRepository dormRepository})
+      : _dormRepo = dormRepository {
     loadDorms();
   }
 
@@ -40,7 +41,7 @@ class DormViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final fetchedDorms = await _dbHelper.getDorms();
+      final fetchedDorms = await _dormRepo.getDorms();
 
       _femaleDorms = fetchedDorms
           .where((d) => d.genderCategory == DormCategories.genderCategories[0])

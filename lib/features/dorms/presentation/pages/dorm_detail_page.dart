@@ -6,7 +6,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:findmydorm/features/dorms/domain/models/dorm_model.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
-import 'package:findmydorm/core/database/database_helper.dart';
+import 'package:findmydorm/features/dorms/data/repositories/dorm_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:go_router/go_router.dart';
@@ -87,8 +87,11 @@ class DormDetailPage extends StatefulWidget {
 }
 
 class _DormDetailPageState extends State<DormDetailPage> {
-  // --- FIELDS & DB HELPER ---
-  final dbHelper = DatabaseHelper.instance;
+  // --- FIELDS & REPO ---
+  DormRepository? _dormRepo;
+
+  DormRepository get dormRepo => _dormRepo ??= context.read<DormRepository>();
+
   bool _isFavorite = false;
   bool _favoriteStatusChanged = false; // Flag to track if the status changed
   bool _isDescriptionExpanded = false; // State for expanding the description
@@ -97,7 +100,9 @@ class _DormDetailPageState extends State<DormDetailPage> {
   @override
   void initState() {
     super.initState();
-    _checkFavoriteStatus();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkFavoriteStatus();
+    });
   }
 
   // Custom back button handler to pass the status change back to the parent.
@@ -111,7 +116,7 @@ class _DormDetailPageState extends State<DormDetailPage> {
   Future<void> _checkFavoriteStatus() async {
     final currentUser = context.read<AuthViewModel>().currentUser;
     if (currentUser != null && currentUser.usrId != null) {
-      final isFav = await dbHelper.isDormFavorite(
+      final isFav = await dormRepo.isDormFavorite(
         currentUser.usrId!,
         widget.dorm.dormId!,
       );
@@ -133,11 +138,11 @@ class _DormDetailPageState extends State<DormDetailPage> {
 
     try {
       if (_isFavorite) {
-        await dbHelper.removeFavorite(currentUser.usrId!, widget.dorm.dormId!);
+        await dormRepo.removeFavorite(currentUser.usrId!, widget.dorm.dormId!);
         _showSnackbar('Removed ${widget.dorm.dormName} from favorites.',
             AppColors.wazeOrange);
       } else {
-        await dbHelper.addFavorite(currentUser.usrId!, widget.dorm.dormId!);
+        await dormRepo.addFavorite(currentUser.usrId!, widget.dorm.dormId!);
         _showSnackbar(
             'Added ${widget.dorm.dormName} to favorites!', AppColors.success);
       }

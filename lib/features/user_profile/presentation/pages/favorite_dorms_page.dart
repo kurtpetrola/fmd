@@ -5,7 +5,8 @@ import 'package:ionicons/ionicons.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'package:findmydorm/features/auth/domain/models/user_model.dart';
 import 'package:findmydorm/features/dorms/domain/models/dorm_model.dart';
-import 'package:findmydorm/core/database/database_helper.dart';
+import 'package:findmydorm/features/dorms/data/repositories/dorm_repository.dart';
+import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 /// A page displaying all the dormitories the user has marked as favorite.
@@ -19,13 +20,17 @@ class FavoriteDormsPage extends StatefulWidget {
 }
 
 class _FavoriteDormsPageState extends State<FavoriteDormsPage> {
-  final DatabaseHelper handler = DatabaseHelper.instance;
   List<Dorms> _favoriteDorms = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _fetchFavoriteDorms();
   }
 
@@ -39,8 +44,9 @@ class _FavoriteDormsPageState extends State<FavoriteDormsPage> {
     }
 
     try {
-      final favorites =
-          await handler.getFavoriteDorms(widget.currentUser.usrId!);
+      final favorites = await context
+          .read<DormRepository>()
+          .getFavoriteDorms(widget.currentUser.usrId!);
 
       if (mounted) {
         setState(() {

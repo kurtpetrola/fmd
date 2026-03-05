@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:bcrypt/bcrypt.dart';
-import 'package:findmydorm/core/database/database_helper.dart';
+import 'package:findmydorm/features/auth/data/repositories/auth_repository.dart';
 import 'package:findmydorm/features/auth/domain/models/user_model.dart';
 import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
@@ -23,7 +23,6 @@ class ChangePasswordPage extends StatefulWidget {
 
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final _formKey = GlobalKey<FormState>();
-  final dbHelper = DatabaseHelper.instance;
 
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
@@ -36,7 +35,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   void dispose() {
     _currentPasswordController.dispose();
     _newPasswordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -70,8 +68,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       final String hashedPassword = BCrypt.hashpw(plainNewPassword, salt);
 
       // 3. Update the database
-      int rowsAffected =
-          await dbHelper.updatePassword(widget.user.usrId!, hashedPassword);
+      int rowsAffected = await context
+          .read<AuthRepository>()
+          .updatePassword(widget.user.usrId!, hashedPassword);
 
       if (rowsAffected > 0) {
         if (mounted) {
@@ -132,7 +131,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               ),
             ),
             // Thinner divider
-            const Divider(height: 20, thickness: 0.8, color: AppColors.borderLight),
+            const Divider(
+                height: 20, thickness: 0.8, color: AppColors.borderLight),
             ...children,
           ],
         ),

@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/features/auth/domain/models/user_model.dart';
-import 'package:findmydorm/core/database/database_helper.dart';
+import 'package:findmydorm/features/auth/data/repositories/auth_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:go_router/go_router.dart';
@@ -29,7 +29,6 @@ class AccountSettingsPage extends StatefulWidget {
 
 class _AccountSettingsPageState extends State<AccountSettingsPage> {
   final _formKey = GlobalKey<FormState>();
-  final dbHelper = DatabaseHelper.instance;
 
   // 1. STATE VARIABLE TO HOLD LOCAL USER DATA
   late Users _localUser;
@@ -120,8 +119,10 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     });
 
     try {
+      final authRepo = context.read<AuthRepository>();
+
       // 1. Check if the new username or email is already taken
-      bool isTaken = await dbHelper.isUsernameOrEmailTaken(
+      bool isTaken = await authRepo.isUsernameOrEmailTaken(
         _localUser.usrId!, // Use local user ID
         newUsername,
         newEmail,
@@ -146,7 +147,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       );
 
       // 3. Persist the changes to the database
-      int rowsAffected = await dbHelper.updateUser(updatedUser);
+      int rowsAffected = await authRepo.updateUser(updatedUser);
 
       if (rowsAffected > 0) {
         // 4. Update the local state FIRST, then notify the parent, then switch modes
@@ -445,7 +446,8 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
           'Change Password',
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
         ),
-        trailing: const Icon(Ionicons.chevron_forward, color: AppColors.grey400),
+        trailing:
+            const Icon(Ionicons.chevron_forward, color: AppColors.grey400),
         onTap: () {
           // Pass the updated local user object to ChangePasswordPage
           context.push('/change-password', extra: _localUser);

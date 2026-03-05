@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/features/auth/domain/models/user_model.dart';
-import 'package:findmydorm/core/database/database_helper.dart';
+import 'package:findmydorm/features/dorms/data/repositories/dorm_repository.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'package:findmydorm/core/widgets/alert_dialog.dart';
 import 'package:go_router/go_router.dart';
@@ -20,8 +20,7 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserState extends State<UserPage> {
-  // ## FIELDS & DATABASE
-  final DatabaseHelper handler = DatabaseHelper.instance;
+  // ## FIELDS
 
   // State variable to hold the favorite count for the badge
   int _favoriteCount = 0;
@@ -48,7 +47,9 @@ class _UserState extends State<UserPage> {
 
     if (currentUser?.usrId == null) return;
 
-    final count = await handler.getFavoriteDormsCount(currentUser!.usrId!);
+    final count = await context
+        .read<DormRepository>()
+        .getFavoriteDormsCount(currentUser!.usrId!);
 
     if (mounted) {
       setState(() {

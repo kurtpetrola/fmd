@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:findmydorm/features/dorms/domain/models/dorm_model.dart';
-import 'package:findmydorm/core/database/database_helper.dart';
+import 'package:findmydorm/features/dorms/data/repositories/dorm_repository.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
 import 'package:findmydorm/core/constants/dorm_image_options.dart';
 import 'package:findmydorm/features/dorms/presentation/widgets/image_picker_dialog.dart';
@@ -28,7 +28,9 @@ class AdminPage extends StatefulWidget {
 
 class _AdminPageState extends State<AdminPage> {
   // ## STATE & INITIALIZATION
-  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
+  DormRepository? _dormRepo;
+
+  DormRepository get dormRepo => _dormRepo ??= context.read<DormRepository>();
 
   // PRIMARY STYLING REFERENCE (Modified in build)
   Color get _appBarColor => Theme.of(context).colorScheme.primary;
@@ -99,7 +101,7 @@ class _AdminPageState extends State<AdminPage> {
       final updatedDorm = dorm.copyWith(isFeatured: !dorm.isFeatured);
 
       // Update in database and sync to server
-      await _dbHelper.updateDorm(updatedDorm);
+      await dormRepo.updateDorm(updatedDorm);
       await _syncDormToServer(updatedDorm, 'update');
 
       if (!mounted) return;
@@ -136,7 +138,7 @@ class _AdminPageState extends State<AdminPage> {
 
     try {
       // 1. Delete from local SQLite DB
-      await _dbHelper.deleteDorm(dorm.dormId!);
+      await dormRepo.deleteDorm(dorm.dormId!);
 
       // 2. Delete from server
       await _syncDormToServer(dorm, 'delete');
@@ -775,7 +777,7 @@ class _AdminPageState extends State<AdminPage> {
 
                       try {
                         // Insert locally and get the new ID
-                        final newId = await _dbHelper.insertDorm(newDorm);
+                        final newId = await dormRepo.insertDorm(newDorm);
                         final dormWithId =
                             newDorm.copyWith(dormId: newId); // Need ID for sync
 
@@ -1104,7 +1106,7 @@ class _AdminPageState extends State<AdminPage> {
                       );
 
                       try {
-                        await _dbHelper.updateDorm(updatedDorm);
+                        await dormRepo.updateDorm(updatedDorm);
                         await _syncDormToServer(updatedDorm, 'update');
 
                         if (context.mounted) {

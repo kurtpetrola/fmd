@@ -1,5 +1,3 @@
-// main.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -8,7 +6,9 @@ import 'package:findmydorm/core/router/app_router.dart';
 import 'package:findmydorm/core/database/database_helper.dart';
 import 'package:findmydorm/core/theme/app_theme.dart';
 import 'package:findmydorm/core/theme/app_colors.dart';
+import 'package:findmydorm/features/auth/data/repositories/auth_repository.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
+import 'package:findmydorm/features/dorms/data/repositories/dorm_repository.dart';
 import 'package:findmydorm/features/dorms/presentation/viewmodels/dorm_viewmodel.dart';
 
 /// App entry point.
@@ -37,12 +37,25 @@ Future<void> main() async {
   /// Initialize the database (this triggers onCreate if it's the first run).
   await DatabaseHelper.instance.database;
 
+  /// Create repository instances (stateless, so only one instance needed).
+  final authRepository = AuthRepository();
+  final dormRepository = DormRepository();
+
   /// Initialize the app with providers.
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthViewModel()),
-        ChangeNotifierProvider(create: (_) => DormViewModel()),
+        // Repositories (stateless — use plain Provider)
+        Provider<AuthRepository>.value(value: authRepository),
+        Provider<DormRepository>.value(value: dormRepository),
+
+        // ViewModels (stateful — use ChangeNotifierProvider with injected repos)
+        ChangeNotifierProvider(
+          create: (_) => AuthViewModel(authRepository: authRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => DormViewModel(dormRepository: dormRepository),
+        ),
       ],
       child: const MyApp(),
     ),

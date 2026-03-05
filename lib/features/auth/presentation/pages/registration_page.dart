@@ -3,7 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:findmydorm/features/auth/domain/models/user_model.dart';
-import 'package:findmydorm/core/database/database_helper.dart';
+import 'package:findmydorm/features/auth/data/repositories/auth_repository.dart';
+import 'package:provider/provider.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/core/widgets/custom_text_field.dart';
 import 'package:findmydorm/core/widgets/custom_password_field.dart';
@@ -40,7 +41,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String _dbErrorMessage = '';
 
   // Database and Form Key
-  final db = DatabaseHelper.instance;
+  // Database and Form Key
   final _formKey = GlobalKey<FormState>();
 
   // Theme Constants
@@ -98,15 +99,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     // --- Registration Attempt ---
     try {
-      await db.signup(
-        Users(
-          usrName: _usernameController.text.trim(),
-          usrEmail: _emailController.text.trim(),
-          usrPassword: _passwordController.text,
-          usrAddress: _addressController.text.trim(),
-          usrGender: _selectedGender!,
-        ),
-      );
+      await context.read<AuthRepository>().signup(
+            Users(
+              usrName: _usernameController.text.trim(),
+              usrEmail: _emailController.text.trim(),
+              usrPassword: _passwordController.text,
+              usrAddress: _addressController.text.trim(),
+              usrGender: _selectedGender!,
+            ),
+          );
 
       if (!mounted) return;
 
