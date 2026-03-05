@@ -44,4 +44,49 @@ class Users {
       usrRole: (json["usrRole"] ?? 'User') as String,
     );
   }
+
+  /// Returns a copy of this [Users] with the given fields replaced.
+  Users copyWith({
+    int? usrId,
+    String? usrName,
+    String? usrEmail,
+    String? usrPassword,
+    String? usrAddress,
+    String? usrGender,
+    String? usrRole,
+  }) {
+    return Users(
+      usrId: usrId ?? this.usrId,
+      usrName: usrName ?? this.usrName,
+      usrEmail: usrEmail ?? this.usrEmail,
+      usrPassword: usrPassword ?? this.usrPassword,
+      usrAddress: usrAddress ?? this.usrAddress,
+      usrGender: usrGender ?? this.usrGender,
+      usrRole: usrRole ?? this.usrRole,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Users &&
+        other.usrId == usrId &&
+        other.usrName == usrName &&
+        other.usrEmail == usrEmail &&
+        other.usrPassword == usrPassword &&
+        other.usrAddress == usrAddress &&
+        other.usrGender == usrGender &&
+        other.usrRole == usrRole;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        usrId,
+        usrName,
+        usrEmail,
+        usrPassword,
+        usrAddress,
+        usrGender,
+        usrRole,
+      );
 }
