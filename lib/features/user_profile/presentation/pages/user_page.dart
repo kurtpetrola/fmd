@@ -5,7 +5,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:findmydorm/features/auth/domain/models/user_model.dart';
 import 'package:findmydorm/features/dorms/data/repositories/dorm_repository.dart';
 import '../../../../core/theme/app_colors.dart';
-import 'package:findmydorm/core/widgets/alert_dialog.dart';
+import 'package:findmydorm/core/widgets/custom_alert_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';

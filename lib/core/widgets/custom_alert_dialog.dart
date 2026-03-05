@@ -1,4 +1,4 @@
-// alert_dialog.dart
+// custom_alert_dialog.dart
 
 import 'package:flutter/material.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
@@ -63,7 +63,8 @@ class AlertDialogs {
                   elevation: 0,
                   height: 50.0,
                   width: double.infinity,
-                  border: const BorderSide(color: AppColors.borderLight, width: 1),
+                  border:
+                      const BorderSide(color: AppColors.borderLight, width: 1),
                 ),
               ],
             ),

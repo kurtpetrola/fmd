@@ -1,11 +1,11 @@
-// bottom_navbar.dart
+// custom_bottom_navbar.dart
 
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:findmydorm/features/auth/domain/models/user_model.dart';
 import 'package:findmydorm/features/dorms/presentation/pages/home_page.dart';
-import 'package:findmydorm/features/dorms/presentation/pages/dorm_lists.dart';
+import 'package:findmydorm/features/dorms/presentation/pages/dorm_list_page.dart';
 import 'package:findmydorm/features/dorms/presentation/pages/admin_page.dart';
 import 'package:findmydorm/features/user_profile/presentation/pages/user_page.dart';
 import 'package:provider/provider.dart';
