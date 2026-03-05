@@ -152,7 +152,7 @@ class DatabaseHelper {
     // --- A. SEED ADMIN USER ---
     final String salt = BCrypt.gensalt();
     final String adminPasswordHash =
-        BCrypt.hashpw('admin123', salt); // Default password: admin123
+        BCrypt.hashpw('AdminTest99!', salt); // Default password: AdminTest99!
 
     await db.insert('users', {
       'usrName': 'AdminUser',
@@ -165,7 +165,7 @@ class DatabaseHelper {
 
     // --- B. SEED STANDARD TEST USER ---
     final String testUserPasswordHash =
-        BCrypt.hashpw('test123', salt); // Default password: test123
+        BCrypt.hashpw('TestUser99!', salt); // Default password: TestUser99!
 
     await db.insert('users', {
       'usrName': 'TestUser',

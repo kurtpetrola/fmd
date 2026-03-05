@@ -52,10 +52,10 @@ Use the following accounts to quickly explore the application's different user r
 
 - **User Account**
   - **Email:** `test@fmd.com`
-  - **Password:** `test123`
+  - **Password:** `TestUser99!`
 - **Admin Account**
   - **Email:** `admin@fmd.com`
-  - **Password:** `admin123`
+  - **Password:** `AdminTest99!`
 
 ## 🛠 To Do & Future Enhancements
 
