@@ -40,6 +40,9 @@ class DatabaseHelper {
     return _database!;
   }
 
+  /// Current schema version — bump this whenever you add a migration.
+  static const int _schemaVersion = 1;
+
   /// Initializes the database by opening the file and creating tables if necessary.
   ///
   /// This method is only called once by the `database` getter.
@@ -48,13 +51,40 @@ class DatabaseHelper {
     final path = join(databasePath, databaseName);
     debugPrint("Database Path: $path");
 
-    // Open the database, specifying the version and the onCreate callback
+    // Open the database, specifying the version and lifecycle callbacks
     return openDatabase(
       path,
-      version: 1,
+      version: _schemaVersion,
       onCreate: _onCreate,
-      // Consider adding onUpgrade/onDowngrade callbacks for future migrations
+      onUpgrade: _onUpgrade,
     );
+  }
+
+  // --- 3. DATABASE MIGRATIONS ---
+
+  /// Runs incremental migrations when the app opens a database whose
+  /// version is older than [_schemaVersion].
+  ///
+  /// Each case handles ONE version bump (e.g. 1 → 2, 2 → 3).
+  /// Because we loop from [oldVersion] to [newVersion], every intermediate
+  /// migration executes in order, so users upgrading from v1 → v3 will
+  /// run both the v1→v2 AND v2→v3 migrations.
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    debugPrint('Migrating database from v$oldVersion to v$newVersion');
+
+    for (int version = oldVersion; version < newVersion; version++) {
+      switch (version) {
+        // ── v1 → v2 (template — uncomment and edit when needed) ──
+        // case 1:
+        //   await db.execute('ALTER TABLE users ADD COLUMN usrPhone TEXT');
+        //   break;
+
+        // ── v2 → v3 ──
+        // case 2:
+        //   await db.execute('ALTER TABLE dorms ADD COLUMN dormRating REAL DEFAULT 0');
+        //   break;
+      }
+    }
   }
 
   // --- 3. SQL SCHEMA DEFINITIONS ---
