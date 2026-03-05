@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:findmydorm/core/router/app_router.dart';
 import 'package:findmydorm/core/database/database_helper.dart';
+import 'package:findmydorm/core/error/app_error_handler.dart';
 import 'package:findmydorm/core/theme/app_theme.dart';
 import 'package:findmydorm/core/theme/app_colors.dart';
 import 'package:findmydorm/features/auth/data/repositories/auth_repository.dart';
@@ -15,6 +16,9 @@ import 'package:findmydorm/features/dorms/presentation/viewmodels/dorm_viewmodel
 Future<void> main() async {
   /// Ensure Flutter is fully initialized before loading the .env file.
   WidgetsFlutterBinding.ensureInitialized();
+
+  /// Set up global error handling (framework, async, and UI fallback).
+  AppErrorHandler.init();
 
   /// Set default status bar style for pages without AppBars.
   SystemChrome.setSystemUIOverlayStyle(
