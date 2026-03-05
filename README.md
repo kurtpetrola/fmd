@@ -30,6 +30,7 @@ You can download the latest **Android APK** file and install the application man
 | **Security**         | **`bcrypt`**             | Used for secure one-way hashing of user passwords.                             |
 | **Mapping**          | **`flutter_map`**        | Provides interactive map views and location tracking.                          |
 | **Routing API**      | **OpenRouteService API** | Enables dynamic route generation and location-based mapping features.          |
+| **State Management** | **`provider`**           | Lightweight dependency injection and reactive state management for ViewModels. |
 
 ## 🏗️ Project Architecture
 
