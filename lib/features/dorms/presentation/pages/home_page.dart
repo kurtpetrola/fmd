@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:go_router/go_router.dart';
 import 'package:findmydorm/features/dorms/domain/models/dorm_model.dart';
-import 'package:findmydorm/core/database/database_helper.dart';
 import 'package:findmydorm/core/constants/dorm_categories.dart';
 import 'package:provider/provider.dart';
 import 'package:findmydorm/features/auth/presentation/viewmodels/auth_viewmodel.dart';
+import 'package:findmydorm/features/dorms/presentation/viewmodels/dorm_viewmodel.dart';
 import 'package:findmydorm/core/widgets/custom_button.dart';
 import 'package:findmydorm/core/widgets/custom_text_field.dart';
 import 'package:findmydorm/core/theme/app_colors.dart';
@@ -23,15 +23,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
-  // STATE AND CONTROLLERS
+  // CONTROLLERS
   late TabController _tabController;
-  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
-
-  // Storage for fetched dorm data
-  List<Dorms> _allDorms = [];
-  List<Dorms> _femaleDorms = [];
-  List<Dorms> _maleDorms = [];
-  List<Dorms> _mixedDorms = [];
 
   // LIFECYCLE METHODS
   @override
@@ -39,14 +32,6 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
     super.initState();
     // TabController length corresponds to DormCategories.genderCategories.length (3)
     _tabController = TabController(length: 3, vsync: this);
-    _loadDorms();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Ensure data is fresh when the page becomes visible
-    _loadDorms();
   }
 
   @override
@@ -57,18 +42,18 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
 
   // HELPER LOGIC (Getters/Functions)
 
-  // HELPER GETTER: Combines unique dorm names and unique dorm locations
-  List<String> get _searchOptions {
+  // HELPER: Combines unique dorm names and unique dorm locations for search
+  List<String> _getSearchOptions(List<Dorms> allDorms) {
     final Set<String> options = {};
 
     // Add dorm names with a house emoji prefix (🏠)
-    for (var dorm in _allDorms) {
+    for (var dorm in allDorms) {
       options.add('🏠 ${dorm.dormName}');
     }
 
     // Add unique dorm locations with a pin emoji prefix (📍)
     final uniqueLocations =
-        _allDorms.map((d) => d.dormLocation).toSet().toList();
+        allDorms.map((d) => d.dormLocation).toSet().toList();
     for (var location in uniqueLocations) {
       options.add('📍 $location');
     }
@@ -76,43 +61,13 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
     return options.toList();
   }
 
-  // Data loading with error handling
-  void _loadDorms() async {
-    try {
-      final fetchedDorms = await _dbHelper.getDorms();
-
-      final femaleDorms = fetchedDorms
-          .where((d) => d.genderCategory == DormCategories.genderCategories[0])
-          .where((d) => d.isFeatured)
-          .toList();
-
-      final maleDorms = fetchedDorms
-          .where((d) => d.genderCategory == DormCategories.genderCategories[1])
-          .where((d) => d.isFeatured)
-          .toList();
-
-      final mixedDorms = fetchedDorms
-          .where((d) => d.genderCategory == DormCategories.genderCategories[2])
-          .where((d) => d.isFeatured)
-          .toList();
-
-      if (mounted) {
-        setState(() {
-          _allDorms = fetchedDorms;
-          _femaleDorms = femaleDorms;
-          _maleDorms = maleDorms;
-          _mixedDorms = mixedDorms;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error loading dorms: $e');
-    }
-  }
-
   // BUILD METHODS (UI Segments)
 
-  Widget _buildHeaderSection() {
+  Widget _buildHeaderSection(DormViewModel dormVM) {
     final theme = Theme.of(context);
+    final allDorms = dormVM.allDorms;
+    final searchOptions = _getSearchOptions(allDorms);
+
     return SizedBox(
       height: 370,
       child: Stack(
@@ -154,7 +109,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                     if (textEditingValue.text.isEmpty) {
                       return const Iterable<String>.empty();
                     }
-                    return _searchOptions.where((String option) {
+                    return searchOptions.where((String option) {
                       return option
                           .toLowerCase()
                           .contains(textEditingValue.text.toLowerCase());
@@ -222,7 +177,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                     if (isLocation) {
                       context.push('/dorm-list', extra: selection);
                     } else {
-                      final Dorms? selectedDorm = _allDorms
+                      final Dorms? selectedDorm = allDorms
                           .firstWhereOrNull((d) => d.dormName == selection);
 
                       if (selectedDorm != null) {
@@ -270,14 +225,14 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   // Wraps TabBarView in Flexible to take up remaining screen space
-  Widget _buildDormContent() {
+  Widget _buildDormContent(DormViewModel dormVM) {
     return Flexible(
       child: TabBarView(
         controller: _tabController,
         children: [
-          DormListView(dorms: _femaleDorms, maxItems: 3),
-          DormListView(dorms: _maleDorms, maxItems: 3),
-          DormListView(dorms: _mixedDorms, maxItems: 3),
+          DormListView(dorms: dormVM.femaleDorms, maxItems: 3),
+          DormListView(dorms: dormVM.maleDorms, maxItems: 3),
+          DormListView(dorms: dormVM.mixedDorms, maxItems: 3),
         ],
       ),
     );
@@ -287,7 +242,9 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    if (_allDorms.isEmpty && mounted) {
+    final dormVM = context.watch<DormViewModel>();
+
+    if (dormVM.isLoading) {
       return Scaffold(
         body: Center(
           child: CircularProgressIndicator(
@@ -300,7 +257,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
       resizeToAvoidBottomInset: false,
       body: Column(
         children: <Widget>[
-          _buildHeaderSection(),
+          _buildHeaderSection(dormVM),
 
           // Section Title for the List
           Padding(
@@ -326,7 +283,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
                       const SizedBox(width: 10),
                       InkWell(
                         onTap: () {
-                          _loadDorms();
+                          dormVM.refreshDorms();
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: const Row(
@@ -403,7 +360,7 @@ class _HomeScreenState extends State<HomePage> with TickerProviderStateMixin {
             ),
           ),
 
-          _buildDormContent(),
+          _buildDormContent(dormVM),
         ],
       ),
     );
