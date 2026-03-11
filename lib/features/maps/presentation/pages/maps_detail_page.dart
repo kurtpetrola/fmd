@@ -664,7 +664,7 @@ class _MapsDetailState extends State<MapsDetailPage> {
             children: <Widget>[
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                userAgentPackageName: 'com.example.findmydorm',
               ),
 
               // PolylineLayer with enhanced styling

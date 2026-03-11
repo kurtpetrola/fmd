@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginPage> {
   // CORE LOGIC
 
   // Handles the main login process and navigation
-  login() async {
+  Future<void> login() async {
     // 1. Reset error state at the start of login attempt
     setState(() {
       showErrorMessage = false;
