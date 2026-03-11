@@ -124,7 +124,7 @@ class _AdminLocationPickerState extends State<AdminLocationPicker> {
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                userAgentPackageName: 'com.example.findmydorm',
               ),
               if (_selectedLocation != null)
                 MarkerLayer(
