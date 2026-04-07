@@ -17,10 +17,6 @@ We aim to simplify your dormitory search with these core functionalities:
 - **Smart Filtering & Sorting:** Quickly narrow down search results using **advanced filters** (e.g., gender-specific, location) to find the perfect match.
 - **Favorites & Comparison:** Save preferred dormitories to a **Favorites List** for easy re-access and side-by-side comparison.
 
-## Installation
-
-You can download the latest **Android APK** file and install the application manually from the **[releases page](https://github.com/kurtpetrola/fmd/releases)**.
-
 ## Tech Stack
 
 | Component            | Technology               | Purpose                                                                        |
@@ -46,6 +42,10 @@ lib/
     ├── splash/
     └── user_profile/
 ```
+
+## Installation
+
+You can download the latest **Android APK** file and install the application manually from the **[releases page](https://github.com/kurtpetrola/fmd/releases)**.
 
 ## Demo Accounts
 
