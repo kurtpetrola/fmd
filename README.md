@@ -1,4 +1,4 @@
-# 🏠 Find My Dorm
+# Find My Dorm
 
 > [!NOTE]
 > This application is currently not production-ready. It is developed and maintained solely for **educational, portfolio, and demonstration purposes**. Please do not use it for real-world, critical accommodation searches or rely on the data for decision-making.
@@ -7,7 +7,7 @@
 
 **Find My Dorm is a dedicated location-based application designed to help individuals find suitable long-term accommodation and dormitories near Pangasinan.** By simplifying the search process, the app provides a user-friendly platform for anyone—whether a student, professional, or long-term visitor—to explore, compare, and locate safe and comfortable lodging options based on their specific needs and location preferences in the area.
 
-## ✨ Features
+## Features
 
 We aim to simplify your dormitory search with these core functionalities:
 
@@ -17,11 +17,11 @@ We aim to simplify your dormitory search with these core functionalities:
 - **Smart Filtering & Sorting:** Quickly narrow down search results using **advanced filters** (e.g., gender-specific, location) to find the perfect match.
 - **Favorites & Comparison:** Save preferred dormitories to a **Favorites List** for easy re-access and side-by-side comparison.
 
-## 📥 Installation
+## Installation
 
 You can download the latest **Android APK** file and install the application manually from the **[releases page](https://github.com/kurtpetrola/fmd/releases)**.
 
-## 💻 Tech Stack
+## Tech Stack
 
 | Component            | Technology               | Purpose                                                                        |
 | :------------------- | :----------------------- | :----------------------------------------------------------------------------- |
@@ -32,7 +32,7 @@ You can download the latest **Android APK** file and install the application man
 | **Routing API**      | **OpenRouteService API** | Enables dynamic route generation and location-based mapping features.          |
 | **State Management** | **`provider`**           | Lightweight dependency injection and reactive state management for ViewModels. |
 
-## 🏗️ Project Architecture
+## Project Architecture
 
 The project follows a **Clean Architecture** approach with **Feature-First (Slice)** organization, ensuring scalability, maintainability, and clear separation of concerns.
 
@@ -47,7 +47,7 @@ lib/
     └── user_profile/
 ```
 
-## 🔑 Demo Accounts
+## Demo Accounts
 
 Use the following accounts to quickly explore the application's different user roles (User and Admin) without needing to register:
 
@@ -58,7 +58,7 @@ Use the following accounts to quickly explore the application's different user r
   - **Email:** `admin@fmd.com`
   - **Password:** `AdminTest99!`
 
-## 🛠 To Do & Future Enhancements
+## To Do & Future Enhancements
 
 The following tasks are prioritized for future development:
 
@@ -67,6 +67,6 @@ The following tasks are prioritized for future development:
 - **Community Integration:** Integrate **user reviews and ratings** for dormitories to enhance trust and transparency.
 - **Map Enhancements:** Upgrade the interactive map with **real-time location updates** and detailed neighborhood information.
 
-## 📄 License
+## License
 
 This project is licensed under the **MIT License** - see the **[LICENSE](https://github.com/kurtpetrola/fmd/blob/main/LICENSE)** file for details.
